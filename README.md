@@ -141,14 +141,10 @@ This module visualizes abundance of protein functions across samples. Protein fu
 - *Filter by Clade*: Quantify only protein function expression from peptides that belong to a user specified taxonomy clade.
 - *Visualize pathway map*: Given a selected KEGG pathway, select samples in the dropdown menu and by clicking *Show pathway map*, a KEGG page will be loaded showing the pathway with protein functions colored according to the corresponding sample. A color table matching sample to color will shown in the dashboard.
 # Referencing
-References to add:
-- Unipept
-- MaxQuant
-- ncbi
-- uniprot,
-- EggNOG
-- GhostKOALA
-- GTDB
-- SearchGUI
-- Novobridge,
-- Novolign?
+
+When using the database for publication, in addition to referencing the tools used as input for the dashboard, the following methods and tools are used during processing
+
+**For de novo (or global) taxonomic annotation of peptide sequences**
+- Robbert Gurdeep Singh, Alessandro Tanca, Antonio Palomba, Felix Van der Jeugt, Pieter Verschaffelt, Sergio Uzzau, Lennart Martens, Peter Dawyndt, and Bart Mesuere, "Unipept 4.0: functional analysis of metaproteome data", Journal of Proteome Research, 2019, https://doi.org/10.1021/acs.jproteome.8b00716 
+- Kleikamp, H. B., Pronk, M., Tugui, C., da Silva, L. G., Abbas, B., Lin, Y. M., van Loosdrecht, M. C. M. & Pabst, M. (2021). Database-independent de novo metaproteomics of complex microbial communities. Cell Systems, 12(5), 375-383, https://doi.org/10.1016/j.cels.2021.04.003
+- Hugo B C Kleikamp, Ramon van der Zwaan, Ramon van Valderen, Jitske M van Ede, Mario Pronk, Pim Schaasberg, Maximilienne T Allaart, Mark C M van Loosdrecht, Martin Pabst, NovoLign: metaproteomics by sequence alignment, ISME Communications, Volume 4, Issue 1, January 2024, ycae121, https://doi.org/10.1093/ismeco/ycae121
