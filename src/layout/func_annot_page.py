@@ -12,17 +12,6 @@ import json
 
 
 
-################################################################################
-# import annotation datasets in global scope, to ensure direct initialization
-# during dashboard startup
-################################################################################
-
-# json file with metabolic pathway data
-__pathway_data = GlobalConstants.pathway_loc
-__pathway_file = open(__pathway_data)
-pathways = json.load(__pathway_file)
-
-
 id_display_format = dbc.Row(
     [
     dbc.Col(html.B("KEGG ID display format:")),

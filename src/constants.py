@@ -124,7 +124,6 @@ class GlobalConstants:
     ]
     
     # local datasets
-    pathway_loc: str = r"./data/share/gene_pathways.json"
     reference_dataset_loc: str = r"./data/share/qc_refs"
     crap_fasta_loc: str = "./data/share/crap.fasta"
 

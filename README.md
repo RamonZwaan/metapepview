@@ -16,7 +16,7 @@ Main features of the dashboard include:
 - The dashboard can be accessed through both Firefox (Gecko browser engine) and any Chromium based browser (Chrome, Edge, Brave, etc.). **Note: the Chomium browser engine supports file import up to ~300 MB. Any larger file (common in mzML) will not be imported. Firefox does not have such a limit and multi GB files have been successfully imported.**
 - Internet connection is required to download taxonomy and function datasets, and for connection to the Unipept API for de novo taxonomy classification.
 ## Setting up the server
-MetaPepView runs on top of the dash framework in python. To access the dashboard, the server needs to be started locally on the PC. The easiest method is to start a [Docker](https://www.docker.com/) container from the DockerFile provided in the repository:
+MetaPepView runs on top of the dash framework in python. To access the dashboard, the server needs to be started locally on the PC. The easiest method is to start a [Docker](https://www.docker.com/) container from the DockerFile provided in the repository. For this, docker (or another OCI compliant manager) has to be installed on the system.
 
 First, a [Docker image](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/) needs to be built: 
 > [!NOTE]
