@@ -1,0 +1,37 @@
+/* Base font size for all elements */
+* {
+    /* font-size: 14px; /* Default font size */
+    font-size: 0.8vw; /* Default font size */
+}
+
+/* Specific font sizes for headings */
+h1 {
+    /* font-size: 28px; /* Main heading */
+    font-size: 1.35vw; /* Default font size */
+}
+
+h2 {
+    /* font-size: 24px; /* Subheading */
+    font-size: 1.25vw; /* Default font size */
+}
+
+h3 {
+    /* font-size: 20px; /* Section heading */
+    font-size: 1.15vw; /* Default font size */
+}
+
+h4 {
+    /* font-size: 18px; /* Subsection heading */
+    font-size: 1.05vw; /* Default font size */
+}
+
+h5 {
+    /* font-size: 16px; /* Smaller heading */
+    font-size: 0.95vw; /* Default font size */
+}
+
+/* Ensure all text elements have a consistent base size */
+p, div, span, b, i, strong, em {
+    /* font-size: 14px; /* Default font size for text elements */
+    font-size: 0.8vw; /* Default font size */
+}
