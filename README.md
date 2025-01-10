@@ -142,6 +142,8 @@ This module visualizes abundance of protein functions across samples. Protein fu
 - *Visualize pathway map*: Given a selected KEGG pathway, select samples in the dropdown menu and by clicking *Show pathway map*, a KEGG page will be loaded showing the pathway with protein functions colored according to the corresponding sample. A color table matching sample to color will shown in the dashboard.
 # Referencing
 
+Preprint for the dashboard is currently in preparation.
+
 When using the database for publication, in addition to referencing the tools used as input for the dashboard, the following methods and tools are used during processing
 
 **For de novo (or global) taxonomic annotation of peptide sequences**
