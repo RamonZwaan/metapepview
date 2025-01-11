@@ -97,7 +97,7 @@ Functional annotation data that link proteins to KEGG Orthologiess can be provid
 - *Export json*: Export Metapepview table and metadata as compressed json file format.
 - *Import json*: Import Metapepview json back into the dashboard.
 - *Experiment name*: Name assigned to export/import files.
-- 
+  
 #### Import scenario's
 Imports are flexibly managed, meaning that import fields are optional. In general, there are two scenario's for imports:
 
@@ -151,7 +151,7 @@ This module visualizes enzymatic and metabolic functions. Protein functions can 
 - *Visualize pathway map*: Given a selected KEGG pathway, select samples in the dropdown menu and by clicking *Show pathway map*, a KEGG page will be loaded showing the pathway with protein functions colored according to the corresponding sample. A color table matching sample to color will shown in the dashboard.
 
 # Referencing
-In articles, you can cite as follows: Ramon van der Zwaan, Mark van Loosdrecht, Martin Pabst (2025, preprint in preparation), TU Delft, The Netherlands. Contact: r.vanderzwaan@tudelft.nl
+In articles, you can cite as follows: Ramon van der Zwaan, Mark van Loosdrecht and Martin Pabst (2025, preprint in preparation), TU Delft, The Netherlands. Contact: r.vanderzwaan@tudelft.nl
 
 In addition the following articles and tools are used during processing:
 **For de novo (or global) taxonomic annotation of peptide sequences**
