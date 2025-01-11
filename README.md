@@ -34,7 +34,8 @@ $ docker run -p 8050:8050 Metapepview
 
 Alternatively the repository provides a requirements file to install all required python packages with [pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#requirements-files). Then, the dashboard can be run directly on the host pc by executing:
 ```Shell
-$python ./index.py
+$ pip install -r ./requirements.txt
+$ python ./index.py
 ```
 
 # Dashboard operation
