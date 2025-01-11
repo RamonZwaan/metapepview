@@ -226,54 +226,6 @@ clade_filter = [
 ]
 
 
-# modal body of heatmap
-# heatmap_filters = [
-#     # dbc.Col(
-#     dcc.Dropdown(
-#         [],
-#         [],
-#         multi=True,
-#         id="heatmap_custom_taxa_items",
-#         style={"width": "25rem", "margin": "1rem 0rem"}
-#     ),
-#     # ),
-#     # dbc.Col(
-#     dbc.RadioItems(
-#         options=[
-#             {"label": "Top 10", "value": 1},
-#             {"label": "Custom taxa", "value": 2},
-#         ],
-#         value=1,
-#         id="heatmap_taxa_selector_radio",
-#         inline=True,
-#         style={"width": "15rem", "margin": "1rem 0rem"}
-#     ),
-#     # ),
-#     # dbc.Col(
-#     dcc.Dropdown(
-#         ['Superkingdom',
-#             'Phylum',
-#             'Class',
-#             'Order',
-#             'Family',
-#             'Genus',
-#             'Species'],
-#         'Phylum',
-#         id='heatmap_taxa_rank_items',
-#         style={"width": "25rem", "margin": "1rem 0rem"}
-#     ),
-#     dbc.Checkbox(
-#         id="heatmap_taxa_fraction_checkbox",
-#         label="Fractional abundances",
-#         value=False,
-#         style={"margin": "1rem 0rem"}
-#     ),
-#     dbc.Button("Close", id="heatmap_close_tax_filters", n_clicks=0, className="ms-auto",
-#                 style={'float': 'right', 'margin-top': '1rem'})
-#     # )
-# ]
-
-
 export_button = [
     dbc.Row(
         [
@@ -304,6 +256,7 @@ taxonomy_de_novo_barplot = [
 ]
 
 
+# TODO: Move function to html templates
 def taxonomy_page_constructor(
     filter_settings,
     graph,
@@ -338,16 +291,6 @@ def taxonomy_page_constructor(
         ],
         style={"height": "100%"}
     ),
-    # dbc.Card(
-    #     [
-    #         dbc.CardHeader("Description"),
-    #         dbc.CardBody(
-    #             description
-    #         )    
-    #     ],
-    #     className="shadow-sm",
-    #     style={"margin": "0rem 0rem 0rem 1rem", "height": "13rem"}
-    # )
 ] + hidden_components
 
 

@@ -46,7 +46,8 @@ $python ./index.py
 
 When the MetaPepView server is running and you open it in the browser at `http://localhost:8050`, you will be brought to the *Annotation* page. Here, you can import samples into a Metapepview table. This is a dataset that combines db search data, de novo peptide data and taxonomy + function classification data from multiple samples.
 ### Import online reference datasets.
-To map peptide taxonomies against phylogenetic lineages and functions into metabolic groups or function domains, reference databases need to be imported. This is managed **on the left sidebar at the bottom** at *Database loaded*. By clicking *Fetch source*, you can download the latest version of NCBI taxonomy, GTDB taxonomy and KEGG function data from their respective sources. When using the dashboard for the first time, select the datasets for download and create parent directories for the data. The datasets range in the **1-5 GB** in size.
+To map peptide taxonomies against phylogenetic lineages and functions into metabolic groups or function domains, reference databases need to be imported. This is managed **on the left sidebar at the bottom** at *Database loaded*. By clicking *Fetch source*, you can download the latest version of NCBI taxonomy, GTDB taxonomy and KEGG function data from their respective sources. When using the dashboard for the first time, select the datasets for download and **create parent directories** for the data. The datasets range in the **1-5 GB** in size.
+
 ### *Annotation*: Import new sample
 The dashboard provides great flexibility in importing metaproteomics dataset for for community characterization. Several formats are supported:
 > [!NOTE]

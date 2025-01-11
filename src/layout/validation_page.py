@@ -14,44 +14,8 @@ mzml_import = qa_importer_block(
     "mzml_upload",
     "mzml_name",
     "mzml_valid",
-    # format_options=['mzML', 'mzQC'],
-    # format_id="mzml_format_id"
 )
-# [
-#     dbc.Row(
-#         [
-#             dbc.Col(
-#                 html.H5("Spectral File (MzML)"),
-#                 className="align-self-center",
-#                 style={"width": "15rem"}
-#             ),
-#             dbc.Col(
-#                 dcc.Upload(
-#                     [
-#                         dbc.Button("Import", className="px-4")
-#                     ],
-#                     multiple=False,
-#                     id="mzml_upload",
-#                     className="justify-content-between"
-#                 ),
-#                 width=4
-#             ),
-#         ],
-#         className="justify-content-between my-0"
-#     ),
 
-#     dbc.Spinner(
-#         html.Div(
-#             [
-#             html.P("No file...", style={"padding": "0rem .5rem",
-#                                         "text-align": "left"})
-#             ],
-#             id="mzml_name",
-#             #className="py-0", 
-#         ),
-#         size="sm"
-#     )
-# ]
 
 
 psm_file_validation_import = qa_importer_block(
@@ -62,37 +26,7 @@ psm_file_validation_import = qa_importer_block(
     format_options=GlobalConstants.db_search_dropdown_options,
     format_id="db_search_psm_qa_format"
 )
-# psm_file_validation_import = [
-#     dbc.Row(
-#         [
-#             dbc.Col(
-#                 html.H5("PSM Import"),
-#                 className="align-self-center",
-#                 style={"width": "15rem"}
-#             ),
-#             dbc.Col(
-#                 dcc.Upload(
-#                     [
-#                         dbc.Button("Import", className="px-4")
-#                     ],
-#                     multiple=False,
-#                     id="db_search_psm_qa_upload",
-#                     className="justify-content-between"
-#                 ),
-#                 width=4
-#             ),
-#         ],
-#         className="justify-content-between my-0"
-#     ),
 
-#     html.Div(
-#         [
-#         html.P("No file...", style={"padding": "0rem .5rem",
-#                                     "text-align": "left"})
-#         ],
-#         id="db_search_psm_qa_name", 
-#     )
-# ]
 
 denovo_file_validation_import = qa_importer_block(
     "De Novo Import",
@@ -102,37 +36,7 @@ denovo_file_validation_import = qa_importer_block(
     format_options=GlobalConstants.de_novo_dropdown_options,
     format_id="denovo_qa_format"
 )
-# denovo_file_validation_import = [
-#     dbc.Row(
-#         [
-#             dbc.Col(
-#                 html.H5("De Novo Import"),
-#                 className="align-self-center",
-#                 style={"width": "15rem"}
-#             ),
-#             dbc.Col(
-#                 dcc.Upload(
-#                     [
-#                         dbc.Button("Import", className="px-4")
-#                     ],
-#                     multiple=False,
-#                     id="denovo_qa_upload",
-#                     className="justify-content-between"
-#                 ),
-#                 width=4
-#             ),
-#         ],
-#         className="justify-content-between my-0"
-#     ),
 
-#     html.Div(
-#         [
-#         html.P("No file...", style={"padding": "0rem .5rem",
-#                                     "text-align": "left"})
-#         ],
-#         id="denovo_qa_name", 
-#     )
-# ]
 
 ref_set_import = qa_importer_block(
     "Reference Data Import",
@@ -140,37 +44,7 @@ ref_set_import = qa_importer_block(
     "ref_prot_name",
     "ref_prot_valid",
 )
-# ref_set_import = [
-#     dbc.Row(
-#         [
-#             dbc.Col(
-#                 html.H5("Reference Data Import"),
-#                 className="align-self-center",
-#                 style={"width": "15rem"}
-#             ),
-#             dbc.Col(
-#                 dcc.Upload(
-#                     [
-#                         dbc.Button("Import", className="px-4", disabled=True)
-#                     ],
-#                     multiple=False,
-#                     id="ref_prot_upload",
-#                     className="justify-content-between"
-#                 ),
-#                 width=4
-#             ),
-#         ],
-#         className="justify-content-between my-0"
-#     ),
-#     html.Div(
-#         [
-#         html.P("No file...", style={"padding": "0rem .5rem",
-#                                     "text-align": "left"})
-#         ],
-#         id="ref_prot_name", 
-#         #style={'display': "flex", "align-items": "center"}
-#     )
-# ]
+
 
 
 ################################################################################
@@ -180,7 +54,6 @@ ref_set_import = qa_importer_block(
 
 tic_over_rt = dbc.Card(
     [
-        # dbc.CardHeader("Total Ion Current"),
         dbc.CardBody(
             [
                 html.Div(
@@ -296,21 +169,6 @@ feature_map = dbc.Card(
     color="light",
     style={"margin": ".5rem 0rem 0rem 1rem", "height": "25rem"}
 )
-
-
-# ms2_spectrum = dbc.Card(
-#     [
-#         dbc.CardBody(
-#             [
-#                 html.H4("MS2 Spectrum"),
-#                 html.Hr(),
-#                 html.Div(dcc.Graph(id="ms2_spec_fig"), id="ms2_spec_div", style={'display': 'none'}),
-#             ]
-#         )
-#     ],
-#     color="light",
-#     style={"margin": ".5rem 0rem 0rem 0rem", "height": "25rem"}
-# )
 
 
 intensity_hist = dbc.Card(

@@ -173,26 +173,6 @@ def show_functional_db_name(contents, name, func_db_format, dates):
         dates,
         valid_func,
     )
-
-
-# @app.callback(
-#     Output('func_annot_format_name', 'children'),
-#     Output('func_annot_db_upload', 'contents', allow_duplicate=True),
-#     Output('func_annot_db_upload', 'filename', allow_duplicate=True),
-#     Input('func_annot_db_format', 'value'),
-#     prevent_initial_call=True
-# )
-# def show_functional_db_import_block(db_format):
-#     """Display import block for taxonomy db based on selected db format.
-
-#     """
-#     match db_format:
-#         case "EggNOG":
-#             return ("EggNOG mapper", None, None)
-#         case "KEGG":
-#             return ("gKOALA TSV", None, None)
-#         case _:
-#             raise ValueError("Invalid functional annotation db format")
  
     
 @app.callback(
@@ -564,52 +544,3 @@ def set_taxonomy_db_loc(ncbi_loc,
             return gtdb_loc
         case _:
             raise ValueError("Taxonomy format does not match to database location.")
-
-
-# @app.callback(
-#     Output("db_search_import_container", "hidden"),
-#     Output("de_novo_import_container", "hidden"),
-#     Output("taxonomic_annotation_import_container", "hidden"),
-#     Output("functional_annotation_import_container", "hidden"),
-#     Output("next_annotation_page", "hidden"),
-#     Output("start_annotation_button_container", "hidden"),
-#     Output("previous_annotation_page", "disabled"),
-#     Input("next_annotation_page", "n_clicks"),
-#     Input("previous_annotation_page", "n_clicks"),
-#     Input("de_novo_import_container", "hidden"),
-#     State("taxonomic_annotation_import_container", "hidden"),
-#     State("functional_annotation_import_container", "hidden"),
-# )
-# def set_annotation_import_page(
-#     next,
-#     back,
-#     de_novo_page_hidden,
-#     taxonomic_page_hidden,
-#     functional_page_hidden
-#     ):
-    
-#     # number page based on visible block
-#     if de_novo_page_hidden is False:
-#         current_page = 1
-#     elif taxonomic_page_hidden is False:
-#         current_page = 2
-#     elif functional_page_hidden is False:
-#         current_page = 3
-#     else:
-#         current_page = 0
-    
-#     # update page based on button pressed, do not exceed bounds
-#     if "next_annotation_page" == ctx.triggered_id and current_page < 3:
-#         current_page += 1
-#     elif "previous_annotation_page" == ctx.triggered_id and current_page > 0:
-#         current_page -= 1
-        
-#     # display next block based on page
-#     if current_page == 0:
-#         return False, True, True, True, False, True, True
-#     if current_page == 1:
-#         return True, False, True, True, False, True, False
-#     if current_page == 2:
-#         return True, True, False, True, False, True, False
-#     if current_page == 3:
-#         return True, True, True, False, True, False, False

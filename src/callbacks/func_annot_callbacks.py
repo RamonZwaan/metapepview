@@ -17,8 +17,6 @@ from backend.utils import truncate_end
 from backend.plots import pathway_abundance_barplot
 from constants import GlobalConstants
 
-import base64
-import io
 import numpy as np
 import pandas as pd
 from typing import Tuple, List, Dict

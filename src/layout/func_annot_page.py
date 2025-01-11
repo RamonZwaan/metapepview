@@ -267,8 +267,6 @@ pathway_filters = [
     combine_annot_duplicates,
     include_taxonomies,
     fractional_abundances,
-    # dbc.Button("Close", id="barplot_close_pathway_filters", n_clicks=0, className="ms-auto",
-    #         style={'float': 'right', 'margin-top': '1rem'})
 ] + clade_filter + kegg_export_block
 
 
@@ -298,18 +296,6 @@ functional_annotation_page = [
                 ),
                 width={'size': 4}
             ),
-            # dbc.Col(
-            #     dbc.Card(
-            #         [
-            #             dbc.CardHeader("Taxonomic Profile"),
-            #             dbc.CardBody(
-            #                 taxonomy_barplot
-            #             )    
-            #         ],
-            #         color="light",
-            #         style={"margin": "1rem 0rem 1rem 1rem", "height": "35rem"}
-            #     )
-            # ),
             dbc.Col(
                 dbc.Card(
                     [
@@ -325,16 +311,4 @@ functional_annotation_page = [
         ],
         style={"height": "100%"}
     ),
-    # dbc.Card(
-    #     [
-    #         dbc.CardHeader("Description"),
-    #         dbc.CardBody(
-    #             [
-    #                 html.P("...")
-    #             ]
-    #         )    
-    #     ],
-    #     className="shadow-sm",
-    #     style={"margin": "0rem 0rem 0rem 1rem", "height": "13rem"}
-    # )
 ]

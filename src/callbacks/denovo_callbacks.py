@@ -65,7 +65,6 @@ def denovo_only_fraction(peptide_json,
     if show_fraction is True:
         sample_sums = fraction_df.groupby("Sample Name")["peptides"].agg("sum")
         division_col = fraction_df["Sample Name"].apply(lambda x: sample_sums.loc[x])
-        # division_col.index = fraction_df.index
         
         # divide peptide counts by the sum of the sample name counts
         fraction_df["peptides"] = fraction_df["peptides"].divide(division_col)

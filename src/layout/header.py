@@ -26,7 +26,6 @@ content_header = html.Div(
         ),
         color=HEADER_COLOR,
         dark=True,
-        # style={"position": "relative"},
     ),
     ],
     style=CONTENT_HEADER_STYLE

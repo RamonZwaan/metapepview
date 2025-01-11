@@ -5,9 +5,9 @@ import plotly.io as pio
 import os
 import sys
 
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from constants import *
+
 # import layout elements
 from layout.style_constants import *
 from layout.sidebar import new_sidebar #, sidebar, sidebar_ms_validation, sidebar_community_visualizer
@@ -16,14 +16,11 @@ from layout.taxonomy_page import taxonomy_sample_analysis, taxonomy_de_novo_anal
 from layout.func_annot_page import *
 from layout.data_page import data_visual
 from layout.annotation_page import import_block
-# from layout.header import content_header
 
 # import callbacks
-# from callbacks.import_callbacks import CONTENT_STYLE
 from callbacks.data_callbacks import *
 from callbacks.taxonomy_callbacks import *
 from callbacks.func_annot_callbacks import *
-# from callbacks.sidebar_callbacks import *
 from callbacks.denovo_callbacks import *
 from callbacks.ms_callbacks import *
 from callbacks.annotation_callbacks import *

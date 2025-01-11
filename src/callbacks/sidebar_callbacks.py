@@ -21,43 +21,6 @@ import pandas as pd
 from textwrap import dedent
 
 
-# @app.callback(
-#     Output(component_id="collapse", component_property="is_open"),
-#     [Input(component_id="collapse_button", component_property="n_clicks")],
-#     [State(component_id="collapse", component_property="is_open")],
-# )
-# def toggle_collapse(n, is_open):
-#     if n:
-#         return not is_open
-#     return is_open
-
-
-# @app.callback(
-#     Output(component_id="start_download_button", component_property="disabled"),
-#     Input(component_id="peptides", component_property="data"),
-#     State(component_id="peptides_upload", component_property="contents"),
-#     prevent_initial_call=True
-# )
-# def disable_download_button(peptide_json, peptides_import):
-#     # only allow 
-#     if peptide_json is None or peptides_import is not None:
-#         return True
-#     else:
-#         return False
-
-# @app.callback(
-#     Output(component_id="start_annotation_button", component_property="disabled"),
-#     Input(component_id="peptides_upload", component_property="contents"),
-#     prevent_initial_call=True
-# )
-# def disable_annotation_button(peptides_import):
-#     # only allow annotation if no peptides dataset uploaded
-#     if peptides_import is not None:
-#         return True
-#     else:
-#         return False
-
-
 @app.callback(
     Output('database_present_status', 'data'),
     Output('ncbi_db_presence_check', 'children'),
