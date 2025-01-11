@@ -683,7 +683,7 @@ def ref_score_threshold_plot(stat_dict: dict,
     if any([i not in ["db search", "de novo", "de novo only"] for i in formats]):
         raise ValueError("invalid format supplied")
     
-    merged_df = reference_score_distribution(stat_dict,
+    merged_df, _ = reference_score_distribution(stat_dict,
                                              formats,
                                              format_to_label,
                                              normalize_psm,
@@ -1059,13 +1059,14 @@ def ref_score_threshold_barplot(stat_dict: dict,
         assert_de_novo_compatibility(stat_dict, sample_de_novo) is False:
         sample_de_novo = None
 
-    merged_df = reference_score_distribution(
+    merged_df, sample_order = reference_score_distribution(
         stat_dict,
         formats,
         format_to_label,
         normalize_psm,
         normalize_rt,
         normalize_fill)
+    
 
     if any(x is not None for x in [sample_db_search, sample_de_novo]):
         ncols = 2
@@ -1105,11 +1106,13 @@ def ref_score_threshold_barplot(stat_dict: dict,
         db_search_data = dataset[dataset["ident method"] == "db search confidence dist"]\
             .sort_values(by="value", ascending=False)
         de_novo_data =  dataset[dataset["ident method"] == "de novo only confidence dist"]
+        
 
         # add barplot traces for one dataset
         for groupname, groupdata in db_search_data.groupby("x axis"):
             if f"{groupname}" not in cat_to_col:
                 cat_to_col[f"{groupname}"] = color_generator.__next__()
+
             fig.add_trace(
                 go.Bar(
                     name=groupname,
@@ -1121,6 +1124,8 @@ def ref_score_threshold_barplot(stat_dict: dict,
                     ),
                 row=1,
                 col=col)
+
+
         for groupname, groupdata in de_novo_data.groupby("x axis"):
             if f"{groupname}" not in cat_to_col:
                 cat_to_col[f"{groupname}"] = color_generator.__next__()
@@ -1207,6 +1212,10 @@ def ref_score_threshold_barplot(stat_dict: dict,
         col=ncols)
     fig.update_yaxes(title="DB Search", row=1, col=1)
     fig.update_yaxes(title="ALC only", row=2, col=1)
+
+    if sample_order is not None:
+        fig.update_xaxes(categoryorder='array',
+                         categoryarray=sample_order)
 
     fig.update_layout(margin=dict(l=20, r=20, t=10, b=10),
                       paper_bgcolor='rgba(0,0,0,0)',

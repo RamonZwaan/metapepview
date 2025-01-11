@@ -12,7 +12,8 @@ def reference_score_distribution(stat_dict: dict,
                                  label_dict: dict[str, List[str]],
                                  normalize_psm: bool=False,
                                  normalize_rt: bool=False,
-                                 normalize_fill: bool=False) -> pd.DataFrame:
+                                 normalize_fill: bool=False) -> Tuple[pd.DataFrame,
+                                                                      List[str] | None]:
     """Extract peptide identification confidence thresholds from reference
     dataset and return it as a dataframe. Confidence distributions from
     different identification methods can be extracted. In addition, confidence
@@ -50,6 +51,10 @@ def reference_score_distribution(stat_dict: dict,
     if any([i not in ["db search", "de novo", "de novo only"] for i in formats]):
         raise ValueError("invalid format supplied")
 
+    # used to later sort samples by sum of db search values (when bars are filled)
+    db_search_sums = []
+    samples_list = []
+
     # parse dictionary and add data
     for sample, data in stat_dict["samples"].items():
         # initialize data lists and add format values
@@ -57,6 +62,7 @@ def reference_score_distribution(stat_dict: dict,
         sample_name = []
         threshold_names = []
         counts = []
+
         for format in formats:
             format_key = format_to_key[format]
             
@@ -78,6 +84,8 @@ def reference_score_distribution(stat_dict: dict,
             # if normalize_fill is true, divide counts by largest number and multiply by 100
             if normalize_fill is True and format == "db search":
                 category_counts = [(i / max(category_counts)) * 100 for i in category_counts]
+                db_search_sums.append(sum(category_counts))
+                samples_list.append(sample)
                      
             counts += category_counts      
             prefix, suffix = label_dict[format]
@@ -90,8 +98,16 @@ def reference_score_distribution(stat_dict: dict,
         dist_data["x axis"] += threshold_names
         dist_data["value"] += counts
         dist_data["sample"] += sample_name
-        
-    return pd.DataFrame(dist_data)
+
+    # when db search bars are filled, reorder dataset such that the sum of bars
+    # go from large to small
+    if normalize_fill is True and len(db_search_sums) > 0:
+        index_order = np.argsort(np.array(db_search_sums))[::-1]
+        sorted_samples = np.array(samples_list)[index_order].tolist()
+    else:
+        sorted_samples = None
+
+    return pd.DataFrame(dist_data), sorted_samples
 
 
 def reference_score_dist_peaks(db_search_psm: MetaPepDbSearch | None,
