@@ -1,6 +1,6 @@
 
 # Description
-MetaPepView is a metaproteomics dashboard designed for visualizing taxonomic composition and expressed functions from microbial community data, as well as for analyzing the performance of metaproteomics experiments. It features a web-based interface that can be run locally on desktop PCs.
+MetaPepView (Beta) is a metaproteomics dashboard designed for visualizing taxonomic composition and expressed functions from microbial community data, as well as analyzing the performance of metaproteomics experiments. This beta version features a user-friendly, web-based interface that can be run locally on desktop PCs. It enables users to compare results from database searches and de novo annotations while evaluating the quality and coverage of reference databases. Feedback and contributions are welcome as we continue to enhance MetaPepView. Contact: r.vanderzwaan@tudelft.nl
 
 Main features of the dashboard include:
 
@@ -151,7 +151,7 @@ This module visualizes enzymatic and metabolic functions. Protein functions can 
 - *Visualize pathway map*: Given a selected KEGG pathway, select samples in the dropdown menu and by clicking *Show pathway map*, a KEGG page will be loaded showing the pathway with protein functions colored according to the corresponding sample. A color table matching sample to color will shown in the dashboard.
 
 # Referencing
-Please scite: Ramon van der Zwaan et al., (TU Delft, The Netherlands). Preprint in preparation, and online soon.
+In articles, you can cite as follows: Ramon van der Zwaan, Mark van Loosdrecht, Martin Pabst (2025, preprint in preparation), TU Delft, The Netherlands. Contact: r.vanderzwaan@tudelft.nl
 
 In addition the following articles and tools are used during processing:
 **For de novo (or global) taxonomic annotation of peptide sequences**
