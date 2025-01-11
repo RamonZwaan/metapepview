@@ -155,6 +155,6 @@ In articles, you can cite as follows: Ramon van der Zwaan, Mark van Loosdrecht a
 
 In addition the following articles and tools are used during processing:
 **For de novo (or global) taxonomic annotation of peptide sequences**
-- Robbert Gurdeep Singh, Alessandro Tanca, Antonio Palomba, Felix Van der Jeugt, Pieter Verschaffelt, Sergio Uzzau, Lennart Martens, Peter Dawyndt, and Bart Mesuere, "Unipept 4.0: functional analysis of metaproteome data", Journal of Proteome Research, 2019, https://doi.org/10.1021/acs.jproteome.8b00716 
-- Kleikamp, H. B., Pronk, M., Tugui, C., da Silva, L. G., Abbas, B., Lin, Y. M., van Loosdrecht, M. C. M. & Pabst, M. (2021). Database-independent de novo metaproteomics of complex microbial communities. Cell Systems, 12(5), 375-383, https://doi.org/10.1016/j.cels.2021.04.003
-- Hugo B C Kleikamp, Ramon van der Zwaan, Ramon van Valderen, Jitske M van Ede, Mario Pronk, Pim Schaasberg, Maximilienne T Allaart, Mark C M van Loosdrecht, Martin Pabst, NovoLign: metaproteomics by sequence alignment, ISME Communications, Volume 4, Issue 1, January 2024, ycae121, https://doi.org/10.1093/ismeco/ycae121
+- Gurdeep Singh R, Tanca A, Palomba A, Van der Jeugt F, Verschaffelt P, Uzzau S, Martens L, Dawyndt P, Mesuere B. Unipept 4.0: functional analysis of metaproteome data. Journal of proteome research. 2018 Nov 22;18(2):606-15. https://doi.org/10.1021/acs.jproteome.8b00716 
+- Kleikamp HB, Pronk M, Tugui C, da Silva LG, Abbas B, Lin YM, van Loosdrecht MC, Pabst M. Database-independent de novo metaproteomics of complex microbial communities. Cell Systems. 2021 May 19;12(5):375-83. https://doi.org/10.1016/j.cels.2021.04.003
+- Kleikamp HB, Van der Zwaan R, Van Valderen R, Van Ede JM, Pronk M, Schaasberg P, Allaart MT, Van Loosdrecht MC, Pabst M. NovoLign: metaproteomics by sequence alignment. ISME communications. 2024 Jan;4(1):ycae121. https://doi.org/10.1093/ismeco/ycae121
