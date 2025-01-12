@@ -316,7 +316,7 @@ db_search_import_block = [
         [
             html.Div(
                 [
-                    html.H4("DB Search"),
+                    html.H4("DB search"),
                     dbc.Button("Options", id="db_search_modal_open", size="sm", color="secondary", outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
@@ -345,7 +345,7 @@ de_novo_import_block = [
         [
             html.Div(
                 [
-                    html.H4("De Novo"),
+                    html.H4("De novo"),
                     dbc.Button("Options", id="de_novo_modal_open", size="sm", color="secondary", outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
@@ -375,7 +375,7 @@ taxonomy_map_import_block = [
         [
             html.Div(
                 [
-                    html.H4("Taxonomy Map"),
+                    html.H4("Taxonomy annotations"),
                     dbc.Button("Options", id="taxonomy_map_modal_open", size="sm", color="secondary", outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
@@ -404,7 +404,7 @@ function_map_import_block = [
         [
             html.Div(
                 [
-                    html.H4("Functional Map"),
+                    html.H4("Functional annotations"),
                     dbc.Button("Options", id="function_map_modal_open", size="sm", color="secondary", outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"

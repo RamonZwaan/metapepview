@@ -576,17 +576,17 @@ ms_performance = html.Div(
             [            
                 dbc.Tab(
                     ms_spectra_tab,
-                    label="Identification performance",
+                    label="Experimental quality",
                     id="MS Spectra"
                 ),
                 dbc.Tab(
                     peptide_identification,
-                    label="Experimental quality",
+                    label="Identification performance",
                     id="Peptide Identification"
                 ),
                 dbc.Tab(
                     ref_benchmark,
-                    label="Reference Benchmark",
+                    label="Benchmarking",
                     id="Reference Benchmark"
                 )
             ],

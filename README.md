@@ -107,6 +107,10 @@ de novo data is optional.
 If no db search data is imported, but only de novo data. A sample can still be created if *global annotation of peptides* is checked. Then, taxonomic classification of peptides with Unipept is performed. This is especially useful for very quick taxonomic composition processing when no protein fasta for db search matching is on hand.
 ### *Quality Control*: Investigate and benchmark MS spectral data quality
 
+> [!NOTE]
+> Quality control is currently designed for DDA (Data-dependent Acquisition) experiments. The quality control module has been tested on mzML files derived from QE Orbitrap raw data. mzML conversion performed with [MSConvert](https://proteowizard.sourceforge.io/index.html).
+
+
 This module contains figures to investigate various spectral parameters from supplied MS experiment data. On the top, A single MS experiment can be imported, with a spectral file in mzML format (Recommended to compress into `.zip` or `.tar.gz` prior to import), as well as a corresponding db search and de novo file from a format of choice.
 #### Reference Benchmark
 This tab contains figures to benchmark the imported sample against a dataset of experiments. The reference dataset needs to be built first (Not yet published in beta) and can then be imported as json into the dashboard.
