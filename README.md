@@ -2,12 +2,13 @@
 # Description
 MetaPepView (Beta) is a metaproteomics dashboard designed for visualizing the taxonomic composition and expressed enzymatic or metabolic functions from microbial community data, as well as evaluating the performance of metaproteomics experiments. This beta version features a user-friendly, web-based interface that can be run locally on desktop PCs. It enables users to compare results from database searches and de novo annotations while evaluating the quality and coverage of reference databases. Feedback and contributions are welcome as we continue to enhance MetaPepView. Contact: r.vanderzwaan@tudelft.nl
 
-Main features of the dashboard include:
+Main features of MetaPepView include:
 
 - Visualize taxonomic compositions and functional profiles of metaproteomics experiments as obtained from various database search or de novo sequencing engines.
 - Perform de novo taxonomy classification using the Unipept API and compare the obtained de novo taxonomic composition with db search results.
 - Analyze mass spectrometric performance from mzML raw files and evalute db search and de novo matches from spectral data.
 - Benchmark experimental performance with proteomcis reference datasets.
+- NOTE: thus far, the beta version of MetaPepView has been tested for mass spectrometric raw data obtained from QE Orbitrap mass spectrometers. Data conversion to mzML was performed using msconvert https://proteowizard.sourceforge.io/tools/msconvert.html.
   
 # Installation / Set up
 ## PC requirements
