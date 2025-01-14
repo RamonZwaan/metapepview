@@ -153,9 +153,9 @@ This module visualizes enzymatic and metabolic functions. Protein functions can 
 - *Visualize pathway map*: Given a selected KEGG pathway, select samples in the dropdown menu and by clicking *Show pathway map*, a KEGG page will be loaded showing the pathway with protein functions colored according to the corresponding sample. A color table matching sample to color will shown in the dashboard.
 
 # Referencing
-In articles, you can cite as follows: Ramon van der Zwaan, Mark van Loosdrecht and Martin Pabst (2025, preprint in preparation), TU Delft, The Netherlands. Contact: r.vanderzwaan@tudelft.nl
+In articles, please cite as follows: Ramon van der Zwaan, Mark van Loosdrecht and Martin Pabst (2025, preprint in preparation), TU Delft, The Netherlands. Contact: r.vanderzwaan@tudelft.nl
 
-In addition the following articles and tools are used during processing:
+In addition, tools and methods from the following articles were incorporated into MetaPepView (note: reference table incomplete, to be completed):
 **For de novo (or global) taxonomic annotation of peptide sequences**
 - Gurdeep Singh R, Tanca A, Palomba A, Van der Jeugt F, Verschaffelt P, Uzzau S, Martens L, Dawyndt P, Mesuere B. Unipept 4.0: functional analysis of metaproteome data. Journal of proteome research. 2018 Nov 22;18(2):606-15. https://doi.org/10.1021/acs.jproteome.8b00716 
 - Kleikamp HB, Pronk M, Tugui C, da Silva LG, Abbas B, Lin YM, van Loosdrecht MC, Pabst M. Database-independent de novo metaproteomics of complex microbial communities. Cell Systems. 2021 May 19;12(5):375-83. https://doi.org/10.1016/j.cels.2021.04.003
