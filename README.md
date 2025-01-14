@@ -7,7 +7,7 @@ Main features of MetaPepView include:
 - Visualize taxonomic compositions and functional profiles of metaproteomics experiments as obtained from various database search or de novo sequencing engines.
 - Perform de novo taxonomy classification using the Unipept API and compare the obtained de novo taxonomic composition with db search results.
 - Analyze mass spectrometric performance from mzML raw files and evalute db search and de novo matches from spectral data.
-- Benchmark experimental performance with proteomcis reference datasets.
+- Benchmark experimental performance with a large number of reference datasets.
 - NOTE: the beta version of MetaPepView has been tested for mass spectrometric raw data obtained from QE Orbitrap mass spectrometers. Data conversion to mzML was performed using msconvert https://proteowizard.sourceforge.io/tools/msconvert.html.
   
 # Installation / Set up
