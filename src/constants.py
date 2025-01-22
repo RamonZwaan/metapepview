@@ -27,6 +27,12 @@ class GlobalConstants:
 
     # lineage rank column suffix for global search
     global_annot_suffix: str = " (global search)"
+    
+    experiment_sample_table_cols: List[str] = ['Sample Name',
+                                               'DB Search Imported',
+                                               'De Novo Imported',
+                                               'Taxonomy DB Name',
+                                               'Functional Annotation DB Name']
 
     # kegg dataset locations
     kegg_map_dir: str = r"./data/local/kegg_datasets"
@@ -111,15 +117,15 @@ class GlobalConstants:
 
 
     db_search_dropdown_options = [
-        {'label': 'Peaks 11', 'value': 'Peaks'},
-        {'label': 'Peaks 10', 'value': 'Peaks10'},
+        {'label': 'Peaks 11', 'value': 'Peaks 11'},
+        {'label': 'Peaks 10', 'value': 'Peaks 10'},
         {'label': 'MaxQuant', 'value': 'MaxQuant'},
         {'label': 'Proteome Discoverer', 'value': 'ProteomeDiscoverer'},
         {'label': 'Sage', 'value': 'Sage'}
         ]
     de_novo_dropdown_options = [
-        {'label': 'Peaks 11', 'value': 'Peaks'},
-        {'label': 'Peaks 10', 'value': 'Peaks10'},
+        {'label': 'Peaks 11', 'value': 'Peaks 11'},
+        {'label': 'Peaks 10', 'value': 'Peaks 10'},
         {'label': 'Novor (SearchGUI)', 'value': 'Novor'}
     ]
     

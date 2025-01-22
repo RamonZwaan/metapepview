@@ -73,6 +73,7 @@ peptide_data_block = html.Div(
                 ),
                 html.Div(
                     [
+                        dbc.Button('Clear data', id='clear_peptides_data', className="px-3 me-2"),
                         dbc.Button('Export csv', id='export_peptides_csv', className="px-3 me-2"),
                         dbc.Button('Export json', id='export_peptides_json', className="px-3 me-2"),
                         dcc.Upload(
@@ -96,6 +97,44 @@ peptide_data_block = html.Div(
             ],
             style={'float': 'bottom'},
             className="d-flex justify-content-between my-3 mx-3"
+        ),
+        html.Hr(className="my-0 py-0"),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H4("DB search format", className="text-secondary"),
+                        html.H6("-", id="peptides_db_search_format", className="ps-4 mb-1")
+                    ],
+                    className="w-25 py-2 px-4"
+                ),
+                html.Div(className="vr my-0"),
+                html.Div(
+                    [
+                        html.H4("De novo format", className="text-secondary"),
+                        html.H6("-", id="peptides_de_novo_format", className="ps-4 mb-1")
+                    ],
+                    className="w-25 py-2 px-4"
+                ),
+                html.Div(className="vr"),
+                html.Div(
+                    [
+                        html.H4("Taxonomy db format", className="text-secondary"),
+                        html.H6("-", id="peptides_taxonomy_db_format", className="ps-4 mb-1")
+                    ],
+                    className="w-25 py-2 px-4"
+                ),
+                html.Div(className="vr"),
+                html.Div(
+                    [
+                        html.H4("Function db format", className="text-secondary"),
+                        html.H6("-", id="peptides_function_db_format", className="ps-4 mb-1")
+                    ],
+                    className="w-25 py-2 px-4"
+                ),
+            ],
+            style={'float': 'bottom'},
+            className="d-flex justify-content-between my-0 mx-0"
         ),
     ],
     className="border border-1 bg-light rounded-3 shadow-sm",
@@ -503,6 +542,24 @@ import_block = html.Div(
                 ),
                 html.Hr(className="m-0"),
                 html.Div(
+                    [
+                        dash_table.DataTable(
+                            columns=[{'id': c, 'name': c} for c in GlobalConstants.experiment_sample_table_cols],
+                            id="experiment_sample_table",
+                            style_data={'table-layout': 'fixed'},
+                            style_header={'backgroundColor': 'rgb(210, 210, 210)',
+                                            'color': 'black',
+                                            'fontWeight': 'bold'},
+                            style_cell={'textAlign': 'left', 'font-family': 'Arial'},
+                            style_cell_conditional=[
+                                {'if': {'column_id': 'DB Search Imported'},
+                                'width': '12%'},
+                                {'if': {'column_id': 'De Novo Imported'},
+                                'width': '12%'}],
+                            style_as_list_view=True,
+                            row_deletable=True,
+                            page_size=10)
+                    ],
                     id="sample_table",
                     className="",
                     style={"margin": "0rem 0rem", "padding": "0.5rem 0rem"}

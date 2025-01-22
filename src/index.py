@@ -10,7 +10,7 @@ from constants import *
 
 # import layout elements
 from layout.style_constants import *
-from layout.sidebar import new_sidebar #, sidebar, sidebar_ms_validation, sidebar_community_visualizer
+from layout.sidebar import new_sidebar
 from layout.validation_page import ms_performance
 from layout.taxonomy_page import taxonomy_sample_analysis, taxonomy_de_novo_analysis
 from layout.func_annot_page import *
@@ -44,6 +44,8 @@ app.layout = html.Div([html.Div(new_sidebar, style=SIDEBAR_STYLE, id="sidebar"),
                            id="content_div",
                        ),
                        # parameter values stores
+                       
+                       dcc.Store(id="experiment_name"),
                        
                        # dataset for community analysis
                        dcc.Store(id="peptides"),

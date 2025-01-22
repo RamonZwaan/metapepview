@@ -41,7 +41,7 @@ class PeaksDbSearchPsm11(DbSearchMethods):
     
     ACCESSION_DELIMITER = ';'
 
-    DATA_FORMAT = 'Peaks'
+    DATA_FORMAT = 'Peaks 11'
     CONFIDENCE_FORMAT = '-10lgp'
     
     
@@ -177,7 +177,7 @@ class PeaksDbSearchPsm10(DbSearchMethods):
     
     ACCESSION_DELIMITER = ':'
     
-    DATA_FORMAT = 'Peaks10'
+    DATA_FORMAT = 'Peaks 10'
     CONFIDENCE_FORMAT = '-10lgp'
     
     def __init__(self,
@@ -335,7 +335,7 @@ class PeaksDeNovo11(DeNovoMethods):
     NUMERIC_FIELDS = ["Scan", "Tag length", "ALC (%)", "Length", "m/z", "z",
                       "RT", "Area", "Mass", "ppm", "Feature Id"]
     
-    DATA_FORMAT = 'Peaks'
+    DATA_FORMAT = 'Peaks 11'
     CONFIDENCE_FORMAT = 'ALC'
 
     def __init__(self,
@@ -469,7 +469,7 @@ class PeaksDeNovo10(DeNovoMethods):
     NUMERIC_FIELDS = ["Fraction", "Tag Length","ALC (%)", "length", "m/z", "z",
                       "RT", "Area", "Mass", "ppm"]
 
-    DATA_FORMAT = 'Peaks10'
+    DATA_FORMAT = 'Peaks 10'
     CONFIDENCE_FORMAT = "ALC"
     
     def __init__(self,

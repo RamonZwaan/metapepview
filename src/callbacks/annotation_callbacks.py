@@ -206,7 +206,7 @@ def show_taxonomy_db_name(contents, delim, acc_idx, tax_idx, tax_format, name, d
 
 
 @app.callback(
-    Output('peptides', 'data'),
+    Output('peptides', 'data', allow_duplicate=True),
     Output('experiment_name_field', 'value'),
     Input('peptides_obj_upload', 'contents'),
     Input('peptides_obj_upload', 'filename'),
@@ -434,6 +434,12 @@ def process_manual_annotation(n_clicks,
                                                                    psm_names)
     else:
         sample_name = deduplicate_strings(sample_name, current_sample_names)
+    
+    # set data formats to None if no data supplied
+    if len(psm_list) == 0: psm_format = None
+    if len(denovo_data) == 0: denovo_format = None
+    if acc_tax_map is None and global_tax_annot is False: acc_tax_map_format = None
+    if func_annot_db is None: func_annot_db_format = None
     
     # construct options object containing all filter settings
     options = AnnotationOptions(

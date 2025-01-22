@@ -154,6 +154,7 @@ class MetaPepTable(DataValidator):
         
         # grab source files. Used for comparing metapep tables
         self._source_files = self._data['Source File'].dropna().unique().tolist()
+        self._sample_names = self._data['Sample Name'].dropna().unique().tolist()
     
     @property
     def data(self) -> pd.DataFrame:
@@ -235,6 +236,10 @@ class MetaPepTable(DataValidator):
             'De Novo Format': self.de_novo_format,
             'De Novo Confidence Format': self.de_novo_confidence_format,
         }
+        
+    @property
+    def sample_names(self) -> List[str]:
+        return self._sample_names
 
     @classmethod
     def read_json(cls, json_str: str) -> Self:
@@ -243,7 +248,7 @@ class MetaPepTable(DataValidator):
 
         # Extract the DataFrame and custom variables
         csv_str = decompress_string(json_dict['dataframe'])
-        df = pd.read_csv(io.StringIO(csv_str), index_col=0)
+        df = pd.read_csv(io.StringIO(csv_str), index_col=0, low_memory=False)
         
         taxonomy_db_format = json_dict['metadata']['Taxonomy DB Format']
         functional_db_format = json_dict['metadata']['Functional DB Format']
@@ -317,6 +322,48 @@ class MetaPepTable(DataValidator):
                    fval.experiment_name)
 
 
+    def remove_samples(self, samples: str | List[str]) -> Self:
+        """Remove samples from metapep table dataset. This will filter all
+        data from those samples from the data table and update format
+        information by removing format values for which no more data is present
+        in the dataset.
+
+        Args:
+            samples (str | List[str]): Sample names to remove from dataset
+
+        Returns:
+            Self: MetaPepTable object with sample data filtered out
+        """
+        
+        if isinstance(samples, str):
+            samples = [samples]
+        
+        # remove samples from data
+        peptides_df = self.data
+        peptides_df = peptides_df[~peptides_df["Sample Name"].isin(samples)]
+        
+        # update data tables
+        self.data = peptides_df
+        self._source_files = self.data['Source File'].dropna().unique().tolist()
+        self._sample_names = self.data['Sample Name'].dropna().unique().tolist()
+        
+        # remove format information if no more data in dataset
+        if (self.data["De Novo Imported"] == False).all():
+            self.de_novo_format = None
+            self.de_novo_confidence_format = None
+        if (self.data["DB Search Imported"] == False).all():
+            self.db_search_format = None
+            self.db_search_confidence_format = None
+        if self.data["Taxonomy Id"].dropna().empty and \
+            self.data["Global Taxonomy Id"].dropna().empty():
+            self.taxonomy_db_format = None
+        if "KEGG_ko" in self.data.columns and \
+            self.data["KEGG_ko"].dropna().empty:
+            self.functional_db_format = None
+        
+        return self
+        
+
 db_search_T = TypeVar('db_search_T', bound='MetaPepDbSearch')
 
 class MetaPepDbSearch(DataValidator):
@@ -329,7 +376,7 @@ class MetaPepDbSearch(DataValidator):
     from the same input source and belong to a single sample.
     
     Global metadata:
-        DATA_SOURCE     {'Peaks', 'MaxQuant', 'ProteomeDiscoverer'}
+        DATA_SOURCE     {'Peaks 11', 'Peaks 10', 'MaxQuant', 'ProteomeDiscoverer'}
         CONFIDENCE_FORMAT   {'-10lgp', 'p'}
         SAMPLE_NAME
     

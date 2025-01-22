@@ -429,7 +429,7 @@ ref_confidence_dist_bar = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("fill bars:", style={"margin-right": "1rem", "text-align": "center"}),
+                                        html.B("db search %:", style={"margin-right": "1rem", "text-align": "center"}),
                                         dbc.Checkbox(value=False, 
                                                     id="threshold_barplot_fill_bars"),
                                     ],
@@ -448,7 +448,7 @@ ref_confidence_dist_bar = dbc.Card(
         )
     ],
     color="light",
-    style={"margin": "1rem 0rem 0.5rem 1rem", "height": "30rem"}
+    style={"margin": "0rem 0rem 0.5rem 1rem", "height": "30rem"}
 )
 
 
@@ -493,7 +493,7 @@ ref_benchmark = [
         [
             html.Div(
                 [
-                    html.P("Reference dataset:", className="mx-4 mb-0 fs-6"),
+                    html.P("Reference dataset:", className="me-4 mb-0 fs-6"),
                     dcc.Dropdown(
                         [],
                         id="ref_statistics_dropdown",
@@ -512,9 +512,27 @@ ref_benchmark = [
             ),
             html.I("No file...", id="custom_ref_statistics_name", className="ms-2"),
             dcc.Store(id="current_ref_statistics_store", data=None)
-            #html.H5("Add own statistics file")
         ],
-        className="d-flex p-1 align-items-center justify-content-start"
+        className="d-flex p-1 ms-4 align-items-center justify-content-start"
+    ),
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.P("DB search format: ", className="fst-italic me-3"),
+                    html.P("...", id="ref_statistics_db_search_format", className="fw-bold"),
+                ],
+                className="d-flex ms-2 w-25"
+            ),
+            html.Div(
+                [
+                    html.P("De novo format: ", className="fst-italic me-3"),
+                    html.P("...", id="ref_statistics_de_novo_format", className="fw-bold"),
+                ],
+                className="d-flex w-25"
+            ),
+        ],
+        className="d-flex pt-1 ms-5 align-items-center justify-content-start"
     ),
     ref_confidence_dist_bar,
     ref_confidence_dist_line,

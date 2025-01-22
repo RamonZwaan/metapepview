@@ -5,16 +5,16 @@ from dataclasses import dataclass
 
 
 db_search_file_name: Dict[DbSearchSource, str] = {
-    'Peaks': "db.psms.csv",
-    'Peaks10': "DB search psm.csv",
+    'Peaks 11': "db.psms.csv",
+    'Peaks 10': "DB search psm.csv",
     'MaxQuant': "evidence.txt",
     # 'ProteomeDiscoverer': ...,
     'Sage': "*.sage.tsv",
 }
 
 de_novo_file_name: Dict[DeNovoSource, str] = {
-    'Peaks': "*.denovo.csv",
-    'Peaks10': "de novo peptides.csv",
+    'Peaks 11': "*.denovo.csv",
+    'Peaks 10': "de novo peptides.csv",
     'Novor': "*.novor.csv"
 }
 

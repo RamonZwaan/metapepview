@@ -589,20 +589,31 @@ def add_ref_files_dropdown(ref_data):
 
 @app.callback(
     Output("current_ref_statistics_store", "data"),
+    Output("ref_statistics_db_search_format", "children"),
+    Output("ref_statistics_de_novo_format", "children"),
     Input("ref_statistics", "data"),
     Input("ref_statistics_dropdown", "value"),
     Input("custom_ref_dataset", "contents")
 )
 def load_ref_data(total_ref_stat, ref_dropdown_option, custom_ref):
     if ref_dropdown_option is None and custom_ref is None:
-        raise PreventUpdate
+        return None, "...", "..."
     
     # directly extract sample based on option key
     if custom_ref is not None:
         ref_dict = json.loads(memory_to_str(custom_ref))
     else:
         ref_dict = json.loads(total_ref_stat)[ref_dropdown_option]
-    return json.dumps(ref_dict)
+    
+    try: 
+        metadata = ref_dict["metadata"]
+        db_search_format = metadata["db search format"]
+        de_novo_format = metadata["de novo format"]
+    except KeyError:
+        raise ValueError("Metadata not present in experimental benchmark dataset")
+    
+        
+    return json.dumps(ref_dict), db_search_format, de_novo_format
 
 
 @app.callback(
