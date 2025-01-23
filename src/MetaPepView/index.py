@@ -5,7 +5,6 @@ import plotly.io as pio
 import os
 import sys
 
-
 from constants import *
 
 # import layout elements

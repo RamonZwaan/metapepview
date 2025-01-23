@@ -9,11 +9,7 @@ from backend.html_templates import *
 sample_options_block = [
     html.Div(
         [
-            html.Div(
-                [
-                    html.H3("New Sample")
-                ]
-            ),
+            html.H3("New sample"),
             html.Div(
                 [
                     html.H4("Name: ", className="align-self-center me-4"),
@@ -540,16 +536,23 @@ import_block = html.Div(
                     id="data_import_container",
                     className="d-flex",
                 ),
-                html.Hr(className="m-0"),
+                # html.Hr(className="m-0"),
+
+            ],
+            className="border border-2 my-3 bg-light rounded-3 shadow-sm",
+        ),
+        html.Div(
+            [
+                html.H3("Sample table", className="ps-3 pt-3"),
                 html.Div(
                     [
                         dash_table.DataTable(
                             columns=[{'id': c, 'name': c} for c in GlobalConstants.experiment_sample_table_cols],
                             id="experiment_sample_table",
                             style_data={'table-layout': 'fixed'},
-                            style_header={'backgroundColor': 'rgb(210, 210, 210)',
-                                            'color': 'black',
-                                            'fontWeight': 'bold'},
+                            style_header={'backgroundColor': 'rgb(216, 216, 235)',
+                                          'color': 'black',
+                                          'fontWeight': 'bold'},
                             style_cell={'textAlign': 'left', 'font-family': 'Arial'},
                             style_cell_conditional=[
                                 {'if': {'column_id': 'DB Search Imported'},
@@ -562,11 +565,11 @@ import_block = html.Div(
                     ],
                     id="sample_table",
                     className="",
-                    style={"margin": "0rem 0rem", "padding": "0.5rem 0rem"}
+                    style={"margin": "0rem 0rem", "padding": "0.5rem"}
                 ),
             ],
             className="border border-2 my-3 bg-light rounded-3 shadow-sm",
-        )
+        ),
     ],
     id="import_block",
     style={"margin": "1rem"}

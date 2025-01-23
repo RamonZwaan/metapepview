@@ -186,13 +186,13 @@ def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
 
 
 def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
-                          file_type: Literal['db search', 'de novo'],
-                          file_format: DbSearchSource | DeNovoSource,
-                          score_col: str,
-                          npoints: int = 1000,
-                          normalize_ms2: bool = False,
-                          ref_dict: dict | None = None,
-                          fillna: bool = False) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+                         file_type: Literal['db search', 'de novo'],
+                         file_format: DbSearchSource | DeNovoSource,
+                         score_col: str,
+                         npoints: int = 1000,
+                         normalize_ms2: bool = False,
+                         ref_dict: dict | None = None,
+                         fillna: bool = False) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Construct a normalized distribution of confidence scores from a set of
     proteomics (db search, de novo) experiments by extracting the confidence
     column, sorting them descending and computing mean and standard deviation of
@@ -257,9 +257,9 @@ def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
         # either normalize by total matches, or by ms2 count
         if normalize_ms2 is False:
             score_vals, x_axis = pept_match_dist_normalize(df.data,
-                                                            score_col,
-                                                            npoints,
-                                                            None)
+                                                           score_col,
+                                                           npoints,
+                                                           None)
             max_x_axis = x_axis
         elif normalize_ms2 is True and ref_dict is not None:
             # get MS2 count, if no data, skip file
@@ -267,9 +267,9 @@ def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
             if total_scans != total_scans or total_scans is None:
                 continue 
             score_vals, x_axis = pept_match_dist_normalize(df.data,
-                                                            score_col,
-                                                            npoints,
-                                                            total_scans)
+                                                           score_col,
+                                                           npoints,
+                                                           total_scans)
             max_len = max(max_len, score_vals.shape[0])
             if max_len == score_vals.shape[0]:
                 max_x_axis = x_axis

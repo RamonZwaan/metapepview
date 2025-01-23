@@ -537,7 +537,13 @@ def ref_score_dist_plot(stat_dict: dict,
                         sample_ms2_count: int | None = None):
     fig = go.Figure()
     
-    if sample_ms2_count is None:
+    if (format == "db search" and sample_db_search is None) or \
+        sample_de_novo is None:
+        plot_sample = False
+    else:
+        plot_sample = True
+    
+    if sample_ms2_count is None and plot_sample:
         normalize_scans = False
         print("No ms2 count in sample data, skip scan normalization...")
 

@@ -633,14 +633,18 @@ def show_custom_ref_name(names, dates):
     Input("db_search_psm_qa_format", "value"),
     Input("denovo_qa_upload", "contents"),
     Input("denovo_qa_format", "value"),
+    Input("mzml_metadata", "data"),
     Input("ref_score_conf_metric", "value"),
+    Input("ref_score_conf_x_scaling", "value"),
 )
 def show_reference_score_dist(ref_data,
                               db_search_psm,
                               db_search_psm_format,
                               de_novo,
                               de_novo_format,
-                              score_type):
+                              spectral_metadata,
+                              score_type,
+                              x_normalization):
     if ref_data is None:
         raise PreventUpdate
     
@@ -654,12 +658,25 @@ def show_reference_score_dist(ref_data,
     else:
         de_novo = None
         
+    if spectral_metadata is not None:
+        sample_ms2_count = spectral_metadata.get('MS2 spectrum count')
+    else:
+        sample_ms2_count = None
+        
     ref_dict = json.loads(ref_data)
+    
+    # set normalization params based on selected option
+    match_norm, ms2_norm = False, False
+    if x_normalization == "normalize_matches": match_norm = True
+    elif x_normalization == "normalize_ms2": ms2_norm = True
     
     fig = ref_score_dist_plot(stat_dict=ref_dict,
                               sample_db_search=db_search_psm,
                               sample_de_novo=de_novo,
-                              format=score_type)
+                              format=score_type,
+                              normalize_matches=match_norm,
+                              normalize_scans=ms2_norm,
+                              sample_ms2_count=sample_ms2_count)
     
     graph = dcc.Graph(figure=fig,
                       id="reference_confidence_fig",

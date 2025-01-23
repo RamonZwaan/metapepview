@@ -312,7 +312,17 @@ ref_confidence_dist_line = dbc.Card(
                                 html.B("Metric:", style={"margin-right": "1rem", "text-align": "center"}),
                                 dbc.Select(options=[{"label": "DB search", "value": "db search"},
                                                     {"label": "De novo", "value": "de novo"}],
-                                            value="db search", id="ref_score_conf_metric", style={"width": "14rem"}),
+                                            value="db search",
+                                            id="ref_score_conf_metric",
+                                            style={"width": "14rem", 
+                                                   "margin-right": "4rem"}),
+                                html.B("x-axis normalization:", style={"margin-right": "1rem", "text-align": "center"}),
+                                dbc.RadioItems(options=[{"label": "None", "value": None},
+                                                        {"label": "Total matches", "value": "normalize_matches"},
+                                                        {"label": "Total ms2", "value": "normalize_ms2"}],
+                                                inline=True,
+                                                value=None,
+                                                id="ref_score_conf_x_scaling")
                             ],
                             style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                         ),
@@ -593,9 +603,9 @@ ms_performance = html.Div(
         dbc.Tabs(
             [            
                 dbc.Tab(
-                    ms_spectra_tab,
-                    label="Experimental quality",
-                    id="MS Spectra"
+                    ref_benchmark,
+                    label="Benchmarking",
+                    id="Reference Benchmark"
                 ),
                 dbc.Tab(
                     peptide_identification,
@@ -603,9 +613,9 @@ ms_performance = html.Div(
                     id="Peptide Identification"
                 ),
                 dbc.Tab(
-                    ref_benchmark,
-                    label="Benchmarking",
-                    id="Reference Benchmark"
+                    ms_spectra_tab,
+                    label="Experimental quality",
+                    id="MS Spectra"
                 )
             ],
             id="ms_performance_tabs",
