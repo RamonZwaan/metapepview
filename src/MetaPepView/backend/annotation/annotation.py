@@ -68,6 +68,11 @@ def annotate_peptides(sample_name: str,
     Returns:
         pd.DataFrame: Peptides dataset.
     """
+    print("import taxonomy database...")
+    # set db format to ncbi if no taxonomy map added
+    options.tax_db_format = "NCBI" if options.tax_db_format is None else options.tax_db_format
+    taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
+                                     options.tax_db_format)
 
     if taxonomy_map is not None and \
         options.tax_db_format is not None and \
@@ -79,6 +84,7 @@ def annotate_peptides(sample_name: str,
                                     options.tax_db_tax_idx,
                                     options.tax_db_acc_pattern,
                                     options.tax_db_delimiter,
+                                    taxonomy_db,
                                     options.tax_db_format,
                                     tax_db_archive_format)
     else:
@@ -133,7 +139,7 @@ def annotate_peptides(sample_name: str,
                                                 func_annot_db,
                                                 de_novo_dict,
                                                 sample_name,
-                                                tax_db_loc,
+                                                taxonomy_db,
                                                 options)
         else:
             metapep_table_list = []
@@ -148,7 +154,7 @@ def annotate_peptides(sample_name: str,
                                                         func_annot_db,
                                                         de_novo_dict,
                                                         db_search_names[i],
-                                                        tax_db_loc,
+                                                        taxonomy_db,
                                                         options)
                 metapep_table_list.append(sample_metapep_table)
             metapep_table = MetaPepTable.concat_tables(metapep_table_list)
@@ -159,7 +165,7 @@ def annotate_peptides(sample_name: str,
                                             None,
                                             de_novo_dict,
                                             sample_name,
-                                            tax_db_loc,
+                                            taxonomy_db,
                                             options)
     else:
         raise ValueError("No valid db search or de novo data supplied")
@@ -274,14 +280,8 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
                         functional_mapper: FunctionDbMapper | None,
                         denovo_source_map: Dict[str, MetaPepDeNovo] | None,
                         sample_name: str,
-                        taxonomy_db_loc: str | Path,
+                        taxonomy_db: TaxonomyDatabase,
                         options: AnnotationOptions) -> MetaPepTable:
-    print("import taxonomy database...")
-    # set db format to ncbi if no taxonomy map added
-    options.tax_db_format = "NCBI" if options.tax_db_format is None else options.tax_db_format
-    taxonomy_db = import_taxonomy_db(Path(taxonomy_db_loc),
-                                     options.tax_db_format)
-    
     print("wrangle psm dataset...")
     if metapep_db_search is not None:
         peptides = process_db_search_data(metapep_db_search, options)

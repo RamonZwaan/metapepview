@@ -1,6 +1,10 @@
 from typing import TypeVar
 
-from ..types import AccessionTaxaMapGtdb, AccessionTaxaMapNcbi, AccessionTaxaMap, TaxonomyFormat
+from ..types import AccessionTaxaMapGtdb,\
+    AccessionTaxaMapNcbi,\
+    AccessionTaxaMap,\
+    TaxonomyFormat,\
+    TaxonomyDatabase
 from ..utils import *
 from .object_mappings import taxonomy_db_formats
 
@@ -11,6 +15,7 @@ def import_acc_tax_map(upload_contents: str | IO[str],
                        tax_col: int,
                        acc_regex: str | None,
                        delimiter: str | None,
+                       taxonomy_db: TaxonomyDatabase,
                        taxonomy_db_format: TaxonomyFormat,
                        archive_format: str | None = None) -> AccessionTaxaMap:
     # if file buffer has not been extracted from raw string data, extract data into buffer
@@ -28,7 +33,10 @@ def import_acc_tax_map(upload_contents: str | IO[str],
             acc_col,
             tax_col,
             acc_regex,
-            delimiter)
+            delimiter,
+            drop_duplicates=False,
+            taxonomy_obj=taxonomy_db
+            )
     else:
         raise ValueError("Invalid taxonomy format")
 

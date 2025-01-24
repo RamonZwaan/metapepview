@@ -549,7 +549,7 @@ import_block = html.Div(
                         dash_table.DataTable(
                             columns=[{'id': c, 'name': c} for c in GlobalConstants.experiment_sample_table_cols],
                             id="experiment_sample_table",
-                            style_data={'table-layout': 'fixed'},
+                            style_data={'table-layout': 'fixed', 'backgroundColor': 'rgba(0, 0, 0, 0)'},
                             style_header={'backgroundColor': 'rgb(216, 216, 235)',
                                           'color': 'black',
                                           'fontWeight': 'bold'},

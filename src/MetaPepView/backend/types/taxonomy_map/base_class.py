@@ -23,7 +23,32 @@ class AccessionTaxaMap:
                            acc_col: int=0,
                            tax_col: int=1,
                            acc_regex: str | None=None,
-                           delimiter: str | None=", ") -> Self:
+                           delimiter: str | None=",",
+                           drop_duplicates: bool = True,
+                           taxonomy_obj: TaxonomyDatabase | None = None) -> Self:
+        """Import protein accession to taxonomy mapping data from string buffer
+        generated from file.
+
+        Args:
+            str_file_obj (IO[str]): String buffer data
+            acc_col (int, optional): Protein accession column index.
+                Defaults to 0.
+            tax_col (int, optional): Taxonomy column index. Defaults to 1.
+            acc_regex (str | None, optional): Regex pattern to process accession
+                column, storing only the pattern match portion. Defaults to None.
+            delimiter (str | None, optional): Column delimiter. Defaults to ",".
+            drop_duplicates (bool, optional): In case of duplicate protein
+                accessions, keep only first occurrence. If false, duplicate
+                accessions are merged by taking the last common ancestor for all
+                taxa within the protein accession group. For this operation a
+                TaxonomyDatabase object needs to be added. Defaults to True.
+            taxonomy_obj (TaxonomyDatabase | None, optional): TaxonomyDatabase
+                object for LCA processing of redundant protein accessions.
+                Defaults to None.
+
+        Returns:
+            Self: AccessionTaxaMap instance.
+        """
         
         # it is assumed that the dataset starts with accession, with second column tax id
         prot_df = pd.read_csv(str_file_obj,
@@ -36,11 +61,19 @@ class AccessionTaxaMap:
             repl = lambda m: m.group(0) if m is not None else ""
             prot_df["accession"] = prot_df["accession"].str.replace(acc_regex, repl, regex=True)
         
-        #TODO: extend functionality towards lca or exception throw in case of duplicates
-        # drop duplicate items if identical accessions found
-        prot_df = prot_df.drop_duplicates(subset="accession")
+        # manage duplicate protein names if present in dataset
+        if not (prot_df['accession'].duplicated() == False).all():
+            if drop_duplicates is True:
+                prot_df = prot_df.drop_duplicates(subset="accession")
+            elif drop_duplicates is False and taxonomy_obj is not None:
+                prot_df = prot_df.groupby(by="accession")\
+                                .aggregate(taxonomy_obj.taxa_to_lca)\
+                                .reset_index()
+            else:
+                raise ValueError("Taxonomy database missing, add TaxonomyDatabase object or set drop_duplicates to True.")
 
         return cls(prot_df)
+
 
     @staticmethod
     def validate_input(str_file_obj: IO[str],
