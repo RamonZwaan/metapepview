@@ -2,10 +2,11 @@
 Here, string processing is omitted as it is part of the string_utils
 """
 
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Any
 from pathlib import Path
 
 import pandas as pd
+import numpy as np
 
 from constants import *
 from .string_utils import digest_proteins, wrangle_peptides
@@ -110,6 +111,19 @@ def fetch_sort_column(df: pd.DataFrame,
     
     return score_series
 
+def value_to_nan(series: pd.Series,
+                 value: Any) -> pd.Series:
+    """Convert all elements of specified value inside series to nan.
+
+    Args:
+        series (pd.Series): Pandas series object.
+        value (Any): Value to convert.
+
+    Returns:
+        pd.Series: Coverted series object.
+    """
+    series[series == value] = np.nan
+    return series
 
 def filter_crap(df: pd.DataFrame,
                 pept_col: str,
@@ -219,3 +233,293 @@ def reshape_taxonomy_df_to_denovo(input_df: pd.DataFrame,
     global_annot['Sample Name'] = 'Global annotation'
     
     return pd.concat([metagenome_annot, global_annot])
+
+
+def peptide_allocation_across_lineage(peptide_df: pd.DataFrame,
+                                      lineage: List[str | float],
+                                      quant_col: str) -> Tuple[Tuple[str, int | float],
+                                                               List[Tuple[str,
+                                                                          Tuple[int | float]]]]:
+    """Given a taxonomy lineage, compute allocation of peptide abundance across
+    lineage.
+
+    Args:
+        peptide_df (pd.DataFrame): MetaPepTable peptide dataset
+        lineage (List[str  |  float]): Taxonomy lineage.
+        quant_col (str): Column used for abundance quantification
+
+    Returns:
+        Tuple[Tuple[str, int | float],
+              List[Tuple[str,
+                   Tuple[int | float]]]]: Set of allocation counts across lineage:
+            First value contains tuple of 'rank:tax_name' ids with total quantification
+            for each taxa. Second value contains Tuple of *valid* 'rank:tax_name' id's
+            with for each taxa a tuple showing allocation of peptides from the lower
+            rank clade: {annotation limit (LCA), Branched to other taxa, 
+            allocated to current taxa}.
+    """
+    # fetch name and column data for lineage
+    rank_letters = GlobalConstants.lineage_ranks_short    
+    rank_names = GlobalConstants.standard_lineage_ranks
+    lineage_cols = [rank + ' Name' for rank in rank_names]
+    
+    # Make index list for lineage, drop clades used for lineage gap filling
+    valid_ranks = []
+    for i in range(len(lineage)):
+        if lineage[i] != lineage[i] or lineage[i] == "-":
+            continue
+        elif i == len(lineage) - 1 or lineage[i] != lineage[i + 1]:
+            valid_ranks.append(i)
+        else:
+            # if not valid, create gap in lineage
+            lineage[i] = "-"
+            
+    
+    # for lineage, count number of matches at every rank
+    lineage_counts = [
+        (
+            "{}: {}".format(rank_letters[x], lineage[x]), 
+            np.nan if x not in valid_ranks else \
+                peptide_df.groupby(by=lineage_cols[x])[quant_col]\
+                    .agg('sum')\
+                    .loc[lineage[x]]
+        )
+        for x in range(len(lineage))
+    ]
+    
+    
+    # initialize empty lineage dropoff
+    lineage_dropoff = [
+        (
+            "{}: {}".format(rank_letters[x + 1], 
+                            lineage[x + 1]), 
+            (np.nan, np.nan, np.nan, np.nan)
+        )
+        for x in range(len(lineage) - 1)
+    ]
+    
+    # Fill lineage_dropoff with dropoff values between valid ranks
+    valid_dropoffs = [(valid_ranks[i], 
+                       valid_ranks[i + 1]) for i in range(len(valid_ranks) - 1)]
+    
+    for low_rank_idx, high_rank_idx in valid_dropoffs:
+        lineage_dropoff[high_rank_idx - 1] = (
+            "{}: {}".format(rank_letters[high_rank_idx], 
+                            lineage[high_rank_idx]), 
+            compute_taxonomy_dropoff(
+                peptide_df,
+                quant_col,
+                lineage_cols[low_rank_idx],
+                lineage_cols[high_rank_idx],
+                lineage[low_rank_idx],
+                lineage[high_rank_idx],
+            )
+        )
+
+    # dropoff of lowest rank is just counting empty values
+    lineage_dropoff = [
+        (
+            "{}: {}".format(rank_letters[valid_ranks[0]], 
+                            lineage[valid_ranks[0]]),
+            compute_taxonomy_dropoff(
+                peptide_df,
+                quant_col,
+                np.nan,
+                lineage_cols[valid_ranks[0]],
+                np.nan,
+                lineage[valid_ranks[0]]
+            )
+        )
+    ] + lineage_dropoff
+    
+    return (lineage_counts, lineage_dropoff)
+
+
+def compute_taxonomy_dropoff(
+    peptide_df: pd.DataFrame,
+    quant_col: str,
+    rank_lower: str | float, 
+    rank_upper: str,
+    rank_lower_name: str | float, 
+    rank_upper_name: str | float) -> Tuple[float, float, float, float]:
+    """Get the drop in annotation counts when comparing peptide quantification
+    from a single lower rank clade to the quantification of a higher
+    rank clade of interest. Dropoff may be due to either branching of peptide
+    annotations across other higher rank clades, or due to taxonomic resolution
+    limit (LCA at lower rank).
+
+    Args:
+        peptide_df (pd.DataFrame): MetaPepTable dataset (assumes single sample).
+        quant_col (str): Column to use for quantification.
+        rank_upper (str): Upper rank name (e.g. "Phylum").
+        rank_lower_name (str): Name of lower rank clade to quantify.
+        rank_upper_name (str): Name of upper rank clade of interest (only used
+            to check if upper rank is still defined. If not, no dropoff is 
+            calculated). 
+
+    Returns:
+        Tuple[float, float]: Dropoff values. 
+            {annotation resolution limit dropoff,
+             clade branching dropoff,
+             valid abundance upper clade,
+             total abundance lower clade}
+    """
+    # Process upper rank dropoff over whole peptide dataset if no lower rank given (root)
+    if rank_lower != rank_lower or rank_lower == "-":
+        
+        # compute dropoff from taxonomy resolution loss
+        total_count = peptide_df[quant_col].sum()
+        annot_dropoff = peptide_df[
+            peptide_df[rank_upper].isna()][quant_col].sum()
+        
+        if rank_upper_name != rank_upper_name\
+            or rank_upper_name == "-":
+            valid_counts = np.nan
+            branch_dropoff = np.nan
+        else:
+            # Count groups of upper taxonomy rank
+            valid_counts = peptide_df[
+                peptide_df[rank_upper] == rank_upper_name][quant_col].sum()
+                
+            branch_dropoff = total_count - valid_counts - annot_dropoff
+        
+        return (annot_dropoff, branch_dropoff, valid_counts, total_count)
+    
+    # Dropoff is only of interest for valid lower rank taxa names
+    # Also, check if upper and lower ranks are different
+    if rank_lower_name != rank_lower_name or rank_lower_name == "-" or\
+        rank_upper == rank_lower:
+        return (np.nan, np.nan, np.nan, np.nan)
+    else:
+        # set initial dropoff and quantification values to 0
+        annot_dropoff, valid_counts = 0.0, 0.0
+        
+        # fill missing values to allow ingexing, then count groups
+        peptide_df[rank_upper] = peptide_df[rank_upper].fillna(-1.0)
+        rank_counts = peptide_df\
+            .groupby(by=[rank_lower, rank_upper])[quant_col]\
+            .agg('sum')
+        
+        # get total count of the lower rank clade. If it is not present, we 
+        # cannot compute any dropoff
+        if rank_lower_name in rank_counts.index.get_level_values(rank_lower):
+            lower_rank_total = rank_counts\
+                .groupby(level=rank_lower)\
+                .sum()\
+                .loc[rank_lower_name]
+        else:
+            # undo peptide df modification
+            peptide_df[rank_upper] = value_to_nan(peptide_df[rank_upper], -1.0)
+            return (np.nan, np.nan, np.nan, np.nan)
+            
+        # calculate annotation dropoff if any observed
+        if (rank_lower_name, -1.0) in rank_counts.index:
+            annot_dropoff = rank_counts.loc[(rank_lower_name, -1.0)]
+        
+        # valid counts is only meaningful if an upper rank name is specified
+        if rank_upper_name != rank_upper_name or rank_upper_name == "-":
+            valid_counts = np.nan
+        elif (rank_lower_name, rank_upper_name) in rank_counts.index:
+            valid_counts = rank_counts.loc[(rank_lower_name, rank_upper_name)]
+            
+        # calculate branching dropoff
+        branch_dropoff = lower_rank_total - valid_counts - annot_dropoff
+        
+        # undo peptide df modification
+        peptide_df[rank_upper] = value_to_nan(peptide_df[rank_upper], -1.0)
+        
+        return (annot_dropoff, branch_dropoff, valid_counts, lower_rank_total)
+        
+
+def compute_lineage_cumulative_annotation_drop(
+    peptide_allocation: List[Tuple[str, Tuple[int | float]]],
+    root_rank: RankType | Literal["Root"]) -> float:
+    """Combine the drop of peptide annotations as a result of LCA limits across
+    ranks into a global observed annotation drop for a given lineage.
+    
+    This approach differs from calculating the loss of annotations from a
+    specified root clade down to a higher rank level as that would count
+    peptide losses across all subclades. This method iteratively takes the
+    peptide annotation loss from taxa x at its corresponding rank to the next
+    valid rank, across the complete lineage. This means that any divergent clade
+    group is ignored in the next annotation loss computation.
+    
+    Args:
+        lineage_counts (Tuple[str, int  |  float]): _description_
+        peptide_allocation (List[Tuple[str, Tuple[int  |  float]]]): _description_
+        root_rank (RankType | Literal[&quot;Root&quot;]): _description_
+
+    Returns:
+        float: _description_
+    """
+    # fetch allocation categories into separate arrays
+    annotation_dropoff = np.array([x[0] for i, x in peptide_allocation])
+    sum_array = np.array([x[3] for i, x in peptide_allocation])
+
+    # calculate percentage drop for each rank
+    annotation_dropoff_frac = annotation_dropoff / sum_array
+    
+    if root_rank == "Root":
+        start_idx = 0
+    # species is the resolution limit, cannot drop beyond that
+    elif root_rank == "Species":
+        return np.nan
+    else:
+        start_idx = GlobalConstants.standard_lineage_ranks.index(root_rank) + 1
+    
+    # remove values from array that fall outside the root clade rank
+    annotation_dropoff_frac = annotation_dropoff_frac[start_idx:]
+    # remove potential missing values
+    annotation_dropoff_frac = annotation_dropoff_frac[~np.isnan(annotation_dropoff_frac)]
+
+    if len(annotation_dropoff_frac) == 0:
+        return np.nan
+    else:
+        return (1 - np.multiply.reduce(1 - annotation_dropoff_frac)) * 100
+    
+    
+def compute_global_cumulative_annotation_drop(
+    peptide_df: pd.DataFrame,
+    root_rank: RankType | Literal["Root"],
+    root_clade: str | float,
+    limit_rank: RankType,
+    quant_col: str) -> float:
+    """Compute the drop of peptide annotations as a result of LCA limits between
+    a specified root clade up to the desired limit rank
+    
+    In contrast to `compute_lineage_cumulative_annotation_drop`, this method
+    computes the fraction of peptide annotations lost directly from a root clade
+    up to a specified higher rank. This serves as a global average annotation
+    drop from the complete clade, as opposed to the drop from a specific lineage.
+    
+    Args:
+        peptide_df (pd.DataFrame): MetaPepTable dataset.
+        root_rank (RankType | Literal["Root"]): Rank start peptide annotation 
+            drop computation.
+        root_clade (str | float): Taxonomy clade to set as root clade for
+            annotation drop computation.
+        limit_rank (RankType): Taxonomy rank to stop peptide annotation drop.
+        quant_col (str): Column used for peptide abundance quantification
+
+    Returns:
+        float: Annotation drop observed in percent.
+    """
+    
+    if root_rank == "Root":
+        root_rank = np.nan
+    else:
+        root_rank = root_rank + " Name"
+    limit_rank = limit_rank + " Name"
+    
+    # get the first value for the taxonomy dropoff
+    dropoff = compute_taxonomy_dropoff(
+        peptide_df,
+        quant_col,
+        root_rank,
+        limit_rank,
+        root_clade,
+        np.nan)
+    
+    total_loss, total_quant = dropoff[0], dropoff[3]
+    
+    return ((total_loss / total_quant)) * 100

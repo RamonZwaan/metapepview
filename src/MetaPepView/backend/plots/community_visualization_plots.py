@@ -36,31 +36,37 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     xcol = 'Sample Name'
     ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
 
-    # get correct suffix from lineage columns
-    suffix = ' Name' if fetch_names is True else ' Id'
-    rank_col = rank + suffix
+    # configure taxonomy columns to process based on rank and selected display format
+    (display_suffix, hidden_suffix) = (' Name', ' Id') if fetch_names is True \
+        else (' Id', ' Name')
+    rank_display_col = rank + display_suffix    
+    rank_hidden_col = rank + hidden_suffix
     
+    # generate lookup table to match display format (id/name) to its corresponding hidden format
+    rank_cols = [rank + sfx for sfx in (display_suffix, hidden_suffix)]
+    id_name_match = {displ_name: hidden_name for displ_name, hidden_name \
+        in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
+
     # set correct discrete color scale depending on number of taxa
     color_scale = GraphConstants.wide_color_palette if topn > 10 else GraphConstants.color_palette
     
     # Set replacement values for specific cases
     # value of undefined depends on dtype of column (id number or name string)
-    if pd.api.types.is_string_dtype(peptide_dataset[rank_col].dtype):
+    if pd.api.types.is_string_dtype(peptide_dataset[rank_display_col].dtype):
         undefined_val = "Undefined"
     else:
         undefined_val = 0
     other_val = 'Other'
 
     # convert dataset to rank name and their aggregated sum
-    comp_df = peptide_dataset[[ycol, rank_col, xcol]]
-    
+    comp_df = peptide_dataset[[ycol, rank_display_col, xcol]]
     
     # give value to all nan cells to represent undefined or unknown
     if include_undefined is True:
-        comp_df[rank_col].fillna(undefined_val, inplace=True)
+        comp_df[rank_display_col].fillna(undefined_val, inplace=True)
             
     # group all peptides belonging to rank, sum separate abundance scores
-    comp_df = comp_df.groupby(by=[xcol, rank_col]).sum().reset_index()
+    comp_df = comp_df.groupby(by=[xcol, rank_display_col])[[ycol]].sum().reset_index()
     
     # divide psm's by sum of psm's per sample name
     if fractional_abundance is True:
@@ -68,8 +74,8 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     
     # only keep the most abundant taxa over both samples, optionally, max is taken instead of sum
     if topn > 0:
-        sorted_taxa_counts = comp_df[comp_df[rank_col] != undefined_val]\
-            .groupby(by=rank_col)[ycol]\
+        sorted_taxa_counts = comp_df[comp_df[rank_display_col] != undefined_val]\
+            .groupby(by=rank_display_col)[ycol]\
             .sum()\
             .sort_values(ascending=False)
         
@@ -81,25 +87,30 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
         
 
         # summ smaller taxa into 'other' group
-        top_taxa_indices = comp_df[rank_col].isin(top_taxa + [undefined_val])
+        top_taxa_indices = comp_df[rank_display_col].isin(top_taxa + [undefined_val])
         other_sum = comp_df[~top_taxa_indices].groupby(by=xcol)[ycol].sum()
         other_df = other_sum.reset_index()
-        other_df[rank_col] = other_val
+        other_df[rank_display_col] = other_val
         
-        comp_df = comp_df[comp_df[rank_col].isin(top_taxa)]
+        comp_df = comp_df[comp_df[rank_display_col].isin(top_taxa)]
         comp_df = comp_df.reset_index(drop=True)
-        comp_df = comp_df.sort_values(by=rank_col)
-        comp_df[rank_col] = comp_df[rank_col].astype(str)
+        comp_df = comp_df.sort_values(by=rank_display_col)
+        comp_df[rank_display_col] = comp_df[rank_display_col].astype(str)
         
         comp_df = pd.concat([comp_df, other_df]) 
+        
+        # wether taxonomy id or name is displayed, include the other as hidden data
+        comp_df.loc[:, rank_hidden_col] = comp_df[rank_display_col].apply(
+            lambda x: id_name_match.get(x, np.nan)
+        )
     
     fig = px.bar(comp_df,
                  title=f"Distribution PSM over taxa ({rank})",
                  x=xcol,
                  y=ycol,
-                 color=rank_col,
-                 color_discrete_sequence=color_scale,
-                 custom_data=[rank + suffix])
+                 color=rank_display_col,
+                 custom_data=rank_hidden_col,
+                 color_discrete_sequence=color_scale)
     
     fig.update_layout(GraphConstants.default_layout)
     fig.update_layout(title="")
@@ -206,6 +217,89 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
     fig.update_xaxes(side="top",
                      title=xtitle)
     fig.update_layout(GraphConstants.default_layout)
+    
+    return fig
+
+
+def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
+                             lineage_counts: Tuple[str, int | float],
+                             lineage_dropoff: List[Tuple[str, Tuple[int | float]]],
+                             normalize_bars: bool = False):
+    
+    # fetch allocation categories into separate arrays
+    lin_names = [x[0] for x in lineage_dropoff]
+    annotation_dropoff = np.array([x[0] for i, x in lineage_dropoff])
+    branching_dropoff = np.array([x[1] for i, x in lineage_dropoff])
+    valid_counts = np.array([x[2] for i, x in lineage_dropoff])
+    
+    # normalize peptide annotation allocation to 100%
+    sum_array = annotation_dropoff + branching_dropoff + valid_counts
+    if normalize_bars is True:
+        annotation_dropoff /= sum_array / 100
+        branching_dropoff /= sum_array / 100
+        valid_counts /= sum_array / 100
+
+        secondary_y = True
+    else:
+        secondary_y = False
+    
+    
+    # create new figure
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # add lineage counts as scatter trace
+    fig.add_trace(go.Scatter(x=[str(row[0]) for row in lineage_counts],
+                             y=[row[1] for row in lineage_counts],
+                             mode='lines+markers',
+                             marker=dict(
+                                size=8,
+                                color="Black"
+                             ),
+                             line=dict(width=3),
+                             connectgaps=True,
+                             name="lineage abundance"),
+                  secondary_y=secondary_y,
+                  )
+    # add lineage dropoff as bar trace
+    fig.add_trace(go.Bar(x=lin_names,
+                         y=valid_counts,
+                         marker=dict(
+                                color=GraphConstants.color_palette[0]
+                         ),
+                         name="lineage clade")
+                  )
+    fig.add_trace(go.Bar(x=lin_names,
+                         y=branching_dropoff,
+                         marker=dict(
+                                color=GraphConstants.color_palette[1]
+                             ),
+                         name="diverging clades")
+                  )
+    fig.add_trace(go.Bar(x=lin_names,
+                         y=annotation_dropoff,
+                         marker=dict(
+                                color=GraphConstants.color_palette[2]
+                             ),
+                         name="annotation drop")
+                  )
+    
+    fig.update_layout(GraphConstants.default_layout)
+    fig.update_layout(barmode='stack',
+                      legend=dict(x=1.1))
+    
+    if normalize_bars is True:
+        fig.update_yaxes(title="abundance alloc lower clade (%)",
+                         tickmode="sync",
+                         gridcolor=GraphConstants.gridcolor,
+                         gridwidth=GraphConstants.gridwidth,
+                         nticks=6)
+    fig.update_yaxes(title="Peptide spectrum matches",
+                     secondary_y=secondary_y,
+                     gridcolor=GraphConstants.gridcolor,
+                     gridwidth=GraphConstants.gridwidth,
+                     nticks=6,
+                     rangemode="tozero")
+    fig.update_xaxes(showline=True, linecolor="Black")
     
     return fig
 

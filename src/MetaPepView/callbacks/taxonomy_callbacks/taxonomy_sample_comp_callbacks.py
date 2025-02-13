@@ -1,5 +1,6 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 from dash.exceptions import PreventUpdate
+import plotly.graph_objects as go 
 import dash_bootstrap_components as dbc
 
 from server import app
@@ -13,7 +14,10 @@ from layout.data_page import data_visual
 from layout.header import content_header
 
 from backend import *
-from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap
+from backend.plots import \
+    taxonomic_abundance_barplot, \
+    taxonomic_abundance_heatmap, \
+    taxonomy_dropoff_scatter
 from constants import *
     
     
@@ -94,5 +98,152 @@ def update_taxa_graph(page_active,
     return dcc.Graph(figure=plot,
                      id="taxonomy_barplot_figure",
                      style={'height': "45rem"}), dict(), plot_title
+    
 
+@app.callback(
+    Output('taxonomic_dropoff_modal', 'is_open'),
+    Output('taxonomic_dropoff_graph', 'style'),
+    Output('taxonomic_dropoff_figure', 'figure'),
+    Output('taxonomic_dropoff_title', 'children'),
+    Output('lineage_tax_dropoff_text', 'children'),
+    Output('global_av_dropoff_text', 'children'),
+    Output('taxonomy_cumulative_dropoff_rank', 'options'),
+    Output('taxonomy_cumulative_dropoff_rank', 'value'),
+    Input('taxonomy_barplot_figure', 'clickData'),
+    State('sidebar_taxonomy_button', 'active'),
+    State('peptides', 'data'),
+    State('barplot_taxa_rank_items', 'value'),
+    Input('taxonomic_dropoff_normalize', 'value'),
+    Input('taxonomy_cumulative_dropoff_rank', 'value'),
+    State('barplot_taxa_allow_global_annot_checkbox', 'value'),
+    prevent_initial_call=True
+)
+def update_taxonomy_dropoff_graph(clickData,
+                                  page_active,
+                                  peptide_json,
+                                  tax_rank,
+                                  normalize_bars,
+                                  dropoff_root_rank,
+                                  global_annot_fallback):
+    print("Execute!")
+    if page_active is False \
+        or clickData is None \
+        or tax_rank is None \
+        or peptide_json is None:
+        return (False, 
+                {'display': 'None'}, 
+                go.Figure(), 
+                None,
+                "",
+                "",
+                [],
+                "Root")
+    
+    # extract data from clickdata
+    datapoint = clickData['points'][0]
+    sample_name = datapoint['x']
+    tax_id = datapoint['customdata'][0]
+    
+    # can only construct figure from valid tax id's.
+    if tax_id is None:
+        return (False, 
+                {'display': 'None'}, 
+                go.Figure(), 
+                None,
+                "",
+                "",
+                [],
+                "Root")
 
+    peptide_df = MetaPepTable.read_json(peptide_json).data
+    peptide_df = peptide_df[peptide_df["Sample Name"] == sample_name]
+    
+    # select column to sum, match count or total signal
+    quant_col = "PSM Count" # alternative: "Area"
+    
+    # fetch lineage directly from peptide json
+    rank_names = GlobalConstants.standard_lineage_ranks
+    lineage_cols = [rank + ' Name' for rank in rank_names]
+    lineage = peptide_df[peptide_df[tax_rank + ' Id'] == tax_id]
+    
+    # stop execution if no valid lineage found, else, retrieve first row and convert to list
+    if lineage.shape[0] == 0:
+        raise PreventUpdate
+    else:
+        tax_name = lineage.iloc[0][tax_rank + ' Name']
+        lineage = lineage.iloc[0][lineage_cols].fillna("-").to_list()
+        
+        # cut off any rand definitions beyond rank name
+        rank_idx = GlobalConstants.standard_lineage_ranks.index(tax_rank)
+        for i in range(rank_idx + 1, len(lineage)):
+            lineage[i] = "-"
+    
+    lineage_counts, pept_allocation = peptide_allocation_across_lineage(
+        peptide_df,
+        lineage,
+        quant_col)
+    
+    # configure dropoff dropdown menu and check that current value is part of dropdown menu
+    dropoff_menu_options = [
+        {'label': 'Root', 'value':"Root"}
+    ]
+    
+    for rank, rank_short, clade in zip(GlobalConstants.standard_lineage_ranks, 
+                                       GlobalConstants.lineage_ranks_short,
+                                       lineage):
+        if clade != "-":
+            clade = clade
+            dropoff_menu_options.append({'label': clade, 'value': rank})
+    if dropoff_root_rank not in [x['value'] for x in dropoff_menu_options]:
+        dropoff_root_rank = "Root"
+    
+    # get clade from root rank
+    if dropoff_root_rank == "Root":
+        dropoff_root_clade = "Root"
+    else:
+        root_rank_idx = GlobalConstants.standard_lineage_ranks.index(dropoff_root_rank)
+        dropoff_root_clade = lineage[root_rank_idx]
+
+    # compute cumulative dropoffs
+    if dropoff_root_clade == dropoff_root_clade and dropoff_root_clade != "-":
+        combined_lin_loss = compute_lineage_cumulative_annotation_drop(
+            pept_allocation,
+            dropoff_root_rank
+        )
+        if combined_lin_loss != combined_lin_loss:
+            lin_loss_text = "-".format(combined_lin_loss)
+        else:
+            lin_loss_text = "{:.1f}%".format(combined_lin_loss)
+        
+        combined_glob_loss = compute_global_cumulative_annotation_drop(
+            peptide_df,
+            dropoff_root_rank,
+            dropoff_root_clade,
+            tax_rank,
+            quant_col   
+        )
+        if combined_glob_loss != combined_glob_loss:
+            glob_loss_text = " -".format(combined_glob_loss)
+        else:
+            glob_loss_text = "{:.1f}%".format(combined_glob_loss)
+    else:
+        lin_loss_text, glob_loss_text = "-", "-"
+    
+
+    fig = taxonomy_dropoff_scatter(
+        peptide_df,
+        lineage_counts,
+        pept_allocation,
+        normalize_bars)
+    
+    title = "Taxonomic dropoff: {} from {}".format(tax_name, sample_name)
+     
+    return (True, 
+            dict(), 
+            fig, 
+            title,
+            lin_loss_text,
+            glob_loss_text,
+            dropoff_menu_options,
+            dropoff_root_rank)
+    

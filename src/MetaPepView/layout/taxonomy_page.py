@@ -2,6 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 import dash_bootstrap_components as dbc
 
 from .style_constants import *
+from constants import *
 
 
 # buttongroup to select the type of graph to show
@@ -82,14 +83,8 @@ taxonomy_rank_selector = dbc.Row(
         dbc.Col(html.B("Display rank")),
         dbc.Col(
             dcc.Dropdown(
-                ['Superkingdom',
-                    'Phylum',
-                    'Class',
-                    'Order',
-                    'Family',
-                    'Genus',
-                    'Species'],
-                'Phylum',
+                GlobalConstants.standard_lineage_ranks,
+                value='Phylum',
                 id='barplot_taxa_rank_items',
                 style={"width": "15rem"}
             )
@@ -256,6 +251,66 @@ taxonomy_de_novo_barplot = [
 ]
 
 
+taxonomic_dropoff_modal = dbc.Modal(
+    [
+        dbc.ModalHeader(dbc.ModalTitle("taxonomic dropoff", id="taxonomic_dropoff_title")),
+        dbc.ModalBody(
+            [
+                html.Div(
+                    [
+                        html.P("Cumulative annotation drop from:",
+                                className="mb-0 me-3 fs-5 text"),
+                        dcc.Dropdown(
+                            ["Root"] + GlobalConstants.standard_lineage_ranks,
+                            value="Root",
+                            clearable=False,
+                            id='taxonomy_cumulative_dropoff_rank',
+                            style={"width": "20rem"}),
+                    ],
+                    className="d-flex align-items-center justify-content-between mb-3 mx-4",
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.P("Lineage drop:",
+                                       className="mb-0 fs-5 text"),
+                                html.P(id="lineage_tax_dropoff_text",
+                                       className="mb-0 ms-1 fs-5 text fw-bold")
+                            ],
+                            className="d-flex ms-3"
+                        ),
+                        html.Div(
+                            [
+                                html.P("Clade average drop:",
+                                       className="mb-0 fs-5 text"),
+                                html.P(id="global_av_dropoff_text",
+                                       className="mb-0 ms-1 fs-5 text fw-bold"),
+                            ],
+                            className="d-flex ms-3"
+                        )
+                    ],
+                    className="d-flex align-items-center justify-content-between mb-3 mx-4",
+                ),
+                html.Hr(className="p-0"),
+                dbc.Checkbox(id="taxonomic_dropoff_normalize",
+                             label="abundance distribution percentage",
+                             value=False,
+                             className="ms-4"),
+                html.Div(
+                    [
+                        dcc.Graph(id="taxonomic_dropoff_figure"),
+                    ],
+                    id='taxonomic_dropoff_graph', style={'display': 'None'})
+            ], 
+            className="px-1 pb-1")
+    ],
+    id="taxonomic_dropoff_modal",
+    size="lg",
+    is_open=False
+)
+
+
 # TODO: Move function to html templates
 def taxonomy_page_constructor(
     filter_settings,
@@ -291,7 +346,7 @@ def taxonomy_page_constructor(
         ],
         style={"height": "100%"}
     ),
-] + hidden_components
+    ] + hidden_components
 
 
 # Taxonomy annotation page
@@ -303,7 +358,8 @@ taxonomy_sample_analysis = taxonomy_page_constructor(
     ],
     [
         # download component for taxonomy export
-        dcc.Download(id="download_taxonomy_composition_csv")
+        dcc.Download(id="download_taxonomy_composition_csv"),
+        taxonomic_dropoff_modal
     ]
 )
 

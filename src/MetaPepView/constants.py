@@ -17,6 +17,7 @@ class PhysicalConstants:
 class GlobalConstants:
     # remote annotation databases
     standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+    lineage_ranks_short: List[str] = ['K', 'P', 'C', 'O', 'F', 'G', 'S']
     ncbi_taxonomy_dir: str = r"./data/local/ncbi_taxonomy"
     ncbi_taxonomy_url: str = "ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz"
     ncbi_taxonomy_files: Tuple[str, ...] = ("nodes.dmp", "names.dmp", "taxidlineage.dmp")
