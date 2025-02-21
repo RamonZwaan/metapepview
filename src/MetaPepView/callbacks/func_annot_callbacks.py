@@ -45,9 +45,10 @@ def ko_to_symbol(kegg_orthology: str | float,
 @app.callback(
     Output("kegg_db_class_data", "data"),
     Input("database_present_status", "data"),
+    Input("kegg_db_class_data", "data"),
 )
-def kegg_db_to_memory(db_status):
-    if db_status["kegg_map"] == True:
+def kegg_db_to_memory(db_status, loaded_data):
+    if db_status["kegg_map"] == True and loaded_data is None:
         # load file that maps KO to gene symbol
         gc = GlobalConstants
         pathway_list = Path(gc.kegg_map_dir, gc.kegg_pathway_list_file_name)
@@ -74,6 +75,8 @@ def kegg_db_to_memory(db_status):
                                           path_module_link,
                                           ko_ec_link)
         return kegg_db.to_json()
+    elif loaded_data is not None:
+        raise PreventUpdate
     
     return None
 
@@ -250,6 +253,7 @@ def update_pathway_barplot(peptide_json,
                            filter_clade,
                            clade_rank,
                            kegg_db):
+    component_updated = ctx.triggered_id
     title = "functional abundance"
     if kegg_db is not None:
         kegg_db = KeggDatabase.read_json(kegg_db)
@@ -363,7 +367,7 @@ def update_pathway_barplot(peptide_json,
     if top_n_func.shape[0] > 20:
         title += " (top 20 abundant)"
         top_n_func = top_n_func.head(20)
-    print(top_n_func)
+    
     peptide_df = peptide_df[peptide_df["Protein Name"].isin(set(top_n_func.index))]
 
     # rescale each protein type to normalize towards one specified sample
@@ -373,6 +377,8 @@ def update_pathway_barplot(peptide_json,
                                              'Sample Name',
                                              'Protein Name',
                                              'PSM Count')
+        # drop all zero values
+        peptide_df = peptide_df[peptide_df["PSM Count"] > 0.0]
     
     # configure y-axis title
     ytitle = "Peptide spectrum matches"
@@ -510,6 +516,5 @@ def construct_pathway_url(peptide_json,
     
     # configure table that shows color for each sample
     table_block = sample_color_table_block(sample_color_map)
-    print(table_block)
     return kegg_url, False, table_block, {"margin": "2rem 0rem"}
     

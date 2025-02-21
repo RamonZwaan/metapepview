@@ -17,7 +17,7 @@ def import_ref_statistics() -> str:
         filename = stats_file.stem
         
         if filename in combined_stats.keys():
-            print("duplicate names encountered in ref stats, skip...")
+            print("duplicate names encountered in reference statistics, skip...")
             continue
         
         # load contents into dict and add to combined dict

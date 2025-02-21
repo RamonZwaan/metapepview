@@ -77,7 +77,7 @@ def annotate_peptides(sample_name: str,
     if taxonomy_map is not None and \
         options.tax_db_format is not None and \
         options.tax_db_name is not None:
-        print("import taxonomy db...")
+        print("import protein to taxonomy map...")
         tax_db_archive_format = determine_archive_format(options.tax_db_name)
         tax_df = import_acc_tax_map(taxonomy_map,
                                     options.tax_db_acc_idx,
@@ -194,7 +194,7 @@ def taxonomic_annotation(peptides: pd.DataFrame,
     # add lineage to dataset
     peptides = add_lineage(peptides, taxonomy_db)
     
-    print("finished")
+    print("finished taxonomy annotation")
     # return taxonomically annotated peptide dataset
     return peptides
     
@@ -270,7 +270,7 @@ def functional_annotation(peptides: pd.DataFrame,
             idx = peptides.index[i]
             peptides.loc[idx, func_data.index] = func_data
 
-    print("finished")
+    print("finished function annotation")
     # return taxonomically annotated peptide dataset
     return peptides
 
@@ -282,7 +282,7 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
                         sample_name: str,
                         taxonomy_db: TaxonomyDatabase,
                         options: AnnotationOptions) -> MetaPepTable:
-    print("wrangle psm dataset...")
+    print("wrangle db search dataset to metapepview format...")
     if metapep_db_search is not None:
         peptides = process_db_search_data(metapep_db_search, options)
 

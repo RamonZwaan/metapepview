@@ -150,7 +150,6 @@ def clear_peptide_data(_):
 def update_psm_sample_menu(names):
     """Update dropdown menu with imported sample names
     """
-    print(names)
     if names is None:
         return []
     else:

@@ -121,7 +121,7 @@ class GlobalConstants:
         {'label': 'Peaks 11', 'value': 'Peaks 11'},
         {'label': 'Peaks 10', 'value': 'Peaks 10'},
         {'label': 'MaxQuant', 'value': 'MaxQuant'},
-        {'label': 'Proteome Discoverer', 'value': 'ProteomeDiscoverer'},
+        # {'label': 'Proteome Discoverer', 'value': 'ProteomeDiscoverer'},
         {'label': 'Sage', 'value': 'Sage'}
         ]
     de_novo_dropdown_options = [

@@ -56,7 +56,8 @@ def download_ncbi_taxonomy(
         if create_parent_dirs is False:
             msg = "Specified Path does not exist. To create path, select 'Create parent dir'."
             return (False, msg)
-        print(dir_loc.resolve().as_posix())
+        print("Store NCBI taxonomy datasets in new directory: " + 
+              dir_loc.resolve().as_posix())
         dir_loc.mkdir(parents=True)
 
     # check if dir contains existing ncbi taxonomy

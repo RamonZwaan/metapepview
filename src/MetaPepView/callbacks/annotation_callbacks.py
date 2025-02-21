@@ -527,7 +527,6 @@ def download_annotated_dataset_json(n_clicks,
     
     # import json into metapep object
     peptides_obj = MetaPepTable.read_json(peptide_json)
-    print(experiment_name)
     file_name = f'{experiment_name}.json'
     
     # Download dataframe from object

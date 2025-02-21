@@ -156,12 +156,19 @@ def filter_crap(df: pd.DataFrame,
     return df[~li_pept_col.isin(crap_peptides.values)]
 
 
-def substitute_lineage_with_global_lineage(peptide_df: pd.DataFrame) -> pd.DataFrame:
+def substitute_lineage_with_global_lineage(peptide_df: pd.DataFrame,
+                                           supplement_prot_db_annotation: bool = True) -> pd.DataFrame:
     """Add global annotation lineage data to regular taxonomy lineage columns
     for samples that have no taxonomy db classification.
 
     Args:
-        peptide_df (pd.DataFrame): peptide dataset from MetaPepTable
+        peptide_df (pd.DataFrame): peptide dataset from MetaPepTable.
+        supplement_prot_db_annotation (bool, Optional): Add global taxonomy 
+            annotation data to samples that already have taxonomy annotations 
+            through protein matching. If false, only samples without any local
+            taxonomy annotation are processed. If true, global annotation data
+            is added to lineage data for peptides that do not have any taxonomy
+            classification. Defaults to False
 
     Returns:
         pd.DataFrame: peptide dataset with lineage substituted
@@ -171,14 +178,21 @@ def substitute_lineage_with_global_lineage(peptide_df: pd.DataFrame) -> pd.DataF
     glob_tax_fields = GlobalConstants.metapep_table_global_taxonomy_lineage
     mg_tax_fields = GlobalConstants.metapep_table_taxonomy_lineage
     
-    # only substitute samples that have no taxonomy annotation
-    no_tax_annot_idx = peptide_df[peptide_df["Taxonomy Annotation"] == False].index
+    # if true, supplement any peptide without local annotation with global annotation
+    if supplement_prot_db_annotation is True:
+        no_tax_annot_idx = peptide_df[peptide_df["Taxonomy Id"].isnull()].index
+    # otherwise, only substitute samples that have no taxonomy annotation
+    else:
+        no_tax_annot_idx = peptide_df[peptide_df["Taxonomy Annotation"] == False].index
+
     peptide_df.loc[no_tax_annot_idx, 
                     mg_tax_fields] = peptide_df.loc[no_tax_annot_idx, 
                                                     glob_tax_fields].values
     
     # add de novo matches to psm count only if no db search was observed
-    peptide_df['PSM Count'] = peptide_df['PSM Count'].fillna(peptide_df['De Novo Match Count'])   
+    peptide_df.loc[no_tax_annot_idx, 
+                   'PSM Count'] = peptide_df.loc[no_tax_annot_idx, 
+                                                 'PSM Count'].fillna(peptide_df['De Novo Match Count'])   
     
     return peptide_df
 

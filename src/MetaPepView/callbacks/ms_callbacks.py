@@ -56,7 +56,6 @@ def show_spectra_name(name):
 def show_db_psm_search_qa_name(contents, file_format, name, date):
     """Display filename of annotated peptide dataset import.
     """
-    print("parse db search")
     # set validation function
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
         cont_buf = memory_to_stringio(cont, archv)
@@ -86,7 +85,6 @@ def show_db_psm_search_qa_name(contents, file_format, name, date):
 def show_denovo_search_qa_name(contents, file_format, name, date):
     """Display filename of annotated peptide dataset import.
     """
-    print("parse de novo")
     # set validation function
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
         cont_buf = memory_to_stringio(cont, archv)
@@ -98,7 +96,6 @@ def show_denovo_search_qa_name(contents, file_format, name, date):
     if "background-color" in import_box_style.keys():
         qa_box_style["background-color"] = import_box_style["background-color"]
     
-    print(f"de novo valid? {valid_data}")
     return (valid_data, name, content, qa_box_style)
 
 
@@ -174,7 +171,7 @@ def store_mzml_dataset(content, filename):
             False,
             qa_box_style
         )
-    print("Done wrangling...")
+    print("Finished wrangling...")
     # After dataset is imported, remove upload data to save memory
     # However, do keep the filename for display in dashboard
     
@@ -273,7 +270,6 @@ def show_tic_over_rt(dataset,
     fig.update_layout(autosize=True)
     graph = dcc.Graph(figure=fig, id="tic_over_rt_fig", style={'height': '100%'})
     
-    print("finish")
     return (graph, {"display": 'block', 'height': '20rem'})
 
 
@@ -285,22 +281,18 @@ def show_tic_over_rt(dataset,
     State("mzml_peaks_data", "data")
 )
 def show_ms2_spectrum(tic_data, content, peaks):
-    print("tic_data:", tic_data)
     if content is None or tic_data is None:
         raise PreventUpdate
     content = decompress_string(content)
     peaks = decompress_string(peaks)
     
-    print(tic_data)
     
-    print("start ms2 processing")
     content = pd.read_json(StringIO(content))
     click_rt = tic_data["points"][0]["x"]
     
     xvals = []
     yvals = []
     
-    print("parse content")
     # parse mzxml for closest ms2 scan
     for idx, scan in content.iterrows():
             
@@ -321,7 +313,6 @@ def show_ms2_spectrum(tic_data, content, peaks):
                 yvals = decode_mzml_peaks(int_array, peak_number)
             break
     
-    print("show peaks")
     fig = ms2_from_signal_arrays(xvals, yvals)
     fig.update_layout(autosize=True)
     graph = dcc.Graph(figure=fig, id="ms2_spec_fig", style={'height': '100%'})

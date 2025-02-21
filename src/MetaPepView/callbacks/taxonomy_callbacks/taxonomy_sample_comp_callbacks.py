@@ -125,7 +125,6 @@ def update_taxonomy_dropoff_graph(clickData,
                                   normalize_bars,
                                   dropoff_root_rank,
                                   global_annot_fallback):
-    print("Execute!")
     if page_active is False \
         or clickData is None \
         or tax_rank is None \
@@ -157,6 +156,12 @@ def update_taxonomy_dropoff_graph(clickData,
 
     peptide_df = MetaPepTable.read_json(peptide_json).data
     peptide_df = peptide_df[peptide_df["Sample Name"] == sample_name]
+    
+    # substitute missing taxonomy annotation with global annotation if specified
+    glob_tax_fields = GlobalConstants.metapep_table_global_taxonomy_lineage
+    if global_annot_fallback is True and \
+        all(i in peptide_df.columns for i in glob_tax_fields):
+        peptide_df = substitute_lineage_with_global_lineage(peptide_df)
     
     # select column to sum, match count or total signal
     quant_col = "PSM Count" # alternative: "Area"
