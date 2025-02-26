@@ -228,9 +228,9 @@ def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
     
     # fetch allocation categories into separate arrays
     lin_names = [x[0] for x in lineage_dropoff]
-    annotation_dropoff = np.array([x[0] for i, x in lineage_dropoff])
-    branching_dropoff = np.array([x[1] for i, x in lineage_dropoff])
-    valid_counts = np.array([x[2] for i, x in lineage_dropoff])
+    annotation_dropoff = np.array([x[0] for i, x in lineage_dropoff], dtype=np.float64)
+    branching_dropoff = np.array([x[1] for i, x in lineage_dropoff], dtype=np.float64)
+    valid_counts = np.array([x[2] for i, x in lineage_dropoff], dtype=np.float64)
     
     # normalize peptide annotation allocation to 100%
     sum_array = annotation_dropoff + branching_dropoff + valid_counts

@@ -56,6 +56,9 @@ class AccessionTaxaMap:
                               names=["accession", "taxonomy_id"],
                               sep=delimiter)
 
+        if not pd.api.types.is_numeric_dtype(prot_df["taxonomy_id"]):
+            raise ValueError("Invalid taxonomy id's encountered. Ensure that the complete tax id column is numeric.")
+        
         # apply pattern on accession if given        
         if acc_regex is not None:
             repl = lambda m: m.group(0) if m is not None else ""
@@ -67,8 +70,8 @@ class AccessionTaxaMap:
                 prot_df = prot_df.drop_duplicates(subset="accession")
             elif drop_duplicates is False and taxonomy_obj is not None:
                 prot_df = prot_df.groupby(by="accession")\
-                                .aggregate(taxonomy_obj.taxa_to_lca)\
-                                .reset_index()
+                                 .aggregate(taxonomy_obj.taxa_to_lca)\
+                                 .reset_index()
             else:
                 raise ValueError("Taxonomy database missing, add TaxonomyDatabase object or set drop_duplicates to True.")
 

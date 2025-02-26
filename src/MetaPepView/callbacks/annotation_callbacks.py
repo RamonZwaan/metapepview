@@ -238,14 +238,14 @@ def inactivate_sample_name(merge_psm_switch):
 @app.callback(
     Output('merge_psm_switch', 'disabled'),
     Output('merge_psm_switch', 'value'),
-    Input('db_search_psm_valid', 'value'),
+    Input('db_search_psm_valid', 'data'),
     Input('merge_psm_switch', 'value'),
 )
 def inactivate_psm_merge(db_search_valid, current_val):
     if db_search_valid is True:
-        return False, current_val
+        return (False, current_val)
     else:
-        return True, True
+        return (True, True)
 
 
 @app.callback(

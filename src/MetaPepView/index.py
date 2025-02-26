@@ -2,9 +2,6 @@ from dash import html, dcc, Output, Input, ctx
 from server import app
 import plotly.io as pio
 
-import os
-import sys
-
 from constants import *
 
 # import layout elements
