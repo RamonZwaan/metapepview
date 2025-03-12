@@ -264,10 +264,16 @@ def update_pathway_barplot(peptide_json,
     
     if peptide_json is None:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
-                                               "Import PSM and functional annotation datasets...")
+                                               "Import DB Search and functional annotation datasets...")
         return block_element, dict(), "Figure"
     
-    peptide_df = MetaPepTable.read_json(peptide_json).data
+    metapep_obj = MetaPepTable.read_json(peptide_json)
+    if metapep_obj.functional_annotation_present is False:
+        block_element = hidden_graph_with_text("pathway_barplot_figure",
+                                               "No samples with functional annotation in dataset...")
+        return block_element, dict(), "Figure"
+    
+    peptide_df = metapep_obj.data
     
     # divide for each sample the psm value by the sum of psm for that sample, if specified
     if fractional_abundance is True:

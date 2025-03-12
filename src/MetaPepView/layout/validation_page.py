@@ -72,14 +72,28 @@ tic_over_rt = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("SMA window:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
-                                        dbc.Input(type="number", min=1, max=1000, step=1, value=20, id="tic_ms_sma_range", style={'width': '6rem'}),       
+                                        dbc.Input(type="number",
+                                                  min=1,
+                                                  max=1000,
+                                                  step=1,
+                                                  value=20,
+                                                  id="tic_ms_sma_range",
+                                                  debounce=True,
+                                                  style={'width': '6rem'}),       
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
                                 html.Div(
                                     [
                                         html.B("Data reduction factor:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
-                                        dbc.Input(type="number", min=1, max=10, step=1, value=3, id="tic_ms_red_fact", style={'width': '4rem'}),       
+                                        dbc.Input(type="number",
+                                                  min=1,
+                                                  max=10,
+                                                  step=1,
+                                                  value=3,
+                                                  id="tic_ms_red_fact",
+                                                  debounce=True,
+                                                  style={'width': '4rem'}),       
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -100,7 +114,13 @@ tic_over_rt = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("int. cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
-                                        dbc.Input(type="number", min=0, step=1, value=0, id="tic_sec_param_int_cutoff", style={'width': '8rem'}),       
+                                        dbc.Input(type="number",
+                                                  min=0,
+                                                  step=1,
+                                                  value=0,
+                                                  id="tic_sec_param_int_cutoff",
+                                                  debounce=True,
+                                                  style={'width': '8rem'}),       
                                     ],
                                     id="tic_sec_param_int_cutoff_container",
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"},
@@ -109,7 +129,13 @@ tic_over_rt = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("Confidence cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
-                                        dbc.Input(type="number", min=1, step=1, value=0, id="tic_sec_param_conf_cutoff", style={'width': '6rem'}),       
+                                        dbc.Input(type="number",
+                                                  min=1,
+                                                  step=1,
+                                                  value=0,
+                                                  id="tic_sec_param_conf_cutoff",
+                                                  debounce=True,
+                                                  style={'width': '6rem'}),       
                                     ],
                                     id="tic_sec_param_conf_cutoff_container",
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"},
@@ -143,7 +169,14 @@ feature_map = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("int. cutoff:", style={"margin-right": "1rem", "text-align": "center"}),
-                                        dbc.Input(type="number", min=0, max=1e8, step=1, value=0, id="mz_over_rt_int_cutoff", style={'width': '8rem'}),
+                                        dbc.Input(type="number",
+                                                  min=0,
+                                                  max=1e8, 
+                                                  step=1, 
+                                                  value=0, 
+                                                  id="mz_over_rt_int_cutoff", 
+                                                  debounce=True,
+                                                  style={'width': '8rem'}),
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -191,7 +224,15 @@ intensity_hist = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("ALC cutoff (de novo):", style={"margin-right": "1rem", "margin-left": "1rem", "text-align": "center"}),
-                                        dbc.Input(type="number", min=0, max=100, step=1, value=80, disabled=True, id="scan_int_dist_alc_cutoff", style={'width': '6rem'}),
+                                        dbc.Input(type="number",
+                                                  min=0,
+                                                  max=100,
+                                                  step=1,
+                                                  value=80,
+                                                  disabled=True,
+                                                  id="scan_int_dist_alc_cutoff",
+                                                  debounce=True,
+                                                  style={'width': '6rem'}),
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 )
@@ -222,7 +263,14 @@ transmission_scatter = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("min m/z:", style={"margin-right": "1rem", "text-align": "center"}),
-                                        dbc.Input(type="number", min=0, max=1400, step=1, value=0, id="ms1_over_ms2_mz_cutoff", style={'width': '6rem'}),
+                                        dbc.Input(type="number",
+                                                  min=0,
+                                                  max=1400,
+                                                  step=1,
+                                                  value=0,
+                                                  id="ms1_over_ms2_mz_cutoff",
+                                                  debounce=True,
+                                                  style={'width': '6rem'}),
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -273,14 +321,28 @@ ident_score_rank_dist = dbc.Card(
                                 html.Div(
                                     [
                                         html.B("-10lgP cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
-                                        dbc.Input(type="number", min=0, max=200, step=1, value=35, id="pept_conf_lgp_cutoff", style={'width': '6rem'}),       
+                                        dbc.Input(type="number",
+                                                  min=0,
+                                                  max=200,
+                                                  step=1,
+                                                  value=35,
+                                                  id="pept_conf_lgp_cutoff",
+                                                  debounce=True,
+                                                  style={'width': '6rem'}),       
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
                                 html.Div(
                                     [
                                         html.B("ALC cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
-                                        dbc.Input(type="number", min=0, max=200, step=1, value=35, id="pept_conf_alc_cutoff", style={'width': '6rem'}),       
+                                        dbc.Input(type="number",
+                                                  min=0,
+                                                  max=200,
+                                                  step=1,
+                                                  value=35,
+                                                  id="pept_conf_alc_cutoff",
+                                                  debounce=True,
+                                                  style={'width': '6rem'}),       
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -656,7 +718,9 @@ Protein_db = [
                             ),
                             dbc.Col(html.P("ALC cutoff: ", style={"margin-top": "0.5rem"}), width=1),
                             dbc.Col(
-                                dbc.Input(value=85, id="de_novo_fraction_alc_cutoff"),
+                                dbc.Input(value=85, 
+                                          debounce=True,
+                                          id="de_novo_fraction_alc_cutoff"),
                                 width=1
                             )
                         ],

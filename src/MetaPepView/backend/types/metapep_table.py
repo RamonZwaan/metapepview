@@ -169,29 +169,33 @@ class MetaPepTable(DataValidator):
             raise ValueError(msg)
         
         self._data = new_data
-                
+    
     @property
-    def taxonomy_db_format(self) -> TaxonomyFormat:
+    def functional_annotation_present(self) -> bool:
+        return self._functional_db_format != None
+     
+    @property
+    def taxonomy_db_format(self) -> TaxonomyFormat | None:
         return self._taxonomy_db_format # type: ignore
                 
     @property
-    def functional_db_format(self) -> FuncAnnotFormat:
+    def functional_db_format(self) -> FuncAnnotFormat | None:
         return self._functional_db_format # type: ignore
     
     @property
-    def db_search_format(self) -> DbSearchSource:
+    def db_search_format(self) -> DbSearchSource | None:
         return self._db_search_format # type: ignore
     
     @property
-    def db_search_confidence_format(self) -> DbSearchConfFormat:
+    def db_search_confidence_format(self) -> DbSearchConfFormat | None:
         return self._db_search_confidence_format # type: ignore
     
     @property
-    def de_novo_format(self) -> DeNovoSource:
+    def de_novo_format(self) -> DeNovoSource | None:
         return self._de_novo_format # type: ignore
     
     @property
-    def de_novo_confidence_format(self) -> DeNovoConfFormat:
+    def de_novo_confidence_format(self) -> DeNovoConfFormat | None:
         return self._de_novo_confidence_format # type: ignore
     
     @property

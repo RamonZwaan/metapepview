@@ -690,10 +690,10 @@ def ref_score_threshold_plot(stat_dict: dict,
         raise ValueError("invalid format supplied")
     
     merged_df, _ = reference_score_distribution(stat_dict,
-                                             formats,
-                                             format_to_label,
-                                             normalize_psm,
-                                             normalize_rt)
+                                                formats,
+                                                format_to_label,
+                                                normalize_psm,
+                                                normalize_rt)
 
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
@@ -733,15 +733,14 @@ def ref_score_threshold_plot(stat_dict: dict,
                                                                   normalize_rt])):
         # based on normalization method, specify division factor within value counts
         div_factor = None
+        sample_legend = False
+        
         if normalize_psm is True and spectral_metadata is not None:
             div_factor = spectral_metadata.get('spectrum count')
         elif normalize_rt is True and spectral_metadata is not None:
             div_factor = spectral_metadata.get('total retention time')
             
 
-        # Only process sample data if relevant files present
-        lgp_counts, alc_counts, alc_only_counts = [], [], []
-        lgp_names, alc_names, alc_only_names = [], [], []
         if sample_db_search is not None and "db search" in formats:
             db_search_data = sample_db_search.data
             lgp_counts, lgp_names = count_threshold_values(db_search_data,
@@ -750,6 +749,23 @@ def ref_score_threshold_plot(stat_dict: dict,
                                                            div_factor=div_factor)
             prefix, suffix = format_to_label["db search"]
             lgp_names = [f"{prefix} {i} {suffix}" for i in lgp_names]
+            
+            fig.add_trace(go.Scatter(
+                y=lgp_counts,
+                x=lgp_names,
+                mode='markers',
+                marker_symbol="x",
+                marker_line_width=2, 
+                marker_size=15,
+                name="Sample",
+                showlegend=sample_legend == False,
+                marker_color=GraphConstants.sample_trace_color
+            ))
+            sample_legend = True
+        
+        # Only process sample data if relevant files present
+        alc_counts, alc_only_counts = [], []
+        alc_names, alc_only_names = [], []
         
         if sample_de_novo is not None and "de novo" in formats:
             de_novo_data = sample_de_novo.data
@@ -771,21 +787,21 @@ def ref_score_threshold_plot(stat_dict: dict,
             prefix, suffix = format_to_label["de novo only"]
             alc_only_names = [f"{prefix} {i} {suffix}" for i in alc_only_names]
         
-        y_vals = (lgp_counts + alc_counts + alc_only_counts)
-        x_vals = (lgp_names + alc_names + alc_only_names)
+        y_vals = (alc_counts + alc_only_counts)
+        x_vals = (alc_names + alc_only_names)
 
         if len(y_vals) > 0:
             fig.add_trace(go.Scatter(
                 y=y_vals,
                 x=x_vals,
-                # name=sample_name,
                 mode='markers',
                 marker_symbol="x",
                 marker_line_width=2, 
                 marker_size=15,
                 name="Sample",
+                showlegend=sample_legend == False,
                 marker_color=GraphConstants.sample_trace_color
-            ))
+            ), secondary_y=True)
 
     # specify y axis names, overwrite based on normalization settings
     alc_y_name = "de novo matches"
