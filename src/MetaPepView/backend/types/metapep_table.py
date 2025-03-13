@@ -749,7 +749,7 @@ def _concat_tables_sample(metapep_list: Sequence[metapep_obj]) -> metapep_obj:
     
     While multiple input files can be freely combined, the resulting 
     MetaPepDbSearch or MetaPepDeNovo should represent a single 'experiment'
-    (e.g. analysis of a single sample) For successful concatenation, metadata
+    (e.g. analysis of a single sample). For successful concatenation, metadata
     must be compatible for all objects. Data format, confidence format and
     sample name must be identical. In addition, redundancy of identifications
     should be avoided. Therefore, all raw data files between the input data

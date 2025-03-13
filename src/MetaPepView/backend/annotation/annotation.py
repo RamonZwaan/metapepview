@@ -150,14 +150,15 @@ def annotate_peptides(sample_name: str,
                                                 options.db_search_format,
                                                 db_search_crap)
                 sample_metapep_table = build_metapep_table(psm_df,
-                                                        tax_df,
-                                                        func_annot_db,
-                                                        de_novo_dict,
-                                                        db_search_names[i],
-                                                        taxonomy_db,
-                                                        options)
+                                                           tax_df,
+                                                           func_annot_db,
+                                                           de_novo_dict,
+                                                           db_search_names[i],
+                                                           taxonomy_db,
+                                                           options)
                 metapep_table_list.append(sample_metapep_table)
             metapep_table = MetaPepTable.concat_tables(metapep_table_list)
+            
     # without db search data, build metapep table with only global taxonomy
     elif de_novo_dict is not None:
         metapep_table = build_metapep_table(None,

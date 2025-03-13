@@ -95,7 +95,7 @@ def update_de_novo_taxa_graph(page_active,
                                 fractional_abundance=fractional)
         dif_plot = tax_differential_barplot(peptide_df,
                                             'Global annotation',
-                                            'Metagenome annotation',
+                                            'DB search protein annotation',
                                             tax_rank)
     elif top_taxa == 2:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
@@ -110,7 +110,7 @@ def update_de_novo_taxa_graph(page_active,
                                 include_undefined=unannotated)
         dif_plot = tax_differential_barplot(peptide_df,
                                             'Global annotation',
-                                            'Metagenome annotation',
+                                            'DB search protein annotation',
                                             tax_rank,
                                             topn=n_taxa,
                                             show_legend=False)
