@@ -12,6 +12,27 @@ import pandas as pd
     
 
 def _fetch_file_locations(options: RefBuilderOptions) -> Dict[str, Dict[str, Path | None]]:
+    """Parse supplied parent dictionary and fetch all files that adhere to the
+    data formats of interest. From the collected files, build a mapping dataset
+    that maps raw file names to spectral data and metaproteomics output data.
+    
+    Note:
+        Each raw file must be accompanied by single files for each format. that
+        is, only one db search file, one de novo file, and one spectral file.
+        db search and de novo identification files may contain multiple source
+        files (for example files of multiple fractions). In that case,
+        the data file will be mapped to all dictionary keys (raw file names) 
+        that are sources from the file. In the case that multiple files match
+        to the same source file name, the data will be overwritten and only the
+        last analyzed file will be mapped to the raw source file name.
+
+    Args:
+        options (RefBuilderOptions): Reference dataset builder options.
+
+    Returns:
+        Dict[str, Dict[str, Path | None]]: Mapping dataset matching raw file name
+            to spectral and metaproteomics output files.
+    """
     # fetch all raw files, db search files and de novo files
     root_dir = options.root_dir
     raw_files = list(root_dir.rglob("*.raw"))
@@ -21,25 +42,26 @@ def _fetch_file_locations(options: RefBuilderOptions) -> Dict[str, Dict[str, Pat
     de_novo_files = root_dir.rglob(options.de_novo_file_pattern)
 
     # create dict that combines raw files with db search and denovo files
-    output_dict = {key.name: {"raw": key,
+    output_dict = {key.stem: {"raw": key,
                               "db search": None, 
                               "de novo": None,
                               "mzxml": None,
                               "mzml": None} for key in raw_files}
     
-    # parse file lists and add to dict
-    for db_search_path in db_search_files:
-        source_name = ident_file_source(db_search_path, "db search", options)
-        output_dict = add_to_source_dict(output_dict, source_name, db_search_path, "db search")
-    for de_novo_path in de_novo_files:
-        source_name = ident_file_source(de_novo_path, "de novo", options)
-        output_dict = add_to_source_dict(output_dict, source_name, de_novo_path, "de novo")
+    # parse file lists and update dict
     for mzxml_path in mzxml_files:
-        source_name = mzxml_path.stem + '.raw'
-        output_dict = add_to_source_dict(output_dict, source_name, mzxml_path, "mzxml")
+        source_names = mzxml_path.stem
+        output_dict = add_to_source_dict(output_dict, source_names, mzxml_path, "mzxml")
     for mzml_path in mzml_files:
-        source_name = mzml_path.stem + '.raw'
-        output_dict = add_to_source_dict(output_dict, source_name, mzml_path, "mzml")
+        source_names = mzml_path.stem
+        output_dict = add_to_source_dict(output_dict, source_names, mzml_path, "mzml")
+    for db_search_path in db_search_files:
+        source_names = ident_file_source(db_search_path, "db search", options)
+        output_dict = add_to_source_dict(output_dict, source_names, db_search_path, "db search")
+    for de_novo_path in de_novo_files:
+        source_names = ident_file_source(de_novo_path, "de novo", options)
+        output_dict = add_to_source_dict(output_dict, source_names, de_novo_path, "de novo")
+
     
     return output_dict
 
@@ -521,6 +543,53 @@ def build_ref_data(
     db_search_file_pattern: str | None = None,
     de_novo_file_pattern: str | None = None
     ) -> None:
+    """Build experimental reference statistics dataset from collection of
+    raw files, spectral files and metaproteomics data output files. By supplying
+    a single root folder that contains all files (internal path structure does
+    not matter) and statistics file build options, a single compact dataset will
+    be constructed that contains experimental quality and performance metrics of
+    all experimental datasets. This allows large experiment datasets 
+    (>100 experiments) to be compressed into a small metrics file for quick 
+    benchmarking.
+
+    Args:
+        data_root_dir (Path): Root directory containing all data files to be 
+            included in the dataset.
+        output_loc (Path): Path location to store reference statistics dataset.
+        file_name (str): Name of reference statistics dataset.
+        db_search_format (DbSearchSource): Format of db search data to collect.
+            Exported file names should not be altered as files are collected
+            by their expected file name formats (for example, Peaks 10 exports
+            db search match data in "DB search psm.csv").
+        de_novo_format (DeNovoSource): Format of de novo peptide identification 
+            data to collect. Exported file names should not be altered as files 
+            are collected by their expected file name formats (for example, 
+            Peaks 10 exports de novo identification data in "de novo peptides.csv").
+        db_search_thresholds (List[int  |  float], optional): Specify threshold
+            values for quantifying db search identification confidence 
+            distributions across experiments. Defaults to [30, 50, 80].
+        de_novo_thresholds (List[int  |  float], optional): Specify threshold
+            values for quantifying de novo identification confidence 
+            distributions across experiments. Defaults to [50, 80, 90].
+        intensity_percentiles (List[int  |  float], optional): Specify percentile
+            values to compute summarized intensities accross experiments: "50" 
+            computes the mean intensity, "90" computes the 90th percentile, etc.
+            Defaults to [50, 90, 99].
+        transmission_loss_percentiles (List[int  |  float], optional): Specify 
+            percentile values to compute summarized signal transmission loss 
+            accross experiments: "50" computes the mean transmission loss, "90" 
+            computes the 90th percentile, etc. Defaults to [50, 90, 99].
+        db_search_file_pattern (str | None, optional): Define custom regex 
+            pattern to fetch db search files in the root directory. Can be used
+            if filenames were changed, invalidating the default file match pattern,
+            or for using formats that do not have a unique default pattern. 
+            Defaults to None.
+        de_novo_file_pattern (str | None, optional): Define custom regex 
+            pattern to fetch de novo files in the root directory. Can be used
+            if filenames were changed, invalidating the default file match pattern,
+            or for using formats that do not have a unique default pattern. 
+            Defaults to None.
+    """
     
     # set defaults for file pattern to search through
     if db_search_file_pattern is None:

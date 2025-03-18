@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from pathlib import Path
-from typing import List, Type, Self, IO
+from typing import List, Sequence, Type, Self, IO
 
 from .proteomics_base_classes import DbSearchMethods
 from constants import *
@@ -154,6 +154,23 @@ class SageDbSearch(DbSearchMethods):
 
             # get source column
             return Path(line_cells[3]).stem
+
+
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['filename']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
 
     
     def to_metapep_db_search(self, sample_name: str | None = None,

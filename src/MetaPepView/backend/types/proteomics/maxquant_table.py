@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-from typing import Type, Tuple, List, Self, IO
+from typing import Type, List, Sequence, Self, IO
 
 from .proteomics_base_classes import DbSearchMethods
 from ..metapep_table import MetaPepDbSearch
@@ -201,7 +201,22 @@ class MaxQuantDbSearch(DbSearchMethods):
         return super()._read_csv_buffer(file_buffer,
                                         file_name, 
                                         '\t')
-    
+
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['Raw file']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
     
     def to_metapep_db_search(self, sample_name: str | None = None,
                              crap_dataset: pd.Series | None = None) -> MetaPepDbSearch:

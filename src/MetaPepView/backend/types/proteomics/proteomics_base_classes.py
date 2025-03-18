@@ -24,6 +24,10 @@ class DbSearchMethods(DataIO, DataValidator, Protocol):
     @abstractmethod
     def get_source_file(cls, file_name: Path | str) -> str:
         ...
+        
+    @abstractmethod
+    def get_source_files(self) -> List[str]:
+        ...
 
     @abstractmethod
     def to_metapep_db_search(self,

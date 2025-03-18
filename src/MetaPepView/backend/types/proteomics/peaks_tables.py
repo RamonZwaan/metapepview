@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pathlib import Path
-from typing import Type, Tuple, List
+from typing import Type, Tuple, Sequence, List
 
 from .proteomics_base_classes import DbSearchMethods, DeNovoMethods
 from ..metapep_table import MetaPepDbSearch, MetaPepDeNovo
@@ -87,6 +87,23 @@ class PeaksDbSearchPsm11(DbSearchMethods):
 
             # get source field and return without file type suffix
             return Path(line_cells[11]).stem
+
+
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['Source File']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
 
     
     def to_metapep_db_search(self, sample_name: str | None = None,
@@ -221,6 +238,24 @@ class PeaksDbSearchPsm10(DbSearchMethods):
 
             # get source column and match against dict
             return Path(line_cells[13]).stem
+     
+        
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['Source File']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
+        
     
     def to_peaks_db_psm_11(self) -> PeaksDbSearchPsm11:
         """Convert data table to Peaks studio 11 db search psm format.
@@ -384,6 +419,23 @@ class PeaksDeNovo11(DeNovoMethods):
             return Path(line_cells[0]).stem
         
 
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['Source File']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
+    
+    
     def to_metapep_de_novo(self,
                            sample_name: str | None = None,
                            crap_dataset: pd.Series | None = None) -> MetaPepDeNovo:
@@ -514,6 +566,23 @@ class PeaksDeNovo10(DeNovoMethods):
 
             # get source column and match against dict
             return Path(line_cells[1]).stem
+
+
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['Source File']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
     
         
     def to_peaks_de_novo_11(self) -> PeaksDeNovo11:

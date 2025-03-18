@@ -93,7 +93,7 @@ def tic_over_rt_plot(spectral_dataset: pd.DataFrame,
                 get_peaks_count_threshold,
                 axis=1,
                 result_type="expand")
-            trace_name = f'peak count < {peak_int_threshold}'
+            trace_name = f'peak count > {peak_int_threshold}'
         else:
             trace_name = f'peak count'
             

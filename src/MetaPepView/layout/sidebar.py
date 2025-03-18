@@ -133,7 +133,7 @@ new_sidebar = [
                     dbc.NavLink(
                         [
                             html.I(className="bi bi-gear me-2"),
-                            "Data imports"
+                            "Data Imports"
                         ],
                         id="sidebar_data_button", href="/", active=True, className="mb-2"),
                     dbc.NavLink(

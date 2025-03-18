@@ -16,45 +16,56 @@ from .definitions import RefBuilderOptions
 
 
 def ident_file_source(ident_file: Path,
-                       filetype: str,
-                       options: RefBuilderOptions) -> str:
+                      filetype: str,
+                      options: RefBuilderOptions) -> Sequence[str]:
     if filetype == "db search":
-        source = db_search_importers[options.db_search_format].get_source_file(ident_file)
+        source = db_search_importers[options.db_search_format]\
+            .read_file(ident_file)\
+            .get_source_files()
     elif filetype == "de novo":
-        source = de_novo_importers[options.de_novo_format].get_source_file(ident_file)
+        source = de_novo_importers[options.de_novo_format]\
+            .read_file(ident_file)\
+            .get_source_files()
     else:
         raise ValueError("Invlid filetype supplied")
     return source
     
 
 def add_to_source_dict(output_dict: Dict[str, Dict[str, Path | None]],
-                        source_name: str,
-                        file: Path, 
-                        filetype: str) -> Dict[str, Dict[str, Path | None]]:
+                       sources: Sequence[str],
+                       file: Path, 
+                       filetype: str) -> Dict[str, Dict[str, Path | None]]:
+    """Add data file location information to source files that correspond to 
+    the data files. For example, a db search output file with three source files
+    in the dataset will be added to each of the three source files in the output
+    dictionary.
+
+    Args:
+        output_dict (Dict[str, Dict[str, Path  |  None]]): Source file to data 
+            files mapping dictionary.
+        sources (Sequence[str]): Source file keys to update with new file data.
+        file (Path): Path to file to update source file keys with.
+        filetype (str): Type of file data to add into the mapping dictionary.
+
+    Returns:
+        Dict[str, Dict[str, Path | None]]: Updated source file to data files
+            mapping dictionary.
+    """
+    for source_name in sources:
         # locate raw file in dictionary
         raw_path = output_dict.get(source_name, None)
+
+        if raw_path is None:
+            output_dict[source_name] = {"raw": None,
+                                        "db search": None,
+                                        "de novo": None,
+                                        "mzxml": None,
+                                        "mzml": None}
         
         # add db search to output data
-        if raw_path is not None:
-            output_dict[source_name][filetype] = file
-            return output_dict
+        output_dict[source_name][filetype] = file
         
-        db_search_path, de_novo_path, mzxml_path, mzml_path = None, None, None, None
-        if filetype == "db search":
-            db_search_path = file
-        elif filetype == "de novo":
-            de_novo_path = file
-        elif filetype == "mzxml":
-            mzxml_path = file
-        elif filetype == "mzml":
-            mzml_path = file
-
-        output_dict[source_name] = {"raw": None,
-                                    "db search": db_search_path,
-                                    "de novo": de_novo_path,
-                                    "mzxml": mzxml_path,
-                                    "mzml": mzml_path}
-        return output_dict
+    return output_dict
 
 
 def count_threshold_values(
@@ -125,22 +136,22 @@ def count_threshold_values(
 
 @overload
 def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
-                     file_type: Literal['db search'],
-                     file_format: DbSearchSource,
-                     score_col: str) -> Tuple[np.ndarray, np.ndarray]:
+                    file_type: Literal['db search'],
+                    file_format: DbSearchSource,
+                    score_col: str) -> Tuple[np.ndarray, np.ndarray]:
     ...
 
 @overload
 def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
-                     file_type: Literal['de novo'],
-                     file_format: DeNovoSource,
-                     score_col: str) -> Tuple[np.ndarray, np.ndarray]:
+                    file_type: Literal['de novo'],
+                    file_format: DeNovoSource,
+                    score_col: str) -> Tuple[np.ndarray, np.ndarray]:
     ...
 
 def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
-                     file_type: Literal['db search', 'de novo'],
-                     file_format: DbSearchSource | DeNovoSource,
-                     score_col: str) -> Tuple[np.ndarray, np.ndarray]:
+                    file_type: Literal['db search', 'de novo'],
+                    file_format: DbSearchSource | DeNovoSource,
+                    score_col: str) -> Tuple[np.ndarray, np.ndarray]:
     """Construct a distribution of confidence scores from a set of proteomics
     (db search, de novo) experiments by extracting the confidence column,
     sorting them descending and computing mean and standard deviation of the
@@ -172,6 +183,10 @@ def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
             df = load_metapep_db_search(df_path.open('r'), name, file_format) #type:ignore
         elif file_type == 'de novo':
             df = load_metapep_de_novo(df_path.open('r'), name, file_format) #type:ignore
+        
+        # if file contains data from other source files, omit them
+        if len(df.source_files) > 1:
+            df = df.filter_spectral_name(name)
         
         score_rank = fetch_sort_column(df.data, score_col)
         rank_mat.append(score_rank.values.tolist())
@@ -253,6 +268,10 @@ def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
             df = load_metapep_db_search(df_path.open('r'), name, file_format) #type:ignore
         elif file_type == 'de novo':
             df = load_metapep_de_novo(df_path.open('r'), name, file_format) #type:ignore
+        
+        # if file contains data from other source files, omit them
+        if len(df.source_files) > 1:
+            df = df.filter_spectral_name(name)
         
         # either normalize by total matches, or by ms2 count
         if normalize_ms2 is False:

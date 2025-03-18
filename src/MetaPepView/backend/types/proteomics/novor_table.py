@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from pathlib import Path
-from typing import Type, Type, Self, IO, List
+from typing import Type, Self, Sequence, IO, List
 
 from .proteomics_base_classes import DbSearchMethods, DeNovoMethods
 from ..metapep_table import MetaPepDbSearch, MetaPepDeNovo
@@ -245,6 +245,23 @@ class NovorDeNovo(DeNovoMethods):
         
         # return source
         return row_num
+    
+
+    def get_source_files(self) -> Sequence[str]:
+        """Return all raw spectral file names from dataset, excluding file type
+        suffix.
+
+        Returns:
+            Sequence[str]: All raw spectral file names in dataset.
+        """
+        source_file_col = self.data['Source File']
+        source_files: List[str] =  source_file_col\
+            .dropna()\
+            .unique()\
+            .apply(lambda x: Path(x).stem)\
+            .tolist()
+
+        return source_files
 
 
     def to_metapep_de_novo(self,
