@@ -1,15 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from server import app
-
-# import layout elements
-from layout.style_constants import *
-from layout.validation_page import ms_performance
-from layout.taxonomy_page import taxonomy_sample_analysis
-from layout.func_annot_page import *
-from layout.data_page import data_visual
-from layout.header import content_header
+from MetaPepView.server import app
 
 from backend import *
 from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap, de_novo_fraction_barplot

@@ -1,11 +1,9 @@
-from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
+from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from backend.html_templates import qa_importer_block
+from MetaPepView.html_templates import qa_importer_block
 
-from .style_constants import *
-from constants import GlobalConstants
-
+from constants import GlobalConstants, StyleConstants
 
 
 
@@ -640,19 +638,19 @@ ms_performance = html.Div(
                     mzml_import,
                     id='mzml_import_box',
                     className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=qa_import_box_style
+                    style=StyleConstants.qa_import_box_style
                 ),
                 html.Div(
                     psm_file_validation_import,
                     id='db_search_psm_qa_import_box',
                     className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=qa_import_box_style
+                    style=StyleConstants.qa_import_box_style
                 ),
                 html.Div(
                     denovo_file_validation_import,
                     id='denovo_qa_import_box',
                     className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=qa_import_box_style
+                    style=StyleConstants.qa_import_box_style
                 ),
                 # html.Div(
                 #     ref_set_import,

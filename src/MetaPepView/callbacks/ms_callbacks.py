@@ -6,12 +6,13 @@ import json
 import numpy as np
 from io import StringIO
 
-from server import app
+from MetaPepView.server import app
 
 # import layout elements
-from layout.style_constants import *
-from layout.validation_page import *
-from layout.func_annot_page import *
+from MetaPepView.html_templates import *
+from constants import StyleConstants
+from MetaPepView.layout.validation_page import *
+from MetaPepView.layout.func_annot_page import *
 
 from backend import *
 from backend.type_operations import *
@@ -64,7 +65,7 @@ def show_db_psm_search_qa_name(contents, file_format, name, date):
     valid_data, name, content, err_msg, success, import_box_style = validate_single_file(contents, name, date, valid_func, drag_and_drop=True)
     
     # update import box style
-    qa_box_style = qa_import_box_style
+    qa_box_style = StyleConstants.qa_import_box_style
     if "background-color" in import_box_style.keys():
         qa_box_style["background-color"] = import_box_style["background-color"]
     
@@ -92,7 +93,7 @@ def show_denovo_search_qa_name(contents, file_format, name, date):
     valid_data, name, content, err_msg, success, import_box_style = validate_single_file(contents, name, date, valid_func, drag_and_drop=True)
 
     # update import box style
-    qa_box_style = qa_import_box_style
+    qa_box_style = StyleConstants.qa_import_box_style
     if "background-color" in import_box_style.keys():
         qa_box_style["background-color"] = import_box_style["background-color"]
     
@@ -132,7 +133,7 @@ def store_mzml_dataset(content, filename):
     
     archive_format = determine_archive_format(filename)
     
-    qa_box_style = qa_import_box_style
+    qa_box_style = StyleConstants.qa_import_box_style
     
     try:
         data, metadata = mzml_to_df(memory_to_file_like(content, archive_format),
@@ -161,7 +162,7 @@ def store_mzml_dataset(content, filename):
     except Exception as err:
         print(err)
         
-        qa_box_style["background-color"] = IMPORT_FAILED_COLOR
+        qa_box_style["background-color"] = StyleConstants.import_failed_color
         return (
             None, 
             None, 
@@ -175,7 +176,7 @@ def store_mzml_dataset(content, filename):
     # After dataset is imported, remove upload data to save memory
     # However, do keep the filename for display in dashboard
     
-    qa_box_style["background-color"] = IMPORT_SUCCESS_COLOR
+    qa_box_style["background-color"] = StyleConstants.import_success_color
     return (
         compress_string(data.to_json()), 
         compress_string(peaks_data), 
@@ -248,10 +249,12 @@ def show_tic_over_rt(dataset,
         peaks = decompress_string(peaks)
     # only load metapep data if required
     elif secondary_param == "DB Search Confidence" and db_search_psm is not None:
-        prot_data = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        prot_data = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+            .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
     elif secondary_param == "De Novo Confidence" and de_novo is not None:
-        prot_data = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        prot_data = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+            .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
 
     # Obtain TIC + RT for all MS1 spectra
@@ -324,6 +327,7 @@ def show_ms2_spectrum(tic_data, content, peaks):
     Output("mz_over_rt_div", "children"),
     Output("mz_over_rt_div", "style"),
     Input("mzml_data", "data"),
+    Input("mzml_metadata", "data"),
     Input("db_search_psm_qa_upload", "contents"),
     Input("db_search_psm_qa_format", "value"),
     Input("denovo_qa_upload", "contents"),
@@ -332,6 +336,7 @@ def show_ms2_spectrum(tic_data, content, peaks):
     Input("mz_over_rt_ident_frac", "value")
 )
 def show_mz_over_rt(mzml_content,
+                    mzml_metadata,
                     db_search_psm,
                     db_search_psm_format,
                     de_novo,
@@ -348,11 +353,13 @@ def show_mz_over_rt(mzml_content,
     
     # add identification data based on selected option and delivered datasets
     if ident_val == "DB search" and db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+            .filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     if ident_val == "De novo" and de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+            .filter_spectral_name(mzml_metadata["raw file name"])
     else:
         de_novo = None
     
@@ -422,6 +429,7 @@ def update_ident_dropdown_ms1_ms2(db_search_psm_valid,
     Output("scan_int_dist_div", "children"),
     Output("scan_int_dist_div", "style"),
     Input("mzml_data", "data"),
+    Input("mzml_metadata", "data"),
     Input("db_search_psm_qa_upload", "contents"),
     Input("db_search_psm_qa_format", "value"),
     Input("denovo_qa_upload", "contents"),
@@ -430,6 +438,7 @@ def update_ident_dropdown_ms1_ms2(db_search_psm_valid,
     Input("scan_int_dist_alc_cutoff", "value")
 )
 def show_tic_dist(mzml_content,
+                  mzml_metadata,
                   db_search_psm,
                   db_search_psm_format,
                   de_novo,
@@ -447,10 +456,12 @@ def show_tic_dist(mzml_content,
     # add identification data based on selected option and delivered datasets
     if db_search_psm is not None:
         db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     if de_novo is not None:
         de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = de_novo.filter_spectral_name(mzml_metadata['raw file name'])
     else:
         de_novo = None
     
@@ -494,11 +505,13 @@ def show_frag_eff(mzml_content,
    
     # add identification data based on selected option and delivered datasets
     if ident_frac == "DB search" and db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+            .filter_spectral_name(metadata["raw file name"])
     else:
         db_search_psm = None
     if ident_frac == "De novo" and de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+            .filter_spectral_name(metadata["raw file name"])
     else:
         de_novo = None
    
@@ -633,7 +646,7 @@ def show_reference_score_dist(ref_data,
                               db_search_psm_format,
                               de_novo,
                               de_novo_format,
-                              spectral_metadata,
+                              mzml_metadata,
                               score_type,
                               x_normalization):
     if ref_data is None:
@@ -641,16 +654,18 @@ def show_reference_score_dist(ref_data,
     
     if db_search_psm is not None:
         db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        if mzml_metadata is not None: db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
         de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        if mzml_metadata is not None: de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         de_novo = None
         
-    if spectral_metadata is not None:
-        sample_ms2_count = spectral_metadata.get('MS2 spectrum count')
+    if mzml_metadata is not None:
+        sample_ms2_count = mzml_metadata.get('MS2 spectrum count')
     else:
         sample_ms2_count = None
         
@@ -680,19 +695,19 @@ def show_reference_score_dist(ref_data,
     Output("reference_score_thres_div", "children"),
     Output("reference_score_thres_div", "style"),
     Input("current_ref_statistics_store", "data"),
+    Input("mzml_metadata", "data"),
     Input("db_search_psm_qa_upload", "contents"),
     Input("db_search_psm_qa_format", "value"),
     Input("denovo_qa_upload", "contents"),
     Input("denovo_qa_format", "value"),
-    Input("mzml_metadata", "data"),
     Input("ref_conf_dist_norm", "value")
 )
 def show_score_threshold_dist(ref_data,
+                              mzml_metadata,
                               db_search_psm,
                               db_search_psm_format,
                               de_novo,
                               de_novo_format,
-                              spectral_metadata,
                               normalization_option):
     if ref_data is None:
         raise PreventUpdate
@@ -702,11 +717,13 @@ def show_score_threshold_dist(ref_data,
     
     if db_search_psm is not None:
         db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        if mzml_metadata is not None: db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
         de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        if mzml_metadata is not None: de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         de_novo = None
     
@@ -726,7 +743,7 @@ def show_score_threshold_dist(ref_data,
                                    normalize_rt=norm_rt,
                                    sample_db_search=db_search_psm,
                                    sample_de_novo=de_novo,
-                                   spectral_metadata=spectral_metadata)
+                                   spectral_metadata=mzml_metadata)
     
     graph = dcc.Graph(figure=fig,
                       id="reference_score_thres_fig",
@@ -797,6 +814,7 @@ def show_transmission_dist(ref_data,
     Output("reference_score_barplot_div", "children"),
     Output("reference_score_barplot_div", "style"),
     Input("current_ref_statistics_store", "data"),
+    Input("mzml_metadata", "data"),
     Input("db_search_psm_qa_upload", "contents"),
     State("db_search_psm_qa_format", "value"),
     Input("denovo_qa_upload", "contents"),
@@ -806,6 +824,7 @@ def show_transmission_dist(ref_data,
     Input("threshold_barplot_fill_bars", "value")
 )
 def show_score_barplot_dist(ref_data,
+                            mzml_metadata,
                             db_search_psm,
                             db_search_psm_format,
                             de_novo,
@@ -821,11 +840,13 @@ def show_score_barplot_dist(ref_data,
     
     if db_search_psm is not None:
         db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        if mzml_metadata is not None: db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
         de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        if mzml_metadata is not None: de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         de_novo = None
     

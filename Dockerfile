@@ -9,4 +9,4 @@ COPY ./data ./data
 COPY ./src ./src
 
 EXPOSE 8050
-CMD [ "python", "./src/MetaPepView/index.py" ]
+CMD [ "python", "./src/index.py" ]

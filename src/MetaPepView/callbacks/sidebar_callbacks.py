@@ -1,11 +1,11 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from server import app
+from MetaPepView.server import app
 
 from pathlib import Path
 
-from layout.sidebar import *
+from MetaPepView.layout.sidebar import *
 from backend import \
     check_ncbi_taxonomy_present, \
     check_kegg_mapping_present, \

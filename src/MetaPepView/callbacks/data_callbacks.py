@@ -2,15 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 
-from server import app
-
-# import layout elements
-from layout.style_constants import *
-from layout.validation_page import ms_performance
-from layout.taxonomy_page import taxonomy_sample_analysis
-from layout.func_annot_page import *
-from layout.data_page import data_visual
-from layout.header import content_header
+from MetaPepView.server import app
 
 from backend import *
 from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap
@@ -74,26 +66,6 @@ def show_samples_data(peptides_json):
             tax_db_format, 
             func_db_format)
     
-    # return (dash_table.DataTable(data=sample_df.to_dict('records'),
-    #             columns=[{'id': c, 'name': c} for c in sample_df.columns],
-    #             style_data={'table-layout': 'fixed'},
-    #             style_header={'backgroundColor': 'rgb(210, 210, 210)',
-    #                             'color': 'black',
-    #                             'fontWeight': 'bold'},
-    #             style_cell={'textAlign': 'left', 'font-family': 'Arial'},
-    #             style_cell_conditional=[
-    #                 {'if': {'column_id': 'DB Search Imported'},
-    #                 'width': '12%'},
-    #                 {'if': {'column_id': 'De Novo Imported'},
-    #                 'width': '12%'}],
-    #             style_as_list_view=True,
-    #             row_deletable=True,
-    #             page_size=10), 
-    #         db_search_format, 
-    #         de_novo_format, 
-    #         tax_db_format, 
-    #         func_db_format)
-
 
 @app.callback(
     Output('peptides', 'data', allow_duplicate=True),

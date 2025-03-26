@@ -2,14 +2,12 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-from server import app
+from MetaPepView.server import app
 
 # import layout elements
-from layout.style_constants import *
-from layout.annotation_page import *
+from MetaPepView.layout.annotation_page import *
 
 from backend.annotation import *
-from backend.html_templates import *
 from backend.io import *
 from backend.types import *
 from backend.type_operations import *

@@ -1,8 +1,6 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from callbacks.sidebar_callbacks import *
-from .style_constants import *
 from constants import GlobalConstants
 
 """

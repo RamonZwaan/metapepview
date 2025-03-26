@@ -1,5 +1,3 @@
-import plotly.express as px
-
 
 # Color styles
 PLOT_COLOR = "#f6f6f6"

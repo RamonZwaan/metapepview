@@ -1,14 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from pathlib import Path
-from .style_constants import *
-from constants import GlobalConstants
-
-from layout.taxonomy_page import taxonomy_barplot, clade_filter
-
-import pandas as pd
-import json
+from MetaPepView.layout.taxonomy_page import taxonomy_barplot, clade_filter
 
 
 

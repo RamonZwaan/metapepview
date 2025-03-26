@@ -1,8 +1,6 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from .style_constants import *
-
 
 peptide_dataset = [
     html.H5("Peptides Dataset"),
