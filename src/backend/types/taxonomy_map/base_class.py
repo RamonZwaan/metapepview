@@ -25,6 +25,7 @@ class AccessionTaxaMap:
                            acc_regex: str | None=None,
                            delimiter: str | None=",",
                            drop_duplicates: bool = True,
+                           tax_name_to_id: bool = False,
                            taxonomy_obj: TaxonomyDatabase | None = None) -> Self:
         """Import protein accession to taxonomy mapping data from string buffer
         generated from file.
@@ -42,6 +43,9 @@ class AccessionTaxaMap:
                 accessions are merged by taking the last common ancestor for all
                 taxa within the protein accession group. For this operation a
                 TaxonomyDatabase object needs to be added. Defaults to True.
+            tax_name_to_id (bool, optional): When elements in taxonomy column
+                are names instead of id's, convert values to id. Defaults to
+                False.
             taxonomy_obj (TaxonomyDatabase | None, optional): TaxonomyDatabase
                 object for LCA processing of redundant protein accessions.
                 Defaults to None.
@@ -55,10 +59,16 @@ class AccessionTaxaMap:
                               usecols=[acc_col, tax_col], 
                               names=["accession", "taxonomy_id"],
                               sep=delimiter)
-
-        if not pd.api.types.is_numeric_dtype(prot_df["taxonomy_id"]):
-            raise ValueError("Invalid taxonomy id's encountered. Ensure that the complete tax id column is numeric.")
         
+        # if tax names in column, convert to id
+        if tax_name_to_id is True and taxonomy_obj is not None:
+            print("Taxonomy name to id conversion\n\nFailed conversions:")  
+            prot_df.loc[:, "taxonomy_id"] = prot_df["taxonomy_id"].apply(
+                taxonomy_obj.name_to_id, 
+                print_fails=True)
+        elif tax_name_to_id is True:
+            raise ValueError("Taxonomy database required for name to id conversion...")
+               
         # apply pattern on accession if given        
         if acc_regex is not None:
             repl = lambda m: m.group(0) if m is not None else ""
@@ -68,10 +78,23 @@ class AccessionTaxaMap:
         if not (prot_df['accession'].duplicated() == False).all():
             if drop_duplicates is True:
                 prot_df = prot_df.drop_duplicates(subset="accession")
-            elif drop_duplicates is False and taxonomy_obj is not None:
-                prot_df = prot_df.groupby(by="accession")\
-                                 .aggregate(taxonomy_obj.taxa_to_lca)\
-                                 .reset_index()
+            elif drop_duplicates is False and\
+                taxonomy_obj is not None:
+                # full duplicates will be discarded anyway
+                prot_df = prot_df.drop_duplicates(subset=["accession", "taxonomy_id"])
+
+                # only compute LCA if duplicates still persist with diverging taxa
+                dupl_prot = prot_df["accession"].duplicated(keep=False)
+                if any(dupl_prot):
+                    print("Aggregating protein duplicates...")
+                    # create a copy of the protein db with only duplicates
+                    dupl_prot_df = prot_df[dupl_prot].copy(deep=True)
+                    prot_df = prot_df[~dupl_prot]
+                    dupl_prot_agg = dupl_prot_df.groupby(by="accession")\
+                                     .aggregate(taxonomy_obj.taxa_to_lca)\
+                                     .reset_index()
+                    
+                    prot_df = pd.concat([prot_df, dupl_prot_agg])
             else:
                 raise ValueError("Taxonomy database missing, add TaxonomyDatabase object or set drop_duplicates to True.")
 
@@ -83,7 +106,8 @@ class AccessionTaxaMap:
                        acc_col=0,
                        tax_col=1,
                        delimiter=", ",
-                       custom_validators: Sequence[Callable[[pd.DataFrame], Tuple[bool, str | None]]] | None = None) -> Tuple[bool, str | None]:
+                       custom_validators: Sequence[Callable[[pd.DataFrame], Tuple[bool, str | None]]] | None = None,
+                       **kwargs) -> Tuple[bool, str | None]:
         """Function definition to check if input data is valid for the class
         object.
 

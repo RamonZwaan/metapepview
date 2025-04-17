@@ -470,18 +470,21 @@ class NcbiTaxonomy(TaxonomyDatabase):
     @overload
     def name_to_id(self,
                    tax_name: str | float,
-                   on_duplicates: Literal["all"]) -> int | float | List[int]:
+                   on_duplicates: Literal["all"],
+                   print_fails: bool) -> int | float | List[int]:
         ...
 
     @overload
     def name_to_id(self,
                    tax_name: str | float,
-                   on_duplicates: Literal["nan"]) -> int | float:
+                   on_duplicates: Literal["nan"],
+                   print_fails: bool) -> int | float:
         ...
     
     def name_to_id(self,
                    tax_name: str | float,
-                   on_duplicates: str="nan") -> int | List[int] | float:
+                   on_duplicates: str="nan",
+                   print_fails: bool=False) -> int | List[int] | float:
         """Convert organism name to taxonomy id. For the GTDB dataset, the 
         organism name is the same as the organism id, but without rank prefix.
         
@@ -489,9 +492,11 @@ class NcbiTaxonomy(TaxonomyDatabase):
         Args:
             tax_name (str | float): Taxonomy name.
             on_duplicates (str, Optional): Specify function behavior if multiple
-                id's encountered with same name. Options: {"none", "all"}.
+                id's encountered with same name. Options: {"nan", "all"}.
                 'nan' will return nan when multiple id's encountered,
-                'all' will return list of taxonomy id's
+                'all' will return list of taxonomy id's.
+            print_fails (bool, optional): Print cases where tax id retrieval
+                fails to stdout. Defaults to False.
 
         Raises:
             ValueError: Invalid `on_duplicates` value given.
@@ -499,10 +504,14 @@ class NcbiTaxonomy(TaxonomyDatabase):
         Returns:
             int | List[int] | float: Taxonomy id('s) coupled to name
         """
-        if np.isnan(tax_name):
+        if isinstance(tax_name, float):
+            if print_fails is True:
+                print("Empty input encountered...")
             return np.nan
         
         if tax_name not in self.name_dict.keys():
+            if print_fails is True:
+                print(f"No valid id's for {tax_name}")
             return np.nan
     
         tax_ids = self.name_dict[tax_name]  # type: ignore
@@ -511,6 +520,8 @@ class NcbiTaxonomy(TaxonomyDatabase):
         if len(tax_ids) == 1:
             return tax_ids[0]
         elif on_duplicates.lower() == "nan":
+            if print_fails is True:
+                print(f"Multiple id's for {tax_name}: {tax_ids}")
             return np.nan
         elif on_duplicates.lower() == "all":
             return tax_ids
@@ -653,6 +664,11 @@ class NcbiTaxonomy(TaxonomyDatabase):
                     # set name of taxid in dict
                     taxonomy_dict[int(line[0])][3] = line[1]
                     name_dict[line[1]].append(int(line[0]))
+                # for non-scientific names, only add name-to-id link, might be overwritten
+                else:
+                    if line[1] not in name_dict.keys():
+                        name_dict[line[1]].append(int(line[0]))
+                    
         
         # return dictionary
         return (taxonomy_dict, name_dict)

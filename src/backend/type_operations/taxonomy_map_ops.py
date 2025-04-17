@@ -4,7 +4,9 @@ from ..types import AccessionTaxaMapGtdb,\
     AccessionTaxaMapNcbi,\
     AccessionTaxaMap,\
     TaxonomyFormat,\
-    TaxonomyDatabase
+    TaxonomyElementFormat,\
+    TaxonomyDatabase,\
+    GtdbGenomeToNcbi
 from backend.utils import *
 from .object_mappings import taxonomy_db_formats
 
@@ -17,6 +19,8 @@ def import_acc_tax_map(upload_contents: str | IO[str],
                        delimiter: str | None,
                        taxonomy_db: TaxonomyDatabase,
                        taxonomy_db_format: TaxonomyFormat,
+                       taxonomy_element_format: TaxonomyElementFormat,
+                       gtdb_to_ncbi_obj: GtdbGenomeToNcbi | None = None,
                        archive_format: str | None = None) -> AccessionTaxaMap:
     # if file buffer has not been extracted from raw string data, extract data into buffer
     if isinstance(upload_contents, str):
@@ -26,8 +30,23 @@ def import_acc_tax_map(upload_contents: str | IO[str],
 
     # construct correct class object based on taxonomy db format
     tax_format = taxonomy_db_formats.get(taxonomy_db_format, None)
+
+    # if tax names in mapping data, convert to id
+    name_to_id = True if taxonomy_element_format == "taxonomy name" else False
     
-    if tax_format is not None:
+    if taxonomy_db_format == "GTDB" and gtdb_to_ncbi_obj is not None:
+        return AccessionTaxaMapNcbi.from_gtdb_genome_ids(
+            gtdb_to_ncbi_obj,
+            str_file_obj,
+            acc_col,
+            tax_col,
+            acc_regex,
+            delimiter,
+            drop_duplicates=False,
+            tax_name_to_id=name_to_id,
+            taxonomy_obj=taxonomy_db
+            )
+    elif tax_format is not None:
         return tax_format.from_string_buffer(
             str_file_obj,
             acc_col,
@@ -35,6 +54,7 @@ def import_acc_tax_map(upload_contents: str | IO[str],
             acc_regex,
             delimiter,
             drop_duplicates=False,
+            tax_name_to_id=name_to_id,
             taxonomy_obj=taxonomy_db
             )
     else:
@@ -46,6 +66,7 @@ def validate_acc_tax_map(upload_contents: str | IO[str],
                          tax_col: int,
                          delimiter: str,
                          taxonomy_db_format: TaxonomyFormat,
+                         taxonomy_element_format:TaxonomyElementFormat,
                          archive_format: str | None = None) -> Tuple[bool, str | None]:
     # if file buffer has not been extracted from raw string data, extract data into buffer
     if isinstance(upload_contents, str):
@@ -60,6 +81,7 @@ def validate_acc_tax_map(upload_contents: str | IO[str],
             str_file_obj,
             acc_col,
             tax_col,
-            delimiter)
+            delimiter,
+            element_format=taxonomy_element_format)
     else:
         raise ValueError("Invalid taxonomy format")

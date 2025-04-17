@@ -269,11 +269,72 @@ taxonomy_map_options_modal = dbc.Modal(
                     style={"width": "20rem"}
                 ),
                 html.Div(
+                    [
+                        html.B("Taxonomy element format:",
+                               id="taxonomy_id_format_text",
+                               className="me-5 align-self-center align-top text-decoration-underline"),
+                        dbc.RadioItems(options=[
+                                       "taxonomy id",
+                                       "taxonomy name"
+                                       ],
+                                       id="taxonomy_id_format_checkbox",
+                                       inline=True,
+                                       value="taxonomy id"),
+                        dbc.Popover("""
+                                    Specify if taxonomy column provides NCBI or GTDB
+                                    taxonomy id's or taxonomy names.
+                            """,
+                                    # In NCBI, id's
+                                    # are integer values that represent a taxonomy element. 
+                                    # For example, the Genus Escherichia has the id: '562'. 
+                                    # If the taxonomy column contains names, then these will be matched against
+                                    # scientific names stored in the NCBI taxonomy database. 
+                                    # These are guaranteed unique for each taxonomy element.\n
+                                    # For GTDB, taxonomy id's are stored as taxonomy name with a rank suffix. 
+                                    # For example, the genus Escherichia has id: 'g__Escherichia'.
+                                    # If the taxonomy column contains names, the values will be matched against gtdb id's without the rank suffix: 'Escherichia'.
+                                    # At the strain level, GTDB only stores NCBI genome names. These are valid taxonomy identifiers for both names and id's.
+                            # """,
+                            id="taxonomy_id_format_info",
+                            target="taxonomy_id_format_text",
+                            trigger="hover",
+                            placement='top',
+                            className="px-3 py-1",
+                            style={"width": "100rem"}
+                        )
+                    ],
+                    className="d-flex mt-4 justify-content-start align-items-center"
+                ),
+                html.Div(
+                    [   
+                        dbc.Checkbox(label= html.B("To NCBI taxonomy id (genome id's only)",
+                                        id="gtdb_genome_to_ncbi_text",
+                                        className="ms-2 me-3 align-top text-decoration-underline"
+                                        ),
+                                        id="gtdb_genome_to_ncbi_checkbox",
+                                        value=False),
+                        dbc.Popover("""
+                            Convert genome id from GTDB database to NCBI taxonomy id. 
+                            After conversion, proteins will be mapped to the NCBI taxonomy DB.
+                            NOTE: Only Genome id's present in the GTB database can be mapped to NCBI taxonomy format. 
+                            Any protein mapped to a GTDB taxonomy id will be discarded!""",
+                            id="gtdb_genome_to_ncbi_info",
+                            target="gtdb_genome_to_ncbi_text",
+                            trigger="hover",
+                            placement='top',
+                            className="px-3 py-1"
+                        )
+                    ],
+                    id="gtdb_genome_to_ncbi_container",
+                    hidden=True,
+                    className="d-flex mt-4 justify-content-start align-items-center",
+                ),
+                html.Div(
                     [   
                         # html.B("Combine multiple annotations",
                         #        id="func_annot_combine_text",
                         #        className="me-3 align-top"),
-                        dbc.Checkbox(label= html.B("global annotation of peptides",
+                        dbc.Checkbox(label= html.B("Global annotation of peptides",
                                         id="global_taxonomy_annotation_text",
                                         className="ms-2 me-3 align-top text-decoration-underline"
                                         ),
@@ -291,7 +352,8 @@ taxonomy_map_options_modal = dbc.Modal(
                             className="px-3 py-1"
                         )
                     ],
-                    className="d-flex mt-4 justify-content-start align-items-center"
+                    id="global_taxonomy_annotation_container",
+                    className="d-flex mt-4 justify-content-start align-items-center",
                 ),
             ],
             className="vstack p-5"

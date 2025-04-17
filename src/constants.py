@@ -24,7 +24,11 @@ class GlobalConstants:
     
     gtdb_taxonomy_dir: str = r"./data/local/gtdb_taxonomy"
     gtdb_taxonomy_url: str = "https://data.ace.uq.edu.au/public/gtdb/data/releases/latest"
-    gtdb_taxonomy_files: Tuple[str, ...] = ("bac120_taxonomy.tsv", "ar53_taxonomy.tsv")
+    gtdb_taxonomy_files: List[str] = ["bac120_taxonomy.tsv",
+                                      "ar53_taxonomy.tsv"]
+    gtdb_metadata_files: List[str] = ["bac120_metadata.tsv",
+                                      "ar53_metadata.tsv"]
+    gtdb_files = gtdb_taxonomy_files + gtdb_metadata_files
 
     # lineage rank column suffix for global search
     global_annot_suffix: str = " (global search)"

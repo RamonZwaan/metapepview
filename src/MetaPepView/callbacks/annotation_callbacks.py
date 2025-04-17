@@ -185,10 +185,18 @@ def show_functional_db_name(contents, name, func_db_format, dates):
     Input('acc_tax_map_acc_idx', 'value'),
     Input('acc_tax_tax_idx', 'value'),
     Input('taxonomy_db_format', 'value'),
+    Input('taxonomy_id_format_checkbox', 'value'),
     State('taxonomy_db_upload', 'filename'),
     State('taxonomy_db_upload', 'last_modified'),
     prevent_initial_call=True)
-def show_taxonomy_db_name(contents, delim, acc_idx, tax_idx, tax_format, name, date):
+def show_taxonomy_db_name(contents,
+                          delim, 
+                          acc_idx, 
+                          tax_idx, 
+                          tax_format,
+                          tax_element_format, 
+                          name, 
+                          date):
     """Display filename of functional annotation import
     """
     valid_func = lambda cont, archv: validate_acc_tax_map(cont,
@@ -196,6 +204,7 @@ def show_taxonomy_db_name(contents, delim, acc_idx, tax_idx, tax_format, name, d
                                                           tax_idx,
                                                           delim,
                                                           tax_format,
+                                                          tax_element_format,
                                                           archv)
     return validate_single_file(contents,
                                 name,
@@ -311,6 +320,24 @@ def inactivate_annotation_button(psm_valid,
     return (False, [tooltip])
         
 
+@app.callback(
+    Output('gtdb_genome_to_ncbi_container', 'className'),
+    Output('global_taxonomy_annotation_checkbox', 'disabled'),
+    Input('taxonomy_db_format', 'value'),
+    Input('gtdb_genome_to_ncbi_checkbox', 'value')
+)
+def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
+    if tax_db_format == "NCBI":
+        return ("d-none", False)
+    elif tax_db_format == "GTDB" and gtdb_to_ncbi is True:
+        return ("d-flex mt-4 justify-content-start align-items-center",
+                False)
+    elif tax_db_format == "GTDB" and gtdb_to_ncbi is False:
+        return ("d-flex mt-4 justify-content-start align-items-center", 
+                True)
+    else:
+        raise ValueError("Invalid db format given...")
+
 
 #TODO: Wrap filter settings into metadata, store these in a dictionary dcc.Store object
 @app.callback(
@@ -335,17 +362,20 @@ def inactivate_annotation_button(psm_valid,
     State('de_novo_filter_crap', 'value'),
     State('taxonomy_db_upload', 'contents'),
     State('taxonomy_db_format', 'value'),
+    State('taxonomy_id_format_checkbox', 'value'),
     State('taxonomy_db_upload', 'filename'),
     State('acc_tax_map_delim', 'value'),
     State('acc_tax_map_acc_idx', 'value'),
     State('acc_tax_map_acc_pattern', 'value'),
     State('acc_tax_tax_idx', 'value'),
+    State('gtdb_genome_to_ncbi_checkbox', 'value'),
     State('global_taxonomy_annotation_checkbox', 'value'),
     State('func_annot_db_upload', 'contents'),
     State('func_annot_db_format', 'value'),
     State('func_annot_db_upload', 'filename'),
     State('func_annot_combine', 'value'),
     State('current_taxonomy_db_loc', 'data'),
+    State('ncbi_taxonomy_db_loc', 'value'),
     prevent_initial_call=True
 )
 def process_manual_annotation(n_clicks,
@@ -365,17 +395,20 @@ def process_manual_annotation(n_clicks,
                               denovo_filter_crap,
                               acc_tax_map, 
                               acc_tax_map_format,
+                              acc_tax_map_elem_format,
                               acc_tax_map_name,
                               acc_tax_map_delimiter,
                               acc_tax_map_acc_idx,
                               acc_tax_map_acc_pattern,
                               acc_tax_map_tax_idx,
+                              gtdb_to_ncbi,
                               global_tax_annot,
                               func_annot_db, 
                               func_annot_db_format,
                               func_annot_db_name,
                               func_annot_combine,
-                              tax_db_loc):
+                              tax_db_loc,
+                              ncbi_tax_db_loc):
     """Annotate and combine imported datasets into one peptide dataset
     """
     no_update = (current_peptides, current_metadata, None, data_import_container)
@@ -451,6 +484,9 @@ def process_manual_annotation(n_clicks,
         acc_tax_map_delimiter,
         acc_tax_map_name,
         acc_tax_map_format,
+        acc_tax_map_elem_format,
+        gtdb_to_ncbi,
+        ncbi_tax_db_loc,
         global_tax_annot,                  # de novo tax search
         func_annot_db_name,
         func_annot_db_format,

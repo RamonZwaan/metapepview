@@ -183,7 +183,9 @@ class TaxonomyDatabase(metaclass=ABCMeta):
         ...
     
     @abstractmethod
-    def name_to_id(self, tax_name: str) -> Any:
+    def name_to_id(self,
+                   tax_name: str,
+                   **kwargs) -> Any:
         """Convert organism name to taxonomy id
 
         Args:

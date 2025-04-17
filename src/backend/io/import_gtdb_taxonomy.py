@@ -22,7 +22,7 @@ def check_gtdb_taxonomy_present(
     Returns:
         bool: True if files located in expected directory
     """
-    gtdb_files = GlobalConstants.gtdb_taxonomy_files
+    gtdb_files = GlobalConstants.gtdb_files
     return check_file_presence(dir_loc, gtdb_files)
 
 
@@ -69,7 +69,7 @@ def download_gtdb_taxonomy(
         return (False, msg)
     
     # download tar into memory and extract
-    for file_name in GlobalConstants.gtdb_taxonomy_files:
+    for file_name in GlobalConstants.gtdb_files:
         # name file based on archive option
         remote_file = file_name + ".gz" if fetch_zlib_archive is True else file_name
         

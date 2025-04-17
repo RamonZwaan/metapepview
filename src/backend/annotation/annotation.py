@@ -31,6 +31,9 @@ class AnnotationOptions():
     tax_db_delimiter: str
     tax_db_name: str | None
     tax_db_format: TaxonomyFormat | None
+    tax_db_element_format: TaxonomyElementFormat | None
+    gtdb_to_ncbi: bool
+    ncbi_db_loc: str
     global_taxonomy_annotation: bool
     func_db_name: str | None
     func_db_format: FuncAnnotFormat | None
@@ -68,15 +71,46 @@ def annotate_peptides(sample_name: str,
     Returns:
         pd.DataFrame: Peptides dataset.
     """
-    print("import taxonomy database...")
     # set db format to ncbi if no taxonomy map added
     options.tax_db_format = "NCBI" if options.tax_db_format is None else options.tax_db_format
-    taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
-                                     options.tax_db_format)
 
-    if taxonomy_map is not None and \
+
+    if options.gtdb_to_ncbi is True and \
+        taxonomy_map is not None and \
+        options.tax_db_format == "GTDB" and \
+        options.tax_db_name is not None:
+        print("import taxonomy database...")
+        taxonomy_db = import_taxonomy_db(Path(options.ncbi_db_loc),
+                                         "NCBI")
+        
+        print("import protein to taxonomy map...")
+        tax_db_archive_format = determine_archive_format(options.tax_db_name)
+        
+        # load gtdb to ncbi mapping object
+        bac_metadata, ar_metadata = [Path(tax_db_loc, x) for x in GlobalConstants.gtdb_metadata_files]
+        gtdb_to_ncbi_obj = GtdbGenomeToNcbi.from_metadata_file(bac_metadata, 
+                                                               ar_metadata)
+        
+        tax_df = import_acc_tax_map(taxonomy_map,
+                                    options.tax_db_acc_idx,
+                                    options.tax_db_tax_idx,
+                                    options.tax_db_acc_pattern,
+                                    options.tax_db_delimiter,
+                                    taxonomy_db,
+                                    options.tax_db_format,
+                                    options.tax_db_element_format,
+                                    gtdb_to_ncbi_obj,
+                                    tax_db_archive_format)
+        # Change taxonomy db format after conversion to NCBI
+        options.tax_db_format = "NCBI"
+        
+    elif taxonomy_map is not None and \
         options.tax_db_format is not None and \
         options.tax_db_name is not None:
+        print("import taxonomy database...")
+        taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
+                                         options.tax_db_format)
+        
         print("import protein to taxonomy map...")
         tax_db_archive_format = determine_archive_format(options.tax_db_name)
         tax_df = import_acc_tax_map(taxonomy_map,
@@ -86,9 +120,13 @@ def annotate_peptides(sample_name: str,
                                     options.tax_db_delimiter,
                                     taxonomy_db,
                                     options.tax_db_format,
+                                    options.tax_db_element_format,
                                     tax_db_archive_format)
     else:
+        taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
+                                         options.tax_db_format)
         tax_df = None
+        
     
     if func_annot_map is not None and \
         options.func_db_format is not None and \
@@ -180,6 +218,7 @@ def taxonomic_annotation(peptides: pd.DataFrame,
                          taxonomy_db: TaxonomyDatabase) -> pd.DataFrame:
     """Add taxonomic annotation to peptide dataset
     """
+    
     print("annotate taxonomy id to peptides...")
     # perform taxonomic annotation on peptides dataset
     acc_delim = GlobalConstants.peptides_accession_delimiter

@@ -5,7 +5,7 @@ Date: 03-04-2023
 """
 
 from pathlib import Path
-from typing import Dict, List, Tuple, overload, Literal, TypeVar
+from typing import Dict, List, Tuple, overload, Literal, TypeVar, Sequence
 from collections import defaultdict
 from functools import lru_cache
 import re
@@ -39,7 +39,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
     
     
     def __init__(self,
-                 lineage_dict: Dict[str, Tuple[str, ...]],
+                 lineage_dict: Dict[str, List[str]],
                  child_dict: Dict[str, List[str]],
                  genome_species_map: Dict[str, str]):
         # map each taxa to lineage 
@@ -160,7 +160,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
     
     
     @lru_cache(maxsize=None)
-    def id_to_standard_lineage(self, tax_id: str) -> Tuple[str | float, ...]:
+    def id_to_standard_lineage(self, tax_id: str) -> List[str | float]:
         """Return the lineage from a given taxonomy id.
 
         Args:
@@ -172,12 +172,16 @@ class GtdbTaxonomy(TaxonomyDatabase):
         if not self.id_in_dataset(tax_id):
             return (np.nan,)*7
         
+        # if genome given, convert to species id
+        if self.genome_id_in_dataset(tax_id):
+            tax_id = self.genome_id_to_species_id(tax_id)
+        
         # get lineage up to (and including) tax id
-        lineage = tuple(self.lineage_dict[tax_id]) + (tax_id,)
+        lineage = self.lineage_dict[tax_id] + [tax_id]
         
         # if lineage does not go to species, add none values
         trailing_none = len(self.RANK_LIST) - len(lineage)
-        return lineage + (np.nan,)*trailing_none
+        return lineage + [np.nan] * trailing_none
         
         
     def id_in_dataset(self, tax_id: str) -> bool:
@@ -189,7 +193,11 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             bool: Test that id is in dataset.
         """
-        return tax_id in self.lineage_dict.keys()
+        # First check if genome given
+        if self.genome_id_in_dataset(tax_id):
+            return True
+        else:
+            return tax_id in self.lineage_dict.keys()
         
         
     def id_to_rank(self, tax_id: str | float) -> str | float:
@@ -201,6 +209,10 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             str | float: Taxonomy rank.
         """
+        # if genome given, convert to species id
+        if self.genome_id_in_dataset(tax_id):
+            tax_id = self.genome_id_to_species_id(tax_id)
+        
         if not isinstance(tax_id, str):
             return np.nan
         
@@ -223,6 +235,10 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             str | float: Taxonomy id of parent.
         """
+        # if genome given, convert to species id
+        if self.genome_id_in_dataset(tax_id):
+            tax_id = self.genome_id_to_species_id(tax_id)        
+
         # check that taxonomy id is valid
         if not isinstance(tax_id, str):
             return np.nan
@@ -256,10 +272,14 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             np.ndarray: Array of parent taxa.
         """
+        # if genome given, convert to species id
+        if self.genome_id_in_dataset(tax_id):
+            tax_id = self.genome_id_to_species_id(tax_id)
+        
         if not isinstance(tax_id, str) or not self.id_in_dataset(tax_id):
             return np.array([])
         
-        return np.array(tuple(self.lineage_dict[tax_id]) + (tax_id,))
+        return np.array(self.lineage_dict[tax_id] + [tax_id])
     
     
     def id_to_children(self, tax_id: str | float) -> np.ndarray:
@@ -271,6 +291,10 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             np.ndarray: Array of child taxonomy id's under a given tax_id.
         """
+        # if genome given, convert to species id
+        if self.genome_id_in_dataset(tax_id):
+            tax_id = self.genome_id_to_species_id(tax_id)
+            
         if not isinstance(tax_id, str) or not self.id_in_dataset(tax_id):
             return np.array([])
         
@@ -299,20 +323,27 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             str | float: Last common ancestor for input taxa
         """
-        # convert all array types into pandas series
-        if not isinstance(tax_ids, pd.Series):
-            tax_ids = pd.Series(tax_ids)
+        # convert all array types into numpy array
+        if isinstance(tax_ids, Sequence):
+            tax_ids = np.array(tax_ids)
+        elif isinstance(tax_ids, pd.Series):
+            tax_ids = tax_ids.to_numpy()
+            
+        # if genomes given, convert to species id
+        genome_to_id = lambda x: self.genome_id_to_species_id(x) if\
+            self.genome_id_in_dataset(x) else x
+        tax_ids = np.array([genome_to_id(i) for i in tax_ids])
             
         # remove nan values
-        tax_ids = tax_ids.dropna()
+        tax_ids = tax_ids[~np.array([i != i for i in tax_ids])]
         
         # check for unknown taxa. If present, either throw error, ignore or set lca to root
-        unknown_taxa_array = (~tax_ids.transform(self.id_in_dataset)).to_list()
-        if any(unknown_taxa_array):
+        known_taxa_array = np.array([self.id_in_dataset(i) for i in tax_ids])
+        if False in known_taxa_array:
             if unknown_taxa.lower() == 'error':
                 raise ValueError(f"Unknown taxa present in input")
             elif unknown_taxa.lower() == 'ignore':
-                tax_ids = tax_ids[[not i for i in unknown_taxa_array]]
+                tax_ids = tax_ids[[i for i in known_taxa_array]]
             elif unknown_taxa.lower() == 'root':
                 return self.ROOT_NAME
             elif unknown_taxa.lower() == 'none':
@@ -324,27 +355,31 @@ class GtdbTaxonomy(TaxonomyDatabase):
         if tax_ids.size == 0:
             return np.nan
         elif tax_ids.size == 1:
-            return tax_ids.iloc[0]
+            return tax_ids[0]
 
         # retrieve lineages of all id's and store in list of lineage arrays
-        lineages = [tuple(self.lineage_dict[tax_id]) for tax_id in tax_ids]
-        lineages = [lin + (tax,) for lin, tax in zip(lineages, tax_ids)]
+        lineages = [self.lineage_dict[tax_id] for tax_id in tax_ids]
+        lineages = [lin + [tax] for lin, tax in zip(lineages, tax_ids)]
 
         # fetch highest rank id for which there is consensus among lineages
         return self.lineages_to_lca(lineages)
     
     
-    def id_to_name(self, tax_id: str | float) -> str:
+    def id_to_name(self, tax_id: str | float) -> str | float:
         """Convert taxonomy id to taxa name.
 
         Args:
             tax_id (str | float): Taxonomy id
 
         Returns:
-            str | float:  Taxa name
+            str | float: Taxonomy name
         """
+        # if genome given, convert to species id
+        if self.genome_id_in_dataset(tax_id):
+            tax_id = self.genome_id_to_species_id(tax_id)
+        
         if not isinstance(tax_id, str) or not self.id_in_dataset(tax_id):
-            return "undefined"
+            return np.nan
         else:
             return tax_id[3:]
         
@@ -364,28 +399,33 @@ class GtdbTaxonomy(TaxonomyDatabase):
     @overload
     def name_to_id(self,
                    tax_name: str | float,
-                   on_duplicates: Literal["all"]) -> str | float | List[str]:
+                   on_duplicates: Literal["all"],
+                   print_fails: bool) -> str | float | List[str]:
         ...
 
     @overload
     def name_to_id(self,
                    tax_name: str | float,
-                   on_duplicates: Literal["none"]) -> str | float:
+                   on_duplicates: Literal["nan"],
+                   print_fails: bool) -> str | float:
         ...
     
     def name_to_id(self,
                    tax_name: str | float,
-                   on_duplicates: str="nan") -> str | List[str] | float:
+                   on_duplicates: str="nan",
+                   print_fails: bool=False) -> str | List[str] | float:
         """Convert organism name to taxonomy id. For the GTDB dataset, the 
         organism name is the same as the organism id, but without rank prefix.
         
 
         Args:
             tax_name (str | float): Taxonomy name.
-            on_duplicates (str, Optional): Specify function behavior if multiple
-                id's encountered with same name. Options: {"none", "all"}.
+            on_duplicates (str, optional): Specify function behavior if multiple
+                id's encountered with same name. Options: {"nan", "all"}.
                 'nan' will return nan when multiple id's encountered,
-                'all' will return list of taxonomy id's
+                'all' will return list of taxonomy id's.
+            print_fails (bool, optional): Print cases where tax id retrieval
+                fails to stdout. Defaults to False.
 
         Raises:
             ValueError: Invalid `on_duplicates` value given.
@@ -393,8 +433,17 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             str | List[str] | float: Taxonomy id('s) coupled to name
         """
+        if print_fails is True:
+            print("Taxonomy name to id conversion\n\nFailed conversions:")    
+        
         if isinstance(tax_name, float):
+            if print_fails is True:
+                print("Empty input encountered...")
             return np.nan
+        
+        # if taxonomy name is NCBI genome id, return its own value
+        if self.genome_id_in_dataset(tax_name):
+            return self.genome_id_to_species_id(tax_name)
         
         potential_ids = np.array([i + f"__{tax_name}" for i in self.RANK_LIST])
         id_in_dataset = [self.id_in_dataset(i) for i in potential_ids]
@@ -402,16 +451,21 @@ class GtdbTaxonomy(TaxonomyDatabase):
         
         # return id's or nan based on selected parameter options
         if valid_ids.size == 0:
+            if print_fails is True:
+                print(f"No valid id's for {tax_name}")
             return np.nan
         elif valid_ids.size == [1]:
             return valid_ids[0]
         elif on_duplicates.lower() == "nan":
+            if print_fails is True:
+                print(f"Multiple id's for {tax_name}: {valid_ids}")
             return np.nan
         elif on_duplicates.lower() == "all":
             return valid_ids.tolist()
         else:
             raise ValueError(f"Invalid `on_duplicates` value given '{on_duplicates}'. Choose from {'nan', 'all'}.")
         
+            
         
     
     @classmethod
@@ -436,7 +490,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
         
         # parse lineages and update lca as long as there is full consensus
         for i in range(min_len):
-            if any([x[i] is None for x in lineages]):
+            if any([x[i] != x[i] for x in lineages]):
                 break
             if len({x[i] for x in lineages}) == 1:
                 lca = lineages[0][i]
@@ -455,9 +509,14 @@ class GtdbTaxonomy(TaxonomyDatabase):
         """
         if isinstance(genome_id, float):
             return False
+
+        # remove genbank/refseq prefixes to be consistent with taxonomy db format
+        genome_id = genome_id.removeprefix("GB_").removeprefix("RS_")
+        
         return genome_id in self.genome_species_map.keys()
     
-    def genome_id_to_species_id(self, genome_id: str | float) -> str | float:
+    def genome_id_to_species_id(self,
+                                genome_id: str | float) -> str | float:
         """Return species id of genome id.
 
         Args:
@@ -466,9 +525,10 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             str | None: Species id, if present in dataset
         """
-        if isinstance(genome_id, float | int) or not self.genome_id_in_dataset(genome_id):
-            return np.nan
-        return self.genome_species_map[genome_id]
+        # remove genbank/refseq prefixes to be consistent with taxonomy db format
+        genome_id = genome_id.removeprefix("GB_").removeprefix("RS_")
+        
+        return self.genome_species_map.get(genome_id, np.nan)
         
         
         
@@ -516,6 +576,12 @@ class GtdbTaxonomy(TaxonomyDatabase):
         
         taxonomy_df = pd.concat([bac_df, arch_df], axis=0).reset_index(drop=True)
         lineage_df = cls.__import_lineage_data(taxonomy_df)
+        
+        # drop genbank/refseq prefixes
+        taxonomy_df.loc[:, 'genome'] = taxonomy_df['genome']\
+            .str.removeprefix("GB_")\
+            .str.removeprefix("RS_")
+                
         
         # construct lineage dictionary: Dict[tax_id: Lineage]
         lineage_dict = dict()
