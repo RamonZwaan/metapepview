@@ -807,8 +807,8 @@ def ref_score_threshold_plot(stat_dict: dict,
     alc_y_name = "de novo matches"
     lgp_y_name = "db search matches"
     if normalize_rt is True:
-        alc_y_name = "de novo matches / sec"
-        lgp_y_name = "db search matches / sec"
+        alc_y_name = "de novo matches / min"
+        lgp_y_name = "db search matches / min"
     if normalize_psm is True:
         lgp_y_name = "fraction db search matches"
 

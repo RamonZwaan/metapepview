@@ -307,7 +307,7 @@ def peptide_allocation_across_lineage(peptide_df: pd.DataFrame,
         (
             "{}: {}".format(rank_letters[x + 1], 
                             lineage[x + 1]), 
-            (np.nan, np.nan, np.nan, np.nan)
+            (np.nan, np.nan, np.nan, np.nan, np.nan)
         )
         for x in range(len(lineage) - 1)
     ]
@@ -327,6 +327,7 @@ def peptide_allocation_across_lineage(peptide_df: pd.DataFrame,
                 lineage_cols[high_rank_idx],
                 lineage[low_rank_idx],
                 lineage[high_rank_idx],
+                rank_letters[high_rank_idx]
             )
         )
 
@@ -341,7 +342,8 @@ def peptide_allocation_across_lineage(peptide_df: pd.DataFrame,
                 np.nan,
                 lineage_cols[valid_ranks[0]],
                 np.nan,
-                lineage[valid_ranks[0]]
+                lineage[valid_ranks[0]],
+                rank_letters[0]
             )
         )
     ] + lineage_dropoff
@@ -355,7 +357,8 @@ def compute_taxonomy_dropoff(
     rank_lower: str | float, 
     rank_upper: str,
     rank_lower_name: str | float, 
-    rank_upper_name: str | float) -> Tuple[float, float, float, float]:
+    rank_upper_name: str | float,
+    name_prefix: str | None = None) -> Tuple[float, float, float, float]:
     """Get the drop in annotation counts when comparing peptide quantification
     from a single lower rank clade to the quantification of a higher
     rank clade of interest. Dropoff may be due to either branching of peptide
@@ -370,6 +373,8 @@ def compute_taxonomy_dropoff(
         rank_upper_name (str): Name of upper rank clade of interest (only used
             to check if upper rank is still defined. If not, no dropoff is 
             calculated). 
+        name_prefix (str | None): Prefix to taxonomy name used in branching taxa.
+            Can be used to add rank information.
 
     Returns:
         Tuple[float, float]: Dropoff values. 
@@ -394,21 +399,37 @@ def compute_taxonomy_dropoff(
             # Count groups of upper taxonomy rank
             valid_counts = peptide_df[
                 peptide_df[rank_upper] == rank_upper_name][quant_col].sum()
-                
             branch_dropoff = total_count - valid_counts - annot_dropoff
         
-        return (annot_dropoff, branch_dropoff, valid_counts, total_count)
+        # generate dictionary of branching counts: {'tax_1': 3, 'tax_2': 5, ...}
+        branch_counts = peptide_df[
+            peptide_df[rank_upper] != rank_upper_name
+            ][[rank_upper, quant_col]]\
+            .dropna()\
+            .groupby(rank_upper)[quant_col]\
+            .sum()
+            
+        if name_prefix is not None:
+            branch_counts.index = branch_counts.index.map(
+                lambda x: name_prefix + ": " + x
+            )
+        
+        return (annot_dropoff, 
+                branch_dropoff, 
+                valid_counts, 
+                total_count,
+                branch_counts.to_dict())
     
     # Dropoff is only of interest for valid lower rank taxa names
     # Also, check if upper and lower ranks are different
     if rank_lower_name != rank_lower_name or rank_lower_name == "-" or\
         rank_upper == rank_lower:
-        return (np.nan, np.nan, np.nan, np.nan)
+        return (np.nan, np.nan, np.nan, np.nan, np.nan)
     else:
         # set initial dropoff and quantification values to 0
         annot_dropoff, valid_counts = 0.0, 0.0
         
-        # fill missing values to allow ingexing, then count groups
+        # fill missing values to allow indexing, then count groups
         peptide_df[rank_upper] = peptide_df[rank_upper].fillna(-1.0)
         rank_counts = peptide_df\
             .groupby(by=[rank_lower, rank_upper])[quant_col]\
@@ -424,7 +445,7 @@ def compute_taxonomy_dropoff(
         else:
             # undo peptide df modification
             peptide_df[rank_upper] = value_to_nan(peptide_df[rank_upper], -1.0)
-            return (np.nan, np.nan, np.nan, np.nan)
+            return (np.nan, np.nan, np.nan, np.nan, np.nan)
             
         # calculate annotation dropoff if any observed
         if (rank_lower_name, -1.0) in rank_counts.index:
@@ -436,13 +457,27 @@ def compute_taxonomy_dropoff(
         elif (rank_lower_name, rank_upper_name) in rank_counts.index:
             valid_counts = rank_counts.loc[(rank_lower_name, rank_upper_name)]
             
+        # generate dictionary of branching counts: {'tax_1': 3, 'tax_2': 5, ...}
+        upper_rank_group = rank_counts.loc[rank_lower_name]
+        branch_counts = upper_rank_group[
+            ~upper_rank_group.index.isin([rank_upper_name, -1.0])       # drop nan values
+        ]
+        
+        if name_prefix is not None:
+            branch_counts.index = branch_counts.index.map(
+                lambda x: name_prefix + ": " + x)
+        
         # calculate branching dropoff
         branch_dropoff = lower_rank_total - valid_counts - annot_dropoff
         
         # undo peptide df modification
         peptide_df[rank_upper] = value_to_nan(peptide_df[rank_upper], -1.0)
         
-        return (annot_dropoff, branch_dropoff, valid_counts, lower_rank_total)
+        return (annot_dropoff, 
+                branch_dropoff, 
+                valid_counts, 
+                lower_rank_total,
+                branch_counts.to_dict())
         
 
 def compute_lineage_cumulative_annotation_drop(
