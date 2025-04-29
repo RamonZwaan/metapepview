@@ -231,10 +231,15 @@ def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
     annotation_dropoff = np.array([x[0] for i, x in lineage_dropoff], dtype=np.float64)
     branching_dropoff = np.array([x[1] for i, x in lineage_dropoff], dtype=np.float64)
     valid_counts = np.array([x[2] for i, x in lineage_dropoff], dtype=np.float64)
-    
-    other_branches_names = [list(x[4].keys()) for i, x in lineage_dropoff]
-    other_branches_values = [np.array(list(x[4].values()), 
-                                      dtype=np.float64) for i, x in lineage_dropoff]
+
+    other_branches_names = []
+    other_branches_values =[]
+    for i, x in lineage_dropoff:
+        # check nan
+        if x[4] == x[4]:
+            other_branches_names += [list(x[4].keys())]
+            other_branches_values += [np.array(list(x[4].values()), dtype=np.float64)]
+
     
     # normalize peptide annotation allocation to 100%
     sum_array = annotation_dropoff + branching_dropoff + valid_counts
@@ -278,9 +283,11 @@ def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
     
     x_data, y_data, custom_data = [], [], []
     for c, lin_elem in enumerate(lin_names):
-        x_data += [lin_elem] * len(other_branches_names[c])
-        y_data += list(other_branches_values[c])
-        custom_data += other_branches_names[c]
+        # stop if end of list
+        if len(other_branches_names) > c:
+            x_data += [lin_elem] * len(other_branches_names[c])
+            y_data += list(other_branches_values[c])
+            custom_data += other_branches_names[c]
     fig.add_trace(go.Bar(x=x_data,
                          y=y_data,
                          customdata=custom_data,
