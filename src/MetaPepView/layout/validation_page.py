@@ -505,6 +505,14 @@ ref_confidence_dist_bar = dbc.Card(
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
+                                html.Div(
+                                    [
+                                        html.B("Filter de novo only:", style={"margin-right": "1rem", "text-align": "center"}),
+                                        dbc.Checkbox(value=False, 
+                                                     id="threshold_barplot_filter_de_novo_only"),
+                                    ],
+                                    style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
+                                ),
                             ],
                             style={'display': 'flex', "align-items": "center"} 
                         ),

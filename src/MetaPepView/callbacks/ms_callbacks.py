@@ -821,7 +821,8 @@ def show_transmission_dist(ref_data,
     State("denovo_qa_format", "value"),
     Input("mzml_metadata", "data"),
     Input("threshold_barplot_scaling", "value"),
-    Input("threshold_barplot_fill_bars", "value")
+    Input("threshold_barplot_fill_bars", "value"),
+    Input("threshold_barplot_filter_de_novo_only", "value")
 )
 def show_score_barplot_dist(ref_data,
                             mzml_metadata,
@@ -831,7 +832,8 @@ def show_score_barplot_dist(ref_data,
                             de_novo_format,
                             spectral_metadata,
                             normalization,
-                            fill_bars):
+                            fill_bars,
+                            filter_de_novo_only):
     if ref_data is None:
         raise PreventUpdate
     
@@ -866,6 +868,7 @@ def show_score_barplot_dist(ref_data,
                                       normalize_psm=normalize_scans,
                                       normalize_rt=normalize_rt,
                                       normalize_fill=fill_bars,
+                                      filter_de_novo_only=filter_de_novo_only,
                                       sample_db_search=db_search_psm,
                                       sample_de_novo=de_novo,
                                       spectral_metadata=spectral_metadata)

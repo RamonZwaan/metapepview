@@ -721,7 +721,7 @@ def ref_score_threshold_plot(stat_dict: dict,
                              marker=dict(color=GraphConstants.color_palette[0]),
                              pointpos=0,
                              #whiskerwidth=0.2,
-                             marker_size=4,
+                             marker_size=6,
                              jitter=1,
                              showlegend=False,
                              #line_width=1,
@@ -911,7 +911,7 @@ def ref_intensity_dist_plot(stat_dict: dict,
                              marker=dict(color=GraphConstants.color_palette[0]),
                              pointpos=0,
                              #whiskerwidth=0.2,
-                             marker_size=4,
+                             marker_size=6,
                              jitter=1,
                              showlegend=False,
                              #line_width=1,
@@ -990,7 +990,7 @@ def ref_transmission_scatter_plot(stat_dict: dict,
         xrow += data[stat_dict_param]['percentiles']
 
     fig.add_trace(go.Box(
-        y=np.array(yrow),
+        y=(1 / np.array(yrow))*100,
         x=xrow,
         boxpoints='all',
         jitter=1,
@@ -1000,7 +1000,7 @@ def ref_transmission_scatter_plot(stat_dict: dict,
         marker=dict(color=GraphConstants.color_palette[0]),
         pointpos=0,
         whiskerwidth=0.2,
-        marker_size=4,
+        marker_size=6,
         line_width=1,
         showlegend=False,
         #name=key
@@ -1028,7 +1028,7 @@ def ref_transmission_scatter_plot(stat_dict: dict,
                                             True)
         
         fig.add_trace(go.Scatter(
-            y=yvals,
+            y=(1 / np.array(yvals))*100,
             x=xvals,
             mode='markers',
             marker_symbol="x",
@@ -1040,11 +1040,11 @@ def ref_transmission_scatter_plot(stat_dict: dict,
 
 
     fig.update_layout(
-        yaxis=dict(title='transmission loss', zeroline=False, type="log"),
+        yaxis=dict(title='transmission efficiency (%)', zeroline=False, type="log"),
                    boxmode='group', )
 
     fig.update_yaxes(gridcolor=GraphConstants.gridcolor, 
-                     gridwidth=GraphConstants.gridwidth, 
+                     gridwidth=GraphConstants.gridwidth,
                      nticks=5)
     fig.update_xaxes(showline=True, linecolor="Black", linewidth=2)
     fig.update_legends(title="Percentile")
@@ -1053,6 +1053,7 @@ def ref_transmission_scatter_plot(stat_dict: dict,
                       paper_bgcolor='rgba(0,0,0,0)',
                       plot_bgcolor='rgba(0,0,0,0)',
                       barmode="overlay")
+    #fig.update_yaxes(autorange='reversed')
     
     return fig
 
@@ -1062,11 +1063,14 @@ def ref_score_threshold_barplot(stat_dict: dict,
                                 normalize_psm: bool=False,
                                 normalize_rt: bool=False,
                                 normalize_fill: bool=False,
+                                filter_de_novo_only: bool=False,
                                 sample_db_search: MetaPepDbSearch | None=None,
                                 sample_de_novo: MetaPepDeNovo | None=None,
                                 spectral_metadata: dict | None=None):
     db_search_score_unit = stat_dict['metadata']['db search confidence format']
     de_novo_score_unit = stat_dict['metadata']['de novo confidence format']
+    de_novo_ident_group = "de novo only confidence dist" if filter_de_novo_only is True\
+        else "de novo confidence dist"
     
     # Define group label dict, each format has a prefix and suffix
     format_to_label = {"db search": [f"{db_search_score_unit}", ""],
@@ -1127,7 +1131,7 @@ def ref_score_threshold_barplot(stat_dict: dict,
         # sort data to obtain best-to-worst distribution in figure
         db_search_data = dataset[dataset["ident method"] == "db search confidence dist"]\
             .sort_values(by="value", ascending=False)
-        de_novo_data =  dataset[dataset["ident method"] == "de novo only confidence dist"]
+        de_novo_data =  dataset[dataset["ident method"] == de_novo_ident_group]
         
 
         # add barplot traces for one dataset
