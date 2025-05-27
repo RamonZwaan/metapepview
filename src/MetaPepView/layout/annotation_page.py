@@ -334,7 +334,7 @@ taxonomy_map_options_modal = dbc.Modal(
                         # html.B("Combine multiple annotations",
                         #        id="func_annot_combine_text",
                         #        className="me-3 align-top"),
-                        dbc.Checkbox(label= html.B("Global annotation of peptides",
+                        dbc.Checkbox(label= html.B("Annotate peptides to Unipept",
                                         id="global_taxonomy_annotation_text",
                                         className="ms-2 me-3 align-top text-decoration-underline"
                                         ),
@@ -471,7 +471,7 @@ taxonomy_map_import_block = [
         [
             html.Div(
                 [
-                    html.H4("Taxonomy annotations"),
+                    html.H4("Taxonomy annotation"),
                     dbc.Button("Options", id="taxonomy_map_modal_open", size="sm", color="secondary", outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
@@ -500,7 +500,7 @@ function_map_import_block = [
         [
             html.Div(
                 [
-                    html.H4("Functional annotations"),
+                    html.H4("Functional annotation"),
                     dbc.Button("Options", id="function_map_modal_open", size="sm", color="secondary", outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"

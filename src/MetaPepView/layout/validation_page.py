@@ -221,7 +221,7 @@ intensity_hist = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("ALC cutoff (de novo):", style={"margin-right": "1rem", "margin-left": "1rem", "text-align": "center"}),
+                                        html.B("Confidence cutoff (de novo):", style={"margin-right": "1rem", "margin-left": "1rem", "text-align": "center"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=100,
@@ -230,10 +230,22 @@ intensity_hist = dbc.Card(
                                                   disabled=True,
                                                   id="scan_int_dist_alc_cutoff",
                                                   debounce=True,
-                                                  style={'width': '6rem'}),
+                                                  style={'width': '5rem'}),
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
-                                )
+                                ),
+                                html.Div(
+                                    [
+                                        html.B("normalize bars:", style={"margin-right": "1rem", "text-align": "center"}),
+                                        dbc.Checkbox(
+                                            id="int_dist_fig_norm_bars",
+                                            disabled=True,
+                                            value=False,
+                                            #style={"width": "15rem"}
+                                        ),
+                                    ],
+                                    style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
+                                ),
                             ],
                             style={'display': 'flex', "align-items": "center", "justify-content": "space-evenly"}
                         )
@@ -318,7 +330,7 @@ ident_score_rank_dist = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("-10lgP cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("Confidence cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=200,
@@ -332,7 +344,7 @@ ident_score_rank_dist = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("ALC cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("Confidence cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=200,
@@ -451,7 +463,7 @@ ref_transmission_scatter = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Ion transmission loss"),
+                        html.H4("Ion transmission"),
                         html.Div(
                             [
                                 html.B("Scale ion injection time:", style={"margin-right": "1rem", "text-align": "center"}),

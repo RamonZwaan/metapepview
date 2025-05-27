@@ -405,6 +405,22 @@ def update_alc_cutoff_scan_int(de_novo_valid):
 
 
 @app.callback(
+    Output("int_dist_fig_norm_bars", "disabled"),
+    Input("scan_int_dist_ms_level", "value"),
+    Input("db_search_psm_qa_valid", "data"),
+    Input("denovo_qa_valid", "data"),
+)
+def update_bar_norm_scan_int(ms_level,
+                             db_search_valid,
+                             de_novo_valid):
+    # normalization only if MS2 and pept ident dataset present
+    if ms_level == "2" and any([db_search_valid, de_novo_valid]):
+        return False
+    else:
+        return True
+
+
+@app.callback(
     Output("ms1_over_ms2_ident_frac", "disabled"),
     Output("ms1_over_ms2_ident_frac", "options"),
     Input("db_search_psm_qa_valid", "data"),
@@ -435,7 +451,8 @@ def update_ident_dropdown_ms1_ms2(db_search_psm_valid,
     Input("denovo_qa_upload", "contents"),
     Input("denovo_qa_format", "value"),
     Input("scan_int_dist_ms_level", "value"),
-    Input("scan_int_dist_alc_cutoff", "value")
+    Input("scan_int_dist_alc_cutoff", "value"),
+    Input("int_dist_fig_norm_bars", "value"),
 )
 def show_tic_dist(mzml_content,
                   mzml_metadata,
@@ -444,7 +461,8 @@ def show_tic_dist(mzml_content,
                   de_novo,
                   de_novo_format,
                   ms_level,
-                  alc_cutoff):
+                  alc_cutoff,
+                  norm_bars):
     # only update once mzxml is uploaded
     if mzml_content is None:
         raise PreventUpdate
@@ -466,7 +484,12 @@ def show_tic_dist(mzml_content,
         de_novo = None
     
     
-    fig = scan_tic_dist_plot(mzml_content, int(ms_level), db_search_psm, de_novo, alc_cutoff)
+    fig = scan_tic_dist_plot(mzml_content, 
+                             int(ms_level), 
+                             db_search_psm, 
+                             de_novo, 
+                             alc_cutoff,
+                             norm_bars)
     fig.update_layout(autosize=True)
     graph = dcc.Graph(figure=fig, id="scan_int_dist_fig", style={'height': '100%'})
     return (graph, {"display": 'block', 'height': '19rem'})

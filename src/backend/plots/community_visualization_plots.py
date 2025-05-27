@@ -120,7 +120,9 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     if fractional_abundance is True:
         ytitle = "Fraction " + ytitle.lower()
     
-    fig.update_xaxes(showline=True, linecolor="Black")
+    fig.update_xaxes(showline=True, 
+                     linecolor="Black", 
+                     categoryorder="category ascending")
     fig.update_yaxes(gridcolor=GraphConstants.gridcolor,
                      gridwidth=GraphConstants.gridwidth,
                      nticks=5,

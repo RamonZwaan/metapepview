@@ -264,11 +264,13 @@ def scan_tic_dist_plot(dataset: pd.DataFrame,
                        ms_level: int,
                        db_search_psm: MetaPepDbSearch | None = None,
                        de_novo: MetaPepDeNovo | None = None,
-                       alc_cutoff: int = 0):
+                       alc_cutoff: int = 0,
+                       normalize_bars: bool = False):
     # get correct columns and match to db search and de novo
     dataset = dataset[['scan number', 'total ion current', 'MS level']]
     dataset = dataset[dataset['MS level'] == ms_level]
 
+    barnorm = None if normalize_bars is False else 'fraction'
     
     if db_search_psm is not None and ms_level != 1:
         dataset = match_db_search_psm(dataset, db_search_psm.data)
@@ -305,6 +307,7 @@ def scan_tic_dist_plot(dataset: pd.DataFrame,
                            x="total ion current", 
                            color="identification", 
                            nbins=30,
+                           barnorm=barnorm,
                            color_discrete_sequence=GraphConstants.color_palette,
                            category_orders={"identification": ["db search", 
                                                                "de novo only (> {} {})".format(alc_cutoff, de_novo_conf_format),
