@@ -249,7 +249,6 @@ def update_pathway_barplot(peptide_json,
                            filter_clade,
                            clade_rank,
                            kegg_db):
-    component_updated = ctx.triggered_id
     title = "functional abundance"
     if kegg_db is not None:
         kegg_db = KeggDatabase.read_json(kegg_db)
@@ -286,13 +285,15 @@ def update_pathway_barplot(peptide_json,
        
     # define column lists required during processing when taxonomy is included and when not 
     if include_taxa is True:
-        cols_filter_df = ["PSM Count", "Sample Name", "Taxonomy Id", "KEGG_ko"]              # use to filter unrelevant columns
-        cols_group_peptides = ["Peptide Index", "PSM Count", "Taxonomy Id", "Sample Name"]   # use to merge protein names by peptide sequence
-        cols_group_names = ["Protein Name", "Taxonomy Id", "Sample Name"]                                   # use to group and count psm's by function and taxonomy
+        cols_filter_df = ["PSM Count", "Sample Name", "Taxonomy Name", "KEGG_ko"]              # use to filter unrelevant columns
+        cols_group_peptides = ["Peptide Index", "PSM Count", "Taxonomy Name", "Sample Name"]   # use to merge protein names by peptide sequence
+        cols_group_names = ["Protein Name", "Taxonomy Name", "Sample Name"]                                   # use to group and count psm's by function and taxonomy
+        tax_col = "Taxonomy Name"
     else:
         cols_filter_df = ["PSM Count", "Sample Name", "KEGG_ko"]                             # use to filter unrelevant columns
         cols_group_peptides = ["Peptide Index", "PSM Count", "Sample Name"]                  # use to merge protein names by peptide sequence
         cols_group_names = ["Protein Name", "Sample Name"]                                                  # use to group and count psm's by function
+        tax_col = None
         
     # filter unrelevant columns out of the dataset    
     peptide_df = peptide_df[cols_filter_df]
@@ -389,25 +390,14 @@ def update_pathway_barplot(peptide_json,
     if normalize_to_sample is not None:
         ytitle += f"/ {normalize_to_sample}"
     
-    # plot counts in grouped barplot
-    if include_taxa is True:
-        plot = pathway_abundance_barplot(peptide_df,
-                                         "Sample Name",
-                                         "PSM Count",
-                                         "Protein Name",
-                                         tax_col="Taxonomy Id",
-                                         group_taxonomy=True,
-                                         custom_title=title,
-                                         custom_xname=kegg_format,
-                                         custom_yname=ytitle)
-    else:
-        plot = pathway_abundance_barplot(peptide_df,
-                                        "Sample Name",
-                                        "PSM Count",
-                                        "Protein Name",
-                                        custom_title=title,
-                                        custom_xname=kegg_format,
-                                        custom_yname=ytitle)
+    plot = pathway_abundance_barplot(peptide_df,
+                                    "Sample Name",
+                                    "PSM Count",
+                                    "Protein Name",
+                                    tax_col=tax_col,
+                                    custom_title=title,
+                                    custom_xname=kegg_format,
+                                    custom_yname=ytitle)
     
     plot.update_layout(title="")
 

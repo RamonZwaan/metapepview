@@ -471,11 +471,16 @@ def pathway_abundance_barplot(dataset: pd.DataFrame, # cols: Protein Name, (Taxo
                               ycol: str,
                               prot_col: str,
                               tax_col: str | None=None,
-                              group_taxonomy: bool=False,
                               filter_taxa: List[str] | str | None=None,
                               custom_title: str | None=None,
                               custom_xname: str | None=None,
                               custom_yname: str | None=None):
+    for colname in [xcol, ycol, prot_col]:
+        if colname not in dataset.columns:
+            raise ValueError(f"Column {colname} not in dataset.")
+        
+    if tax_col is not None and tax_col not in dataset.columns:
+            raise ValueError(f"Column {tax_col} not in dataset.")
     
     # if taxonomy column represented as numerical, convert to string to prevent color scale
     if tax_col is not None and dataset[tax_col].dtype != "O":
@@ -495,47 +500,18 @@ def pathway_abundance_barplot(dataset: pd.DataFrame, # cols: Protein Name, (Taxo
         title = "Abundance metabolic enzymes"
     else:
         title = custom_title
-    
-    # plot path abundances while coloring with taxonomy
-    if group_taxonomy is True:
-        fig = px.bar(dataset,
-                     title=title,
-                     x=xcol,
-                     y=ycol,
-                     color=tax_col,
-                     facet_col=prot_col)
-        
-        # remove any '***=' prefix before labels
-        for a in fig.layout.annotations: # type:ignore
-            a.text = a.text.split("=")[1]
-            a.textangle = 45
 
-        fig.update_xaxes(title=None)
+    fig = px.bar(dataset,
+                 title=title,
+                 x=prot_col,
+                 y=ycol,
+                 hover_name=tax_col,
+                 color=xcol,
+                 color_discrete_sequence=GraphConstants.color_palette,
+                 barmode='group')
     
-    # plot path abundance without taxonomy
-    else:
-        # if tax_col given, group taxonomies by protein names
-        if tax_col is not None:
-            dataset = dataset.groupby(by=[prot_col, xcol])[tax_col]\
-                .agg('sum')\
-                .to_frame()\
-                .reset_index(names=[prot_col, xcol])\
-                .sort_values(by=ycol)
-        
-        fig = px.bar(dataset,
-                     title=title,
-                     x=prot_col,
-                     y=ycol,
-                     color=xcol,
-                     color_discrete_sequence=GraphConstants.color_palette,
-                     barmode='group')
-    
-    fig.update_layout(GraphConstants.default_layout)
-    # more upper margin for tax grouped to accomodate upper labels
-    if group_taxonomy is True:
-        fig.update_layout(margin=dict(t=150))
-    else:
-        fig.update_layout(margin=dict(t=30))
+    fig.update_layout(GraphConstants.default_layout,
+                      margin=dict(t=30))
     
     fig.update_xaxes(showline=True,
                      linecolor="Black",
