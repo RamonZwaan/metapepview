@@ -121,45 +121,56 @@ fetch_db_modal = dbc.Modal(
 )
 
 
+sidebar_modules = [
+    dbc.NavLink(
+        [
+            html.I(className="bi bi-gear me-2"),
+            "Data Imports"
+        ],
+        id="sidebar_data_button", href="/", active=True, className="mb-2"),
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-speedometer2 me-2"),
+                "Quality Control"
+            ],
+            id="sidebar_validation_button", href="/", className="mb-2"),
+        hidden=True if GlobalConstants.func_level == 0 else False
+    ),
+    dbc.NavLink(
+        [
+            html.I(className="bi bi-graph-up me-2"),
+            "Taxonomies"
+        ],
+        id="sidebar_taxonomy_button", href="/", className="mb-2"),
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-graph-up me-2"),
+                "Taxonomies DB search vs de novo"
+                # html.P("DB search vs De Novo", className="")
+            ],
+            id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
+        hidden=True if GlobalConstants.func_level == 0 else False
+    ),
+    dbc.NavLink(
+        [
+            html.I(className="bi bi-graph-up me-2"),
+            "Functions"
+        ],
+        id="sidebar_functional_button", href="/", className="mb-2"),
+     ]
+
+# filter out presented modules based on 
+
+
 new_sidebar = [
     html.Div(
         [
             html.H4("Menu", className="display-4"),
             html.Hr(),
             dbc.Nav(
-                [
-                    dbc.NavLink(
-                        [
-                            html.I(className="bi bi-gear me-2"),
-                            "Data Imports"
-                        ],
-                        id="sidebar_data_button", href="/", active=True, className="mb-2"),
-                    dbc.NavLink(
-                        [
-                            html.I(className="bi bi-speedometer2 me-2"),
-                            "Quality Control"
-                        ],
-                        id="sidebar_validation_button", href="/", className="mb-2"),
-                    dbc.NavLink(
-                        [
-                            html.I(className="bi bi-graph-up me-2"),
-                            "Taxonomies"
-                        ],
-                        id="sidebar_taxonomy_button", href="/", className="mb-2"),
-                    dbc.NavLink(
-                        [
-                            html.I(className="bi bi-graph-up me-2"),
-                            "Taxonomies DB search vs de novo"
-                            # html.P("DB search vs De Novo", className="")
-                        ],
-                        id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
-                    dbc.NavLink(
-                        [
-                            html.I(className="bi bi-graph-up me-2"),
-                            "Functions"
-                        ],
-                        id="sidebar_functional_button", href="/", className="mb-2"),
-                ],
+                sidebar_modules,
                 vertical=True,
                 pills=True,
             ),

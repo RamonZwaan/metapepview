@@ -15,6 +15,15 @@ class PhysicalConstants:
     proton_mass = 1.00727
 
 class GlobalConstants:
+
+    # set functionality level of MetaPepView interface. Lower levels
+    # hide more functions for a simpler interface. Following levels
+    # are available:
+    #
+    # 0: Minimal mode, no Quality Control, no db search - de novo comp
+    # 1: Default mode, all functions present
+    func_level = 1
+    
     # remote annotation databases
     standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
     lineage_ranks_short: List[str] = ['K', 'P', 'C', 'O', 'F', 'G', 'S']
