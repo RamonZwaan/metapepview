@@ -19,7 +19,7 @@ sample_options_block = [
             ),
             html.Div(
                 [
-                    html.H4("merge db search files", className="align-self-center me-4"),
+                    html.H4("merge DB search files", className="align-self-center me-4"),
                     dbc.Switch(id="merge_psm_switch", className="align-self-center", value=True),
                 ],
                 className="d-flex justify-content-start"

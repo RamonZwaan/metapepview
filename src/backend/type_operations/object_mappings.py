@@ -9,7 +9,7 @@ taxonomy_db_formats: Dict[str, Type[AccessionTaxaMap]] = {
 }
 
 taxonomy_db_importers = {
-    'NCBI': NcbiTaxonomy.from_dmp_folder,
+    'NCBI': NcbiTaxonomy.from_dmp_archive,
     'GTDB': GtdbTaxonomy.from_tsv_folder
 }
 

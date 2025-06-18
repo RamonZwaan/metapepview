@@ -18,9 +18,11 @@ class GlobalConstants:
     # remote annotation databases
     standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
     lineage_ranks_short: List[str] = ['K', 'P', 'C', 'O', 'F', 'G', 'S']
+    
     ncbi_taxonomy_dir: str = r"./data/local/ncbi_taxonomy"
     ncbi_taxonomy_url: str = "ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz"
     ncbi_taxonomy_files: Tuple[str, ...] = ("nodes.dmp", "names.dmp", "taxidlineage.dmp")
+    ncbi_taxonomy_archive: str = "ncbi_taxonomy.zip"
     
     gtdb_taxonomy_dir: str = r"./data/local/gtdb_taxonomy"
     gtdb_taxonomy_url: str = "https://data.ace.uq.edu.au/public/gtdb/data/releases/latest"
@@ -150,9 +152,12 @@ class GraphConstants:
     default_template = "plotly_white"
     color_palette = px.colors.qualitative.T10
     wide_color_palette = px.colors.qualitative.Dark24
+
     continuous_color_scale = px.colors.sequential.Blues
     #primary_color = "Black"
     primary_color = px.colors.qualitative.T10[0]
+    undefined_color = "#858585"
+    
     gridcolor="slategray"
     secondary_grid_color="LightBlue"
     gridwidth=1

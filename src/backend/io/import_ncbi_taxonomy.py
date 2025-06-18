@@ -2,6 +2,7 @@ import io
 
 from ftplib import FTP
 import tarfile
+import zipfile
 from zipfile import ZipFile
 
 from typing import Tuple
@@ -24,14 +25,19 @@ def check_ncbi_taxonomy_present(
         bool: True if files located in expected directory
     """
     ncbi_files = GlobalConstants.ncbi_taxonomy_files
-    return check_file_presence(dir_loc, ncbi_files)
+    ncbi_archive = GlobalConstants.ncbi_taxonomy_archive
+    
+    # check presence of either files or archive
+    return check_file_presence(dir_loc, [ncbi_archive]) # or \
+        # check_file_presence(dir_loc, ncbi_archive)
 
 
 def download_ncbi_taxonomy(
     dir_loc: str | Path=GlobalConstants.ncbi_taxonomy_dir,
     ftp_url: str=GlobalConstants.ncbi_taxonomy_url,
     overwrite: bool=False,
-    create_parent_dirs: bool=False) -> Tuple[bool, str | None]:
+    create_parent_dirs: bool=False,
+    extract_contents: bool=False) -> Tuple[bool, str | None]:
     """Download latest version of ncbi taxonomy database into specified
     directory.
 
@@ -81,7 +87,17 @@ def download_ncbi_taxonomy(
         msg = "Failed to connect to server..."
         return (False, msg)
     
+    # if extract_contents is False:
+    #     file_name = Path(dir_loc, archive_name)
+    #     if file_name.exists() and overwrite is False:
+    #         msg = "Output file exists... Provide other location or allow overwrite"
+    #         return (False, msg)
+        
+    #     with open(Path(dir_loc, archive_name).resolve().as_posix(), "w+b") as out_file:
+    #         ftp.retrbinary("RETR {}".format(archive_name), out_file.write)
+            
     # download tar into memory and extract
+    # else:
     with io.BytesIO() as local_archive:
         try:
             ftp.retrbinary("RETR {}".format(archive_name), local_archive.write)
@@ -98,17 +114,49 @@ def download_ncbi_taxonomy(
         elif Path(archive_name).suffix == ".zip":
             archive_obj = ZipFile(local_archive)
         else:
-            msg = "Failed to extract data. Select tar of zip archive of database."
+            msg = "Failed to extract data. Select tar or zip archive of database."
             return (False, msg)
         
-        # extract only required files, remove existing files first
-        for file_name in GlobalConstants.ncbi_taxonomy_files:
-            if Path(dir_loc, file_name).exists() and overwrite is True:
-                Path(dir_loc, file_name).unlink()
+        # extract only required files, remove existing files first'
+        if extract_contents is True:
+            for file_name in GlobalConstants.ncbi_taxonomy_files:
+                if Path(dir_loc, file_name).exists() and overwrite is True:
+                    Path(dir_loc, file_name).unlink()
+                try:
+                    archive_obj.extract(file_name, dir_loc.resolve().as_posix())
+                except:
+                    msg = "Failed to locate NCBI Taxonomy files in archive"
+                    return (False, msg)
+        # compress files back into archive for smaller storage
+        else:
+            # setup archive
+            archive_loc = Path(dir_loc, GlobalConstants.ncbi_taxonomy_archive)
+
+            if archive_loc.exists() and overwrite is True:
+                Path(dir_loc, archive_loc).unlink()
+            elif archive_loc.exists():
+                raise FileExistsError(f"Archive '{archive_loc}' exists already...")
+            
             try:
-                archive_obj.extract(file_name, dir_loc.resolve().as_posix())
+                with ZipFile(archive_loc, 'w') as out_archive:
+                    # mem_buffers = [io.BytesIO() for x in range(3)]
+                    for file_name in GlobalConstants.ncbi_taxonomy_files:
+                        if isinstance(archive_obj, ZipFile):
+                            bytes = archive_obj.read(file_name)
+                        else:
+                            io_bytes = archive_obj.extractfile(file_name)
+                            if io_bytes is None: raise ValueError
+                            bytes = io_bytes.read()
+                        
+                        # write contents to archive
+                        out_archive.writestr(file_name, 
+                                             bytes,
+                                             compress_type=zipfile.ZIP_DEFLATED, 
+                                             compresslevel=6)
             except:
                 msg = "Failed to locate NCBI Taxonomy files in archive"
+                # delete archive if write failed
+                archive_loc.unlink(True)
                 return (False, msg)
         
         archive_obj.close()

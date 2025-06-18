@@ -1,3 +1,12 @@
+"""
+This module contains functions to deal with file data loaded into memory.
+
+MetaPepView provides imported data as binary string data. To process import data
+(which may be compressed archive data), several file-like operations need to be
+done. The functions here allow quick passing of raw data provided by the 
+dcc.Upload component to provide file-like or text-like data for further processing
+"""
+
 import base64
 import pandas as pd
 import io

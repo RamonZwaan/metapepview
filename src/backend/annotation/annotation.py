@@ -74,13 +74,17 @@ def annotate_peptides(sample_name: str,
     # set db format to ncbi if no taxonomy map added
     options.tax_db_format = "NCBI" if options.tax_db_format is None else options.tax_db_format
 
+    if options.tax_db_format == "NCBI":
+        tax_db_loc = Path(tax_db_loc, GlobalConstants.ncbi_taxonomy_archive)
+
 
     if options.gtdb_to_ncbi is True and \
         taxonomy_map is not None and \
         options.tax_db_format == "GTDB" and \
         options.tax_db_name is not None:
         print("import taxonomy database...")
-        taxonomy_db = import_taxonomy_db(Path(options.ncbi_db_loc),
+        taxonomy_db = import_taxonomy_db(Path(options.ncbi_db_loc,
+                                              GlobalConstants.ncbi_taxonomy_archive),
                                          "NCBI")
         
         print("import protein to taxonomy map...")
@@ -120,7 +124,7 @@ def annotate_peptides(sample_name: str,
                                     options.tax_db_delimiter,
                                     taxonomy_db,
                                     options.tax_db_format,
-                                    options.tax_db_element_format,
+                                    options.tax_db_element_format,                                    None,
                                     tax_db_archive_format)
     else:
         taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
