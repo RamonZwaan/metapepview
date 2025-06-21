@@ -85,7 +85,7 @@ def update_taxa_graph(page_active,
                                                "Select custom tax id's...")
         return block_element, dict(), 'Figure'
     else:
-        n_taxa = 9 if top_n == 1 else 24
+        n_taxa = 9 if top_n == 1 else 23
         plot = plot_method(peptide_df, topn=n_taxa, rank=tax_rank, fractional_abundance=fractional, include_undefined=unannotated)
     # plot.update_layout(height=500)
     

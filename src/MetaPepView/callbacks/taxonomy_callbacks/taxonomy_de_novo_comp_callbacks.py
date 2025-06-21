@@ -102,7 +102,7 @@ def update_de_novo_taxa_graph(page_active,
                                                "Select custom tax id's...")
         return block_element, dict(), 'Figure'
     else:
-        n_taxa = 9 if top_taxa == 1 else 24
+        n_taxa = 9 if top_taxa == 1 else 23
         comp_plot = plot_method(peptide_df,
                                 topn=n_taxa,
                                 rank=tax_rank,

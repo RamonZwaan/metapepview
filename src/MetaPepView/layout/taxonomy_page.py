@@ -63,7 +63,7 @@ taxa_group_display_selector = dbc.Row(
             dbc.RadioItems(
                 options=[
                     {"label": "Top 10", "value": 1},
-                    {"label": "Top 25", "value": 3},
+                    {"label": "Top 23", "value": 3},
                     {"label": "Custom taxa", "value": 2},
                 ],
                 value=1,

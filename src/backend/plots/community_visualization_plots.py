@@ -5,6 +5,7 @@ from plotly.subplots import make_subplots
 # import dash_bio
 
 from typing import List
+from copy import deepcopy
 
 import pandas as pd
 import numpy as np
@@ -48,7 +49,8 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
         in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
 
     # set correct discrete color scale depending on number of taxa
-    color_scale = GraphConstants.wide_color_palette if topn > 10 else GraphConstants.color_palette
+    color_scale = deepcopy(GraphConstants.wide_color_palette) if topn > 10 \
+        else deepcopy(GraphConstants.color_palette)
     
     # Set replacement values for specific cases
     # value of undefined depends on dtype of column (id number or name string)
@@ -104,6 +106,23 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
         lambda x: id_name_match.get(x, np.nan)
     )
     
+    # order categories to have 'Other' and 'Undefined' at the end
+    for custom_cat in ['Other', 'Undefined']:
+        if custom_cat in comp_df[rank_display_col].values:
+            other_df = comp_df[comp_df[rank_display_col] != custom_cat]
+            custom_cat_df = comp_df[comp_df[rank_display_col] == custom_cat]
+            comp_df = pd.concat([other_df, custom_cat_df])
+        
+    # assign clear distinct color for 'Undefined group
+    if 'Undefined' in comp_df[rank_display_col].values:
+        ncats = len(comp_df[rank_display_col].unique())
+        # if too more colors than scale + undef color, do nothing
+        if ncats <= len(color_scale):
+            color_scale[ncats - 1] = GraphConstants.undefined_color
+        elif ncats == len(color_scale) + 1:
+            color_scale.append(GraphConstants.undefined_color)
+            
+
     fig = px.bar(comp_df,
                  title=f"Distribution PSM over taxa ({rank})",
                  x=xcol,
@@ -123,6 +142,7 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     fig.update_xaxes(showline=True, 
                      linecolor="Black", 
                      categoryorder="category ascending")
+    
     fig.update_yaxes(gridcolor=GraphConstants.gridcolor,
                      gridwidth=GraphConstants.gridwidth,
                      nticks=5,

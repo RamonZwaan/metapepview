@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import IO, Self, Sequence
+from typing import IO, Self, Sequence, TypeVar
 
 import numpy as np
 import pandas as pd
@@ -53,6 +53,7 @@ class AccessionTaxaMap:
         Returns:
             Self: AccessionTaxaMap instance.
         """
+        
         
         # it is assumed that the dataset starts with accession, with second column tax id
         prot_df = pd.read_csv(str_file_obj,

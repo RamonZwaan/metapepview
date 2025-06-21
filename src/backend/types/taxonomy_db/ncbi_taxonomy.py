@@ -1,10 +1,14 @@
 """This module describes the object that manages the ncbi taxonomy database.
 """
 
+import io
 from pathlib import Path
-from typing import Dict, List, Tuple, overload, Literal, TypeVar, Sequence
+from typing import Dict, List, Tuple, overload, Literal, TypeVar, Sequence, IO
 from collections import defaultdict
 from functools import lru_cache
+
+from zipfile import ZipFile
+from tarfile import TarFile
 
 import pandas as pd
 import numpy as np
@@ -564,7 +568,68 @@ class NcbiTaxonomy(TaxonomyDatabase):
     ################################################################################ 
     # Constructor methods
     ################################################################################ 
+
+    @classmethod
+    def from_dmp_archive(cls, dmp_arch: str | Path) -> "NcbiTaxonomy":
+        """Import ncbi taxonomy datasets from taxdump archive file.
+        Extracts 'nodes.dmp', 'names.dmp', and 'taxidlineage.dmp' files and
+        imports them.
+
+        Args:
+            dmp_arch (str | Path): Location of taxdump archive in ".zip" or 
+                ".tar.gz" format.
+
+        Returns:
+            NcbiTaxonomy: NcbiTaxonomy object.
+        """
+        # convert to Path if str supplied
+        dmp_arch = Path(dmp_arch)
+        # check for presence archive
+        if not dmp_arch.exists():
+            raise FileNotFoundError(f"{dmp_arch.as_posix()} not present in supplied directory")
         
+        # load archive file
+        dmp_arch.suffixes
+        if len(dmp_arch.suffixes) == 0:
+            raise ValueError(f"Invalid archive format provided: '{dmp_arch.name}'")
+        elif dmp_arch.suffixes[-1] == ".zip":
+            arch_data = ZipFile(dmp_arch)
+        elif dmp_arch.suffixes[-1] == ".tar":
+            arch_data = TarFile.open(dmp_arch)
+        elif dmp_arch.suffixes[-2:] == [".tar", ".gz"]:
+            arch_data = TarFile.open(dmp_arch)
+        else:
+            raise ValueError(f"Invalid archive format provided: '{dmp_arch.name}'")
+
+        # Encapsulate divergent interfaces to extract single file into buffer
+        def extract_file(archive: TarFile | ZipFile, 
+                         file_name: str) -> IO[str]:
+            if isinstance(archive, TarFile):
+                file_data = archive.extractfile(file_name)
+                if file_data is None:
+                    raise ValueError("Member not found in archive...")
+            else:
+                file_data = archive.open(file_name)
+            return io.TextIOWrapper(file_data, encoding="utf-8")
+        
+        # initialize data structures to store taxonomy dataset in
+        taxonomy_dict, name_dict = cls.__init_object_attribute_data()
+        
+        nodes_file, names_file, lineage_file = cls.FILE_NAMES
+        with extract_file(arch_data, nodes_file) as nodes_file_data:
+            taxonomy_dict = cls.__import_nodes(nodes_file_data, taxonomy_dict)
+        
+        with extract_file(arch_data, names_file) as names_file_data:
+            taxonomy_dict, name_dict = cls.__import_names(names_file_data, 
+                                                          taxonomy_dict, 
+                                                          name_dict)
+        
+        with extract_file(arch_data, lineage_file) as lineage_file_data:
+            taxonomy_dict = cls.__import_lineage(lineage_file_data, 
+                                                 taxonomy_dict)
+            
+        return cls(dict(taxonomy_dict), dict(name_dict))
+    
     
     @classmethod
     def from_dmp_folder(cls, dmp_dir: str | Path) -> "NcbiTaxonomy":
@@ -608,96 +673,100 @@ class NcbiTaxonomy(TaxonomyDatabase):
         Returns:
             NcbiTaxonomy: NcbiTaxonomy object.
         """
+        # check if path location is valid
+        if not all([x.exists() for x in [Path(nodes_file),
+                                         Path(names_file),
+                                         Path(lineage_file)]]):
+            raise FileNotFoundError("Provided files missing...")
         
+        # initialize data structures to store taxonomy dataset in
+        taxonomy_dict, name_dict = cls.__init_object_attribute_data()
+        
+        with Path(nodes_file).open() as nodes_file_data:
+            taxonomy_dict = cls.__import_nodes(nodes_file_data, taxonomy_dict)
+        with Path(names_file).open() as names_file_data:
+            taxonomy_dict, name_dict = cls.__import_names(names_file_data, 
+                                                          taxonomy_dict, 
+                                                          name_dict)
+        with Path(lineage_file).open() as lineage_file_data:
+            taxonomy_dict = cls.__import_lineage(lineage_file_data, 
+                                                 taxonomy_dict)
+            
+        return cls(dict(taxonomy_dict), dict(name_dict))
+    
+    @staticmethod
+    def __init_object_attribute_data():
+        """Constructor to initialize data structures used for storage of the
+        taxonomy dataset. It generates a taxonomy dict and a name dict.
+        """
         # data will be stored as dictionaries
         # taxonomy dict: {tax_id: lineage, child ids, rank, tax name}
         taxonomy_dict = defaultdict(lambda: [(), [], np.nan, np.nan])
         # name dict: {tax_name: list[tax_id]}
         name_dict = defaultdict(lambda: [])
-        
-        taxonomy_dict = cls.__import_nodes(Path(nodes_file), taxonomy_dict)
-        taxonomy_dict, name_dict = cls.__import_names(Path(names_file), taxonomy_dict, name_dict)
-        taxonomy_dict = cls.__import_lineage(Path(lineage_file), taxonomy_dict)
-            
-        return cls(dict(taxonomy_dict), dict(name_dict))
-    
+
+        return (taxonomy_dict, name_dict)
 
     @staticmethod
-    def __import_nodes(nodes_file: Path, taxonomy_dict: Dict) -> Dict:
-        # check if path location is valid
-        if not nodes_file.exists():
-            raise FileNotFoundError("Path to nodes file does not exist.")
-        
-        # parse dmp file
-        with open(nodes_file, 'r', encoding="utf8") as read_file:
-            for line in read_file.readlines():
-                # split row in separate cells
-                line = line.replace("\t|\n", "") # remove trailing |
-                line = line.split("\t|\t")
-                
-                # set rank name of taxid in dict
-                taxonomy_dict[int(line[0])][2] = line[2]
-                
-                # add taxid as offspring to parent tax in dict, ignore for root
-                if line[1] == line[0]:
-                    continue
-                taxonomy_dict[int(line[1])][1].append(int(line[0]))
+    def __import_nodes(read_file: IO[str], taxonomy_dict: Dict) -> Dict:
+        for line in read_file.readlines():
+            # split row in separate cells
+            line = line.replace("\t|\n", "") # remove trailing |
+            line = line.split("\t|\t")
+            
+            # set rank name of taxid in dict
+            taxonomy_dict[int(line[0])][2] = line[2]
+            
+            # add taxid as offspring to parent tax in dict, ignore for root
+            if line[1] == line[0]:
+                continue
+            taxonomy_dict[int(line[1])][1].append(int(line[0]))
         
         # return dictionary
         return taxonomy_dict
 
     @staticmethod
-    def __import_names(names_file: Path, taxonomy_dict: Dict, name_dict: Dict) -> Tuple[Dict, Dict]:
-        # check if path location is valid
-        if not names_file.exists():
-            raise FileNotFoundError("Path to names file does not exist.")
-        
-        # parse dmp file
-        with open(names_file, 'r', encoding="latin-1") as read_file:
-            for line in read_file.readlines():
-                # split row in separate cells
-                line = line.replace("\t|\n", "") # remove trailing |
-                line = line.split("\t|\t")
-                
-                # update dict with scientific name of tax id, ignore other names
-                if line[3] == "scientific name":
-                    # set name of taxid in dict
-                    taxonomy_dict[int(line[0])][3] = line[1]
+    def __import_names(read_file: IO[str], 
+                       taxonomy_dict: Dict, 
+                       name_dict: Dict) -> Tuple[Dict, Dict]:
+        for line in read_file.readlines():
+            # split row in separate cells
+            line = line.replace("\t|\n", "") # remove trailing |
+            line = line.split("\t|\t")
+            
+            # update dict with scientific name of tax id, ignore other names
+            if line[3] == "scientific name":
+                # set name of taxid in dict
+                taxonomy_dict[int(line[0])][3] = line[1]
+                name_dict[line[1]].append(int(line[0]))
+            # for non-scientific names, only add name-to-id link, might be overwritten
+            else:
+                if line[1] not in name_dict.keys():
                     name_dict[line[1]].append(int(line[0]))
-                # for non-scientific names, only add name-to-id link, might be overwritten
-                else:
-                    if line[1] not in name_dict.keys():
-                        name_dict[line[1]].append(int(line[0]))
                     
-        
         # return dictionary
         return (taxonomy_dict, name_dict)
 
     @staticmethod
-    def __import_lineage(lineage_file: Path, taxonomy_dict: Dict) -> Dict:
-        # check if path location is valid
-        if not lineage_file.exists():
-            raise FileNotFoundError("Path to taxid-lineage file does not exist.")
-        
-        # parse dmp file
-        with open(lineage_file, 'r', encoding="latin-1") as read_file:
-            for line in read_file.readlines():
-                # split row in separate cells
-                line = line.replace("\t|\n", "") # remove trailing |
-                line = line.split("\t|\t")
-                
-                # convert lineage string to list of integers
-                lineage = line[1]
-                # if non-empty lineage, remove trailing whitespace
-                if lineage == "":
-                    lineage = []
-                else:
-                    lineage = lineage[:-1]
-                    lineage = lineage.split(" ")
-                    lineage = [int(i) for i in lineage]
-                
-                # set lineage to taxonomy id in dict
-                taxonomy_dict[int(line[0])][0] = lineage
+    def __import_lineage(read_file: IO[str], 
+                         taxonomy_dict: Dict) -> Dict:
+        for line in read_file.readlines():
+            # split row in separate cells
+            line = line.replace("\t|\n", "") # remove trailing |
+            line = line.split("\t|\t")
+            
+            # convert lineage string to list of integers
+            lineage = line[1]
+            # if non-empty lineage, remove trailing whitespace
+            if lineage == "":
+                lineage = []
+            else:
+                lineage = lineage[:-1]
+                lineage = lineage.split(" ")
+                lineage = [int(i) for i in lineage]
+            
+            # set lineage to taxonomy id in dict
+            taxonomy_dict[int(line[0])][0] = lineage
         
         # return dictionary
         return taxonomy_dict
