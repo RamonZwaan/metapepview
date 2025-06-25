@@ -124,7 +124,8 @@ def annotate_peptides(sample_name: str,
                                     options.tax_db_delimiter,
                                     taxonomy_db,
                                     options.tax_db_format,
-                                    options.tax_db_element_format,                                    None,
+                                    options.tax_db_element_format, 
+                                    None,
                                     tax_db_archive_format)
     else:
         taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
