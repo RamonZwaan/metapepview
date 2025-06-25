@@ -121,7 +121,7 @@ def download_ncbi_taxonomy(
         if extract_contents is True:
             for file_name in GlobalConstants.ncbi_taxonomy_files:
                 if Path(dir_loc, file_name).exists() and overwrite is True:
-                    Path(dir_loc, file_name).unlink()
+                    Path(dir_loc, file_name).unlink(True)
                 try:
                     archive_obj.extract(file_name, dir_loc.resolve().as_posix())
                 except:
@@ -133,7 +133,7 @@ def download_ncbi_taxonomy(
             archive_loc = Path(dir_loc, GlobalConstants.ncbi_taxonomy_archive)
 
             if archive_loc.exists() and overwrite is True:
-                Path(dir_loc, archive_loc).unlink()
+                Path(dir_loc, archive_loc).unlink(True)
             elif archive_loc.exists():
                 raise FileExistsError(f"Archive '{archive_loc}' exists already...")
             

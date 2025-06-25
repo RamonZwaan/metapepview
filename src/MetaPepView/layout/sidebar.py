@@ -135,7 +135,7 @@ sidebar_modules = [
                 "Quality Control"
             ],
             id="sidebar_validation_button", href="/", className="mb-2"),
-        hidden=True if GlobalConstants.func_level == 0 else False
+        hidden=True if GlobalConstants.func_level != 3 else False
     ),
     dbc.NavLink(
         [
@@ -151,14 +151,18 @@ sidebar_modules = [
                 # html.P("DB search vs De Novo", className="")
             ],
             id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
-        hidden=True if GlobalConstants.func_level == 0 else False
+        hidden=True if GlobalConstants.func_level < 2 else False
     ),
-    dbc.NavLink(
-        [
-            html.I(className="bi bi-graph-up me-2"),
-            "Functions"
-        ],
-        id="sidebar_functional_button", href="/", className="mb-2"),
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-graph-up me-2"),
+                "Functions"
+            ],
+            id="sidebar_functional_button",
+            href="/",
+            className="mb-2"),
+        hidden = True if GlobalConstants.func_level == 1 else False),
      ]
 
 # filter out presented modules based on 

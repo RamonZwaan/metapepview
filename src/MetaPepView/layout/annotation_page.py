@@ -54,17 +54,17 @@ peptide_data_block = html.Div(
     [
         html.Div(
             [
-                html.H3("Import/Export experiment"),
+                html.H3("Experiment"),
                 html.Div(
                     [
-                        html.H4("Experiment name: ", className="align-self-center"),
+                        html.H4("Name: ", className="align-self-center me-3"),
                         dbc.Input(id="experiment_name_field",
                                   type="text",
                                   style={'width': '25rem'},
                                   className="fw-bold"),
                     ],
-                    className="d-flex justify-content-between align-items-center",
-                    style={"width": "40rem"}
+                    className="d-flex justify-content-center align-items-center",
+                    # style={"width": "40rem"}
                 ),
                 html.Div(
                     [
@@ -155,7 +155,7 @@ db_search_options_modal = dbc.Modal(
                                                    id="db_search_filter_crap_text",
                                                    className="ms-2 me-3 align-top text-decoration-underline"),
                                      id="db_search_filter_crap",
-                                     value=False),
+                                     value=True),
                         dbc.Popover("""
                                     Ignore peptides that occur within the cRAP dataset, which
                                     is a dataset that contains sequences common encountered
@@ -199,7 +199,7 @@ de_novo_options_modal = dbc.Modal(
                                                    id="De_novo_filter_crap_text",
                                                    className="ms-2 me-3 align-top text-decoration-underline"),
                                      id="de_novo_filter_crap",
-                                     value=False),
+                                     value=True),
                         dbc.Popover("""
                                     Ignore peptides that occur within the cRAP dataset, which
                                     is a dataset that contains sequences common encountered
@@ -413,7 +413,12 @@ db_search_import_block = [
             html.Div(
                 [
                     html.H4("DB search"),
-                    dbc.Button("Options", id="db_search_modal_open", size="sm", color="secondary", outline=True),
+                    dbc.Button("Options",
+                               id="db_search_modal_open",
+                               size="sm",
+                               className="d-none" if GlobalConstants.func_level != 3 else "",
+                               color="secondary",
+                               outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
@@ -442,7 +447,12 @@ de_novo_import_block = [
             html.Div(
                 [
                     html.H4("De novo"),
-                    dbc.Button("Options", id="de_novo_modal_open", size="sm", color="secondary", outline=True),
+                    dbc.Button("Options",
+                               id="de_novo_modal_open",
+                               size="sm",
+                               className="d-none" if GlobalConstants.func_level != 3 else "",
+                               color="secondary",
+                               outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
@@ -524,31 +534,12 @@ function_map_import_block = [
 ]
 
 
-data_import_container = [
-    html.Div(
-        db_search_import_block,
-        id="db_search_import_box",
-        className="py-3 w-25 overflow-visible",
-    ),
-    html.Div(className="vr"),
-    html.Div(
-        de_novo_import_block,
-        id="de_novo_import_box",
-        className="py-3 w-25 overflow-visible",
-    ),
-    html.Div(className="vr"),
-    html.Div(
-        taxonomy_map_import_block,
-        id="taxonomy_db_import_box",
-        className="py-3 w-25 overflow-visible",
-    ),
-    html.Div(className="vr"),
-    html.Div(
-        function_map_import_block,
-        id="functional_db_import_box",
-        className="py-3 w-25 overflow-visible",
-    )
-]
+data_import_container = configure_import_container(
+    db_search_block=db_search_import_block,
+    de_novo_block=de_novo_import_block,
+    taxonomy_block=taxonomy_map_import_block,
+    function_block=function_map_import_block
+)
 
 
 import_block = html.Div(

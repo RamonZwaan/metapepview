@@ -106,7 +106,7 @@ def download_kegg_ko_map(overwrite: bool=False,
         # if file is invalid format, remove file.
         (success, msg) = validate_func(file_loc)
         if success is False:
-            file_loc.unlink()
+            file_loc.unlink(True)
             return (success, msg)
 
     # Fetch mappings between databases:
@@ -144,7 +144,7 @@ def download_link_data(file_loc: Path,
     # validate link file
     (success, msg) = _validate_mod_ko_link(file_loc)
     if success is False:
-        file_loc.unlink()
+        file_loc.unlink(True)
         return (success, msg)
     
     return (True, None)

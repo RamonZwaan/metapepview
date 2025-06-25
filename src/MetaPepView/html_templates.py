@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 from typing import Any, Sequence, List, Optional, Tuple, Dict
 
 from backend.io import *
-from constants import StyleConstants
+from constants import GlobalConstants, StyleConstants
 
 
 def importer_block(
@@ -110,17 +110,13 @@ def annotation_mini_importer_block(
 
     if format_options is not None:
         initial_val = format_options[0] if isinstance(format_options[0], str) else format_options[0]['value']
-        format_block = dbc.Col(
-            dcc.Dropdown(
+        format_block = dcc.Dropdown(
                 format_options,
                 value=initial_val,
                 clearable=False,
                 id=format_id,
-                style={'height': "30px"}
-            ),
-            className="w-auto"
-            #width=6
-        )
+                style={'height': "30px", "width": "15rem"}
+            )
     else:
         format_block = dbc.Col(None)
         
@@ -152,7 +148,7 @@ def annotation_mini_importer_block(
                 header_block,
                 format_block,
             ],
-            className="d-flex align-items-center my-3"
+            className="d-flex align-items-center justify-content-between my-3"
         ),
         dcc.Upload(
             id=upload_id,
@@ -483,3 +479,96 @@ def sample_color_table_block(sample_color_map: Dict[str, str]) -> List[Any]:
         div_children.append(row_block(sample, color))
     
     return div_children
+
+
+# def configure
+
+
+def configure_import_container(
+        db_search_block: List[Any],
+        de_novo_block: List[Any],
+        taxonomy_block: List[Any],
+        function_block: List[Any]):
+    """Alter displayed import module based on functionality level of
+    the dashboard. Certain blocks not part of the dashboard functiionality
+    will be hidden. To maintain callback functions, components will
+    not be deleted.
+
+    Args:
+        db_search_block (List[Any]): List of DB Search import components.
+        de_novo_block (List[Any]): List of de novo import components.
+        taxonomy_block (List[Any]): List of taxonomy annotation
+            import components.
+        function_block (List[Any]):List of functional annotation
+            import components.
+    """
+    # Show or hide components based on dashboard function level
+    de_novo_class_name = "d-flex"
+    db_search_class_name = "d-flex"
+    taxonomy_class_name = "d-flex"
+    function_class_name = "d-flex"
+    
+    func_level = GlobalConstants.func_level
+    if func_level == 1:
+        db_search_class_name = "d-none"
+        taxonomy_class_name = "d-none"
+        function_class_name = "d-none"
+    if func_level == 0:
+        de_novo_class_name = "d-none"
+    
+    # configure block width based on number of disabled blocks
+    # b_width = 100 / (4 - hide_db_search - hide_de_novo)
+    
+    return [
+        html.Div(
+            [    
+                html.Div(
+                    db_search_block,
+                    id="db_search_import_box",
+                    className="py-3 w-100 overflow-visible",
+                )
+            ],
+            className=db_search_class_name,
+            style={"width": "50%"}
+        ),
+        html.Div(
+            [
+                html.Div(className="vr"),    
+                html.Div(
+                    de_novo_block,
+                    id="de_novo_import_box",
+                    className="py-3 w-100 overflow-visible",
+                )
+            ],
+            className=de_novo_class_name,
+            style={"width": "50%"}            
+        ),
+        html.Div(
+            [
+                html.Div(className="vr"),
+                html.Div(
+                    taxonomy_block,
+                    id="taxonomy_db_import_box",
+                    className="py-3 w-100"
+                )
+            ],
+            className=taxonomy_class_name,
+            style={"width": "50%"}
+        ),
+        html.Div(
+            [
+                html.Div(className="vr"),
+                html.Div(
+                    function_block,
+                    id="functional_db_import_box",
+                    className="py-3 w-100 overflow-visible"
+                )
+            ],
+            className=function_class_name,
+            style={"width": "50%"}            
+        )
+    ]
+
+
+
+    

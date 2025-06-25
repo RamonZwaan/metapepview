@@ -20,9 +20,11 @@ class GlobalConstants:
     # hide more functions for a simpler interface. Following levels
     # are available:
     #
-    # 0: Minimal mode, no Quality Control, no db search - de novo comp
-    # 1: Default mode, all functions present
-    func_level = 1
+    # 0: DB Search only mode: No Quality Control, no de novo data
+    # 1: De novo only mode: import de novo and annotate with Unipept
+    # 2: All annotation functions, fewer options, no Quality Control
+    # 3: Default mode, all functions present
+    func_level = 2
     
     # remote annotation databases
     standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
