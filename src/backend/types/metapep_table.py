@@ -353,17 +353,17 @@ class MetaPepTable(DataValidator):
         
         # remove format information if no more data in dataset
         if (self.data["De Novo Imported"] == False).all():
-            self.de_novo_format = None
-            self.de_novo_confidence_format = None
+            self._de_novo_format = None
+            self._de_novo_confidence_format = None
         if (self.data["DB Search Imported"] == False).all():
-            self.db_search_format = None
-            self.db_search_confidence_format = None
+            self._db_search_format = None
+            self._db_search_confidence_format = None
         if self.data["Taxonomy Id"].dropna().empty and \
-            self.data["Global Taxonomy Id"].dropna().empty():
-            self.taxonomy_db_format = None
+            self.data["Global Taxonomy Id"].dropna().empty:
+            self._taxonomy_db_format = None
         if "KEGG_ko" in self.data.columns and \
             self.data["KEGG_ko"].dropna().empty:
-            self.functional_db_format = None
+            self._functional_db_format = None
         
         return self
         
