@@ -1,3 +1,4 @@
+from sys import displayhook
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
@@ -14,6 +15,8 @@ from backend.type_operations import *
 from backend.utils import *
 from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap
 
+from constants import GlobalConstants as gc
+
 import base64
 import io
 import pandas as pd
@@ -21,31 +24,31 @@ import pandas as pd
 
 @app.callback(
     Output("db_search_modal", "is_open"),
-    Input("db_search_modal_open", "n_clicks"), 
+    Input("db_search_modal_open", "n_clicks"),
 )
 def toggle_db_search_filters(n1):
     if n1:
         return True
-    
+
 @app.callback(
     Output("de_novo_modal", "is_open"),
-    Input("de_novo_modal_open", "n_clicks"), 
+    Input("de_novo_modal_open", "n_clicks"),
 )
 def toggle_de_novo_filters(n1):
     if n1:
         return True
-    
+
 @app.callback(
     Output("taxonomy_map_modal", "is_open"),
-    Input("taxonomy_map_modal_open", "n_clicks"), 
+    Input("taxonomy_map_modal_open", "n_clicks"),
 )
 def toggle_tax_map_filters(n1):
     if n1:
         return True
-    
+
 @app.callback(
     Output("function_map_modal", "is_open"),
-    Input("function_map_modal_open", "n_clicks"), 
+    Input("function_map_modal_open", "n_clicks"),
 )
 def toggle_func_map_filters(n1):
     if n1:
@@ -94,7 +97,7 @@ def show_db_search_psm_names(contents, names, format, dates, current_sample_name
     # if no sample name given, give it the first item from PSM files
     if current_sample_name is None and valid_data is True:
         current_sample_name = names[0]
-    return (valid_data, name_list, current_sample_name, contents, msg, False, 
+    return (valid_data, name_list, current_sample_name, contents, msg, False,
             box_style)
 
 
@@ -164,15 +167,15 @@ def show_functional_db_name(contents, name, func_db_format, dates):
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
         cont_buf = memory_to_stringio(cont, archv)
         return validate_func_map(cont_buf, func_db_format)
-    
+
     return validate_single_file(
         contents,
         name,
         dates,
         valid_func,
     )
- 
-    
+
+
 @app.callback(
     Output('taxonomy_db_valid', 'data'),
     Output('taxonomy_db_name', 'children'),
@@ -190,12 +193,12 @@ def show_functional_db_name(contents, name, func_db_format, dates):
     State('taxonomy_db_upload', 'last_modified'),
     prevent_initial_call=True)
 def show_taxonomy_db_name(contents,
-                          delim, 
-                          acc_idx, 
-                          tax_idx, 
+                          delim,
+                          acc_idx,
+                          tax_idx,
                           tax_format,
-                          tax_element_format, 
-                          name, 
+                          tax_element_format,
+                          name,
                           date):
     """Display filename of functional annotation import
     """
@@ -224,10 +227,10 @@ def process_peptides_data(peptide_data, file_name):
         raise PreventUpdate
     archive_format = determine_archive_format(file_name)
     data_str = memory_to_str(peptide_data, archive_format)
-    
+
     # experiment name taken from filename except last suffix
     file_name = "".join(file_name.split('.')[:-1])
-    
+
     return data_str, file_name
 
 
@@ -275,18 +278,32 @@ def inactivate_annotation_button(psm_valid,
                                  global_tax_annot,
                                  sample_name,
                                  merge_psm):
+    # ensure a sample name is given
     if sample_name is None and merge_psm is True:
         tooltip = dbc.Tooltip(f"Input sample name",
                                 target="start_annotation_button_wrapper",
                                 placement="bottom",
                                 className="mt-1")
         return (True, [tooltip])
+
+
+    # ensure metaproteomics data is provided
+    if gc.display_db_search is True and gc.display_de_novo is True:
+        tooltip_txt = "Import db search or de novo data"
+    elif gc.display_db_search is True:
+        tooltip_txt = "Import db search data"
+    elif gc.display_de_novo is True:
+        tooltip_txt = "Import de novo data"
+    else:
+        raise ValueError("invalid dashboard function mode, none of db search or de novo provided...")
+
     if all(i is not True for i in [psm_valid, denovo_valid]):
-        tooltip = dbc.Tooltip(f"Import db search or de novo data",
-                                target="start_annotation_button_wrapper",
-                                placement="bottom",
-                                className="mt-1")
+        tooltip = dbc.Tooltip(tooltip_txt,
+                              target="start_annotation_button_wrapper",
+                              placement="bottom",
+                              className="mt-1")
         return (True, [tooltip])
+
     # if no db search data, global taxonomy annotation should be performed
     elif psm_valid is not True and global_tax_annot is False:
         tooltip = dbc.Tooltip(f"Add db search data, or check 'global annotation of peptides'",
@@ -303,7 +320,7 @@ def inactivate_annotation_button(psm_valid,
                                 placement="bottom",
                                 className="mt-1")
         return (True, [tooltip])
-    
+
     # valid ncbi taxonomy database is required for mapping of taxa to db search
     elif prot_db_valid is True and db_presence["ncbi_taxonomy"] is False:
         tooltip = dbc.Tooltip(f"Import ncbi taxonomy database or perform global taxonomy classification only",
@@ -318,7 +335,7 @@ def inactivate_annotation_button(psm_valid,
                                 placement="bottom",
                                 className="mt-1")
     return (False, [tooltip])
-        
+
 
 @app.callback(
     Output('gtdb_genome_to_ncbi_container', 'className'),
@@ -333,7 +350,7 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
         return ("d-flex mt-4 justify-content-start align-items-center",
                 False)
     elif tax_db_format == "GTDB" and gtdb_to_ncbi is False:
-        return ("d-flex mt-4 justify-content-start align-items-center", 
+        return ("d-flex mt-4 justify-content-start align-items-center",
                 True)
     else:
         raise ValueError("Invalid db format given...")
@@ -393,7 +410,7 @@ def process_manual_annotation(n_clicks,
                               denovo_format,
                               denovo_score_threshold,
                               denovo_filter_crap,
-                              acc_tax_map, 
+                              acc_tax_map,
                               acc_tax_map_format,
                               acc_tax_map_elem_format,
                               acc_tax_map_name,
@@ -403,7 +420,7 @@ def process_manual_annotation(n_clicks,
                               acc_tax_map_tax_idx,
                               gtdb_to_ncbi,
                               global_tax_annot,
-                              func_annot_db, 
+                              func_annot_db,
                               func_annot_db_format,
                               func_annot_db_name,
                               func_annot_combine,
@@ -412,13 +429,13 @@ def process_manual_annotation(n_clicks,
     """Annotate and combine imported datasets into one peptide dataset
     """
     no_update = (current_peptides, current_metadata, None, data_import_container)
-    
+
     # keep multi file import consistent with empty list as opposed to nonetype
     psm_list = [] if psm_list is None else psm_list
     psm_names = [] if psm_names is None else psm_names
     denovo_data = [] if denovo_data is None else denovo_data
     denovo_names = [] if denovo_names is None else denovo_names
-    
+
     # at least one db search or de novo dataset has to be imported to start
     if all(i is None or len(i) == 0 for i in [psm_list, denovo_data]):
         return no_update
@@ -430,7 +447,7 @@ def process_manual_annotation(n_clicks,
         func_annot_db is None and\
         global_tax_annot is False:
         return no_update
-    
+
     # if archive given for psm files and de novo files, extract:
     if len(psm_list) != 0:
         archive_format = determine_archive_format(psm_names[0])
@@ -439,7 +456,7 @@ def process_manual_annotation(n_clicks,
                                                        archive_format)
         elif archive_format is not None:
             return no_update
-        
+
     # extract denovo if archive given
     if len(denovo_data) != 0:
         archive_format = determine_archive_format(denovo_names[0])
@@ -448,7 +465,7 @@ def process_manual_annotation(n_clicks,
                                                              archive_format)
         elif archive_format is not None:
             return no_update
-    
+
     # Import current peptides dataset, if data present, add new data
     if current_peptides is None:
         current_peptides = None
@@ -456,7 +473,7 @@ def process_manual_annotation(n_clicks,
     else:
         current_peptides = MetaPepTable.read_json(current_peptides)
         current_sample_names = current_peptides.data["Sample Name"].unique().tolist()
-    
+
     # deduplicate (or filter) input file (names) and deduplicate sample name
     if merge_psms is False:
         sample_name, psm_list, psm_names = deduplicate_input_lists(current_sample_names,
@@ -465,13 +482,13 @@ def process_manual_annotation(n_clicks,
                                                                    psm_names)
     else:
         sample_name = deduplicate_strings(sample_name, current_sample_names)
-    
+
     # set data formats to None if no data supplied
     if len(psm_list) == 0: psm_format = None
     if len(denovo_data) == 0: denovo_format = None
     if acc_tax_map is None and global_tax_annot is False: acc_tax_map_format = None
     if func_annot_db is None: func_annot_db_format = None
-    
+
     # construct options object containing all filter settings
     options = AnnotationOptions(
         psm_format,
@@ -497,7 +514,7 @@ def process_manual_annotation(n_clicks,
         merge_psms,
     )
 
-    # perform taxonomy and functional annotation to psm data 
+    # perform taxonomy and functional annotation to psm data
     new_peptides = annotate_peptides(sample_name,
                                      psm_list,
                                      psm_names,
@@ -506,11 +523,11 @@ def process_manual_annotation(n_clicks,
                                      func_annot_db,
                                      tax_db_loc,
                                      options)
-    
+
     # merge new data to current data if present and store as json
     if current_peptides is not None:
         new_peptides = MetaPepTable.concat_tables([current_peptides, new_peptides])
-    
+
     return new_peptides.to_json(), current_metadata, None, data_import_container
 
 
@@ -537,7 +554,7 @@ def download_annotated_dataset_csv(n_clicks,
 
     # import json into metapep object
     peptides_obj = MetaPepTable.read_json(peptide_json)
-    
+
     # Download dataframe from object
     return dcc.send_data_frame(peptides_obj.data.to_csv,
                                f"{experiment_name}.csv")
@@ -555,14 +572,14 @@ def download_annotated_dataset_json(n_clicks,
                                     experiment_name):
     if peptide_json is None:
         return
-    
+
     if experiment_name is None:
         experiment_name = "peptides"
-    
+
     # import json into metapep object
     peptides_obj = MetaPepTable.read_json(peptide_json)
     file_name = f'{experiment_name}.json'
-    
+
     # Download dataframe from object
     return dict(content=peptides_obj.to_json(), filename=file_name)
 

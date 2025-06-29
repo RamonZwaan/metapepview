@@ -4,7 +4,7 @@ from typing import List, Literal, Dict, Tuple
 import plotly.express as px
 
 
-# type literals 
+# type literals
 
 RankType = Literal['Superkingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
 AbundanceMetricType = Literal['Match Count', 'Area']
@@ -15,7 +15,6 @@ class PhysicalConstants:
     proton_mass = 1.00727
 
 class GlobalConstants:
-
     # set functionality level of MetaPepView interface. Lower levels
     # hide more functions for a simpler interface. Following levels
     # are available:
@@ -25,16 +24,22 @@ class GlobalConstants:
     # 2: All annotation functions, fewer options, no Quality Control
     # 3: Default mode, all functions present
     func_level = 2
-    
+
+    # set display configuration depending on the func_level value
+    display_db_search = False if func_level == 1 else True              # display ui elements related to db search data
+    display_de_novo = False if func_level == 0 else True                # display ui elements related to de novo data
+    display_qa_page = False if func_level in [0, 1, 2] else True        # display quality control page
+    show_advanced_settings = False if func_level in [0, 1, 2] else True # display advanced options in the dashboard
+
     # remote annotation databases
     standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
     lineage_ranks_short: List[str] = ['K', 'P', 'C', 'O', 'F', 'G', 'S']
-    
+
     ncbi_taxonomy_dir: str = r"./data/local/ncbi_taxonomy"
     ncbi_taxonomy_url: str = "ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz"
     ncbi_taxonomy_files: Tuple[str, ...] = ("nodes.dmp", "names.dmp", "taxidlineage.dmp")
     ncbi_taxonomy_archive: str = "ncbi_taxonomy.zip"
-    
+
     gtdb_taxonomy_dir: str = r"./data/local/gtdb_taxonomy"
     gtdb_taxonomy_url: str = "https://data.ace.uq.edu.au/public/gtdb/data/releases/latest"
     gtdb_taxonomy_files: List[str] = ["bac120_taxonomy.tsv",
@@ -45,7 +50,7 @@ class GlobalConstants:
 
     # lineage rank column suffix for global search
     global_annot_suffix: str = " (global search)"
-    
+
     experiment_sample_table_cols: List[str] = ['Sample Name',
                                                'DB Search Imported',
                                                'De Novo Imported',
@@ -83,14 +88,14 @@ class GlobalConstants:
         'enzyme': ['ec:']
     }
     kegg_map_color_base_url: str = "https://www.kegg.jp/kegg-bin/show_pathway?"
-    
-    
+
+
     # Input datasets formats
     func_db_combine_delimiter: str = ";"                 # delimiter used during merging of rows within eggnog df
     func_db_combine_nan_fill: str = "-"                  # nan values need to be converted to str to be concatenated
 
     peptides_accession_delimiter: str = ";"
-    
+
     # MetapepTable columns
     metapep_table_db_search_fields = ['PSM Count',
                                       'RT',
@@ -106,31 +111,31 @@ class GlobalConstants:
                                       'Accession',
                                       'PTM',
                                       'Source File']
-    
+
     metapep_table_de_novo_fields = ['De Novo Confidence',
-                                    'De Novo Area', 
-                                    'De Novo Match Count', 
-                                    'De Novo Scan', 
+                                    'De Novo Area',
+                                    'De Novo Match Count',
+                                    'De Novo Scan',
                                     'De Novo Source File']
 
     metapep_de_novo_fields = ['Confidence',
-                              'Area', 
-                              'Match Count', 
-                              'Scan', 
+                              'Area',
+                              'Match Count',
+                              'Scan',
                               'Source File']
-    
+
     metapep_table_taxonomy_lineage = [i + ' Id' for i in standard_lineage_ranks] + \
                                      [i + ' Name' for i in standard_lineage_ranks]
     metapep_table_taxonomy_fields = ['Taxonomy Id',
                                      'Taxonomy Name'] + \
                                     metapep_table_taxonomy_lineage
-    
+
     metapep_table_global_taxonomy_lineage = [i + f' Id (global search)' for i in standard_lineage_ranks] + \
                                             [i + f' Name (global search)' for i in standard_lineage_ranks]
     metapep_table_global_taxonomy_fields = [
         'Global LCA', 'Global LCA Rank'] + \
         metapep_table_global_taxonomy_lineage
-    
+
     metapep_table_function_fields = ['KEGG_ko']
 
 
@@ -146,7 +151,7 @@ class GlobalConstants:
         {'label': 'Peaks 10', 'value': 'Peaks 10'},
         {'label': 'Novor (SearchGUI)', 'value': 'Novor'}
     ]
-    
+
     # local datasets
     reference_dataset_loc: str = r"./data/share/qc_refs"
     crap_fasta_loc: str = "./data/share/crap.fasta"
@@ -168,7 +173,7 @@ class GraphConstants:
     #primary_color = "Black"
     primary_color = px.colors.qualitative.T10[0]
     undefined_color = "#858585"
-    
+
     gridcolor="slategray"
     secondary_grid_color="LightBlue"
     gridwidth=1
@@ -181,7 +186,7 @@ class GraphConstants:
             size=14
         )
     )
-    
+
     # Reference QA plots
     sample_trace_color = px.colors.qualitative.T10[2]
 
@@ -224,7 +229,7 @@ class StyleConstants:
         "right": 0,
         "top": 0,
         "height": "4rem",
-        "zIndex": 1, 
+        "zIndex": 1,
     }
 
     # define style arguments for the content box

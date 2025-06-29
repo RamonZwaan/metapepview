@@ -1,7 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from constants import GlobalConstants
+from constants import GlobalConstants as gc
 
 """
 Block elements for sidebar to display
@@ -15,11 +15,28 @@ fetch_db_modal = dbc.Modal(
             [
                 html.H4("Database Location", className="mb-3"),
                 dbc.Label("NCBI Taxonomy path", className="fst-italic"),
-                dbc.Input(id='ncbi_taxonomy_db_loc', value=GlobalConstants.ncbi_taxonomy_dir, size="sm mb-4"),
-                dbc.Label("GTDB Taxonomy path", className="fst-italic"),
-                dbc.Input(id='gtdb_taxonomy_db_loc', value=GlobalConstants.gtdb_taxonomy_dir, size="sm mb-4"),
-                dbc.Label("KEGG KO map path", className="fst-italic"),
-                dbc.Input(id='kegg_map_loc', value=GlobalConstants.kegg_map_dir, size="sm mb-4"),
+                dbc.Input(id='ncbi_taxonomy_db_loc',
+                    value=gc.ncbi_taxonomy_dir,
+                    size="sm mb-4"),
+
+                # gtdb module will only be provided in full functionality mode
+                html.Div(
+                    [
+                        dbc.Label("GTDB Taxonomy path", className="fst-italic"),
+                        dbc.Input(id='gtdb_taxonomy_db_loc',
+                            value=gc.gtdb_taxonomy_dir,
+                            size="sm mb-4"),
+                    ],
+                    className="" if gc.show_advanced_settings is True else "d-none"
+                ),
+                # KEGG module will be hidden in "de novo only" mode
+                html.Div(
+                    [
+                        dbc.Label("KEGG KO map path", className="fst-italic"),
+                        dbc.Input(id='kegg_map_loc', value=gc.kegg_map_dir, size="sm mb-4"),
+                    ],
+                    className="" if gc.display_db_search is True else "d-none"
+                ),
                 html.Hr(),
                 html.H4("Fetch public database", className="mb-3"),
                 dbc.Alert(
@@ -50,58 +67,71 @@ fetch_db_modal = dbc.Modal(
                     className="d-flex"
                 ),
                 dbc.Label("Source URL", className="fst-italic"),
-                dbc.Input(id='ncbi_taxonomy_db_source_url', value=GlobalConstants.ncbi_taxonomy_url, size="sm"),
+                dbc.Input(id='ncbi_taxonomy_db_source_url', value=gc.ncbi_taxonomy_url, size="sm"),
                 dbc.FormText("Database stored in path location specified above.", className="fst-italic"),
 
-                dbc.Checkbox(
-                    id="fetch_gtdb_taxonomy_checkbox",
-                    label="GTDB Taxonomy",
-                    value=False,
-                    className="mt-4"
-                ),
+                # gtdb download module only shown in full functional interface
                 html.Div(
                     [
                         dbc.Checkbox(
-                            id="gtdb_taxonomy_overwrite_old_checkbox",
-                            label="Overwrite existing data",
-                            value=False
-                        ),
-                        dbc.Checkbox(
-                            id="gtdb_taxonomy_create_parent_dirs_checkbox",
-                            label="Create parent dir",
+                            id="fetch_gtdb_taxonomy_checkbox",
+                            label="GTDB Taxonomy",
                             value=False,
-                            className="ms-5"
+                            className="mt-4"
                         ),
+                        html.Div(
+                            [
+                                dbc.Checkbox(
+                                    id="gtdb_taxonomy_overwrite_old_checkbox",
+                                    label="Overwrite existing data",
+                                    value=False
+                                ),
+                                dbc.Checkbox(
+                                    id="gtdb_taxonomy_create_parent_dirs_checkbox",
+                                    label="Create parent dir",
+                                    value=False,
+                                    className="ms-5"
+                                ),
+                            ],
+                            className="d-flex"
+                        ),
+                        dbc.Label("Source URL (Parent Dir)", className="fst-italic"),
+                        dbc.Input(id='gtdb_taxonomy_db_source_url', value=gc.gtdb_taxonomy_url, size="sm"),
+                        dbc.FormText("Database stored in path location specified above.", className="fst-italic"),
                     ],
-                    className="d-flex"
+                    className="" if gc.show_advanced_settings is True else "d-none"
                 ),
-                dbc.Label("Source URL (Parent Dir)", className="fst-italic"),
-                dbc.Input(id='gtdb_taxonomy_db_source_url', value=GlobalConstants.gtdb_taxonomy_url, size="sm"),
-                dbc.FormText("Database stored in path location specified above.", className="fst-italic"),
 
-                dbc.Checkbox(
-                    id="fetch_kegg_map_checkbox",
-                    label="KEGG KO mapping",
-                    value=False,
-                    className="mt-4"
-                ),
+                # KEGG download module hidden in "de novo only" mode
                 html.Div(
                     [
                         dbc.Checkbox(
-                            id="kegg_map_overwrite_old_checkbox",
-                            label="Overwrite existing data",
-                            value=False
-                        ),
-                        dbc.Checkbox(
-                            id="kegg_map_create_parent_dirs_checkbox",
-                            label="Create parent dir",
+                            id="fetch_kegg_map_checkbox",
+                            label="KEGG KO mapping",
                             value=False,
-                            className="ms-5"
+                            className="mt-4"
                         ),
+                        html.Div(
+                            [
+                                dbc.Checkbox(
+                                    id="kegg_map_overwrite_old_checkbox",
+                                    label="Overwrite existing data",
+                                    value=False
+                                ),
+                                dbc.Checkbox(
+                                    id="kegg_map_create_parent_dirs_checkbox",
+                                    label="Create parent dir",
+                                    value=False,
+                                    className="ms-5"
+                                ),
+                            ],
+                            className="d-flex"
+                        ),
+                        dbc.FormText("Database stored in path location specified above.", className="fst-italic mb-xs"),
                     ],
-                    className="d-flex"
+                    className="" if gc.display_db_search is True else "d-none"
                 ),
-                dbc.FormText("Database stored in path location specified above.", className="fst-italic mb-xs"),
+
                 html.Div(
                     [
                         dbc.Spinner(html.Div(id="loader_fetch_db", style={"width": "3rem"}), size="sm"),
@@ -110,7 +140,7 @@ fetch_db_modal = dbc.Modal(
                     ],
                     className="ms-auto d-flex"
                 )
-                
+
             ],
             className="vstack"
         )
@@ -135,7 +165,7 @@ sidebar_modules = [
                 "Quality Control"
             ],
             id="sidebar_validation_button", href="/", className="mb-2"),
-        hidden=True if GlobalConstants.func_level != 3 else False
+        hidden= not gc.display_qa_page
     ),
     dbc.NavLink(
         [
@@ -151,7 +181,7 @@ sidebar_modules = [
                 # html.P("DB search vs De Novo", className="")
             ],
             id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
-        hidden=True if GlobalConstants.func_level < 2 else False
+        hidden= not gc.display_db_search or not gc.display_de_novo
     ),
     html.Div(
         dbc.NavLink(
@@ -162,10 +192,10 @@ sidebar_modules = [
             id="sidebar_functional_button",
             href="/",
             className="mb-2"),
-        hidden = True if GlobalConstants.func_level == 1 else False),
+        hidden = not gc.display_db_search),
      ]
 
-# filter out presented modules based on 
+# filter out presented modules based on
 
 
 new_sidebar = [
@@ -203,7 +233,8 @@ new_sidebar = [
                     html.I(className="bi bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
                     html.P("GTDB Taxonomy", className="fs-5")
                 ],
-                className="d-inline-flex align-items-start w-100",
+                className="d-inline-flex align-items-start w-100"\
+                    if gc.show_advanced_settings is True else "d-none",
                 id="gtdb_db_presence_check"
             ),
             html.Div(
@@ -211,7 +242,8 @@ new_sidebar = [
                     html.I(className="bi bi-check-circle-fill me-3 ms-3 fs-5 text-success"),
                     html.P("KEGG KO Map", className="fs-5")
                 ],
-                className="d-inline-flex align-items-start w-100",
+                className="d-inline-flex align-items-start w-100"\
+                    if gc.display_db_search is True else "d-none",
                 id="kegg_map_presence_check"
             ),
             html.Div(
@@ -232,6 +264,3 @@ new_sidebar = [
         # style={"background-color": "#f9f9f9"}
     )
 ]
-
-
-
