@@ -351,6 +351,12 @@ class MetaPepTable(DataValidator):
         self._source_files = self.data['Source File'].dropna().unique().tolist()
         self._sample_names = self.data['Sample Name'].dropna().unique().tolist()
         
+        def empty_or_absent(df: pd.DataFrame,
+                            col: str) -> bool:
+            if col not in df.columns:
+                return True
+            return df[col].dropna().empty
+        
         # remove format information if no more data in dataset
         if (self.data["De Novo Imported"] == False).all():
             self._de_novo_format = None
@@ -358,11 +364,10 @@ class MetaPepTable(DataValidator):
         if (self.data["DB Search Imported"] == False).all():
             self._db_search_format = None
             self._db_search_confidence_format = None
-        if self.data["Taxonomy Id"].dropna().empty and \
-            self.data["Global Taxonomy Id"].dropna().empty:
+        if empty_or_absent(self.data, "Taxonomy Id") and \
+            empty_or_absent(self.data, "Global Taxonomy Id"):
             self._taxonomy_db_format = None
-        if "KEGG_ko" in self.data.columns and \
-            self.data["KEGG_ko"].dropna().empty:
+        if empty_or_absent(self.data, "KEGG_ko"):
             self._functional_db_format = None
         
         return self

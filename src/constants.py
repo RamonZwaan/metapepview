@@ -24,7 +24,7 @@ class GlobalConstants:
     # 1: De novo only mode: import de novo and annotate with Unipept
     # 2: All annotation functions, fewer options, no Quality Control
     # 3: Default mode, all functions present
-    func_level = 2
+    func_level = 3
     
     # remote annotation databases
     standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]

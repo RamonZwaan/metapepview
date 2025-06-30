@@ -529,7 +529,7 @@ def configure_import_container(
                 )
             ],
             className=db_search_class_name,
-            style={"width": "50%"}
+            style={"width": "34%"}
         ),
         html.Div(
             [
@@ -541,7 +541,7 @@ def configure_import_container(
                 )
             ],
             className=de_novo_class_name,
-            style={"width": "50%"}            
+            style={"width": "34%"}            
         ),
         html.Div(
             [
@@ -553,7 +553,7 @@ def configure_import_container(
                 )
             ],
             className=taxonomy_class_name,
-            style={"width": "50%"}
+            style={"width": "34%"}
         ),
         html.Div(
             [
@@ -565,7 +565,7 @@ def configure_import_container(
                 )
             ],
             className=function_class_name,
-            style={"width": "50%"}            
+            style={"width": "34%"}            
         )
     ]
 

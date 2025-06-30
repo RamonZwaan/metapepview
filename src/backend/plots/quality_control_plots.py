@@ -59,7 +59,7 @@ def tic_over_rt_plot(spectral_dataset: pd.DataFrame,
         metapep_data = metapep_dataset.data
         valid_rts = metapep_data[metapep_data[secondary_param] > confidence_threshold]['RT']
 
-        name = f"{metapep_dataset.confidence_format} < {confidence_threshold}"
+        name = f"{metapep_dataset.confidence_format} > {confidence_threshold}"
         
         if valid_rts.shape[0] != 0:
             fig.add_trace(go.Histogram(x=valid_rts,
@@ -1240,7 +1240,7 @@ def ref_score_threshold_barplot(stat_dict: dict,
         row=2, 
         col=ncols)
     fig.update_yaxes(title="DB Search", row=1, col=1)
-    fig.update_yaxes(title="ALC only", row=2, col=1)
+    fig.update_yaxes(title="ALC", row=2, col=1)
 
     if sample_order is not None:
         fig.update_xaxes(categoryorder='array',
