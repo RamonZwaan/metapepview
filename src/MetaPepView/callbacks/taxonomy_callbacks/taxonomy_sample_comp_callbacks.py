@@ -1,6 +1,6 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 from dash.exceptions import PreventUpdate
-import plotly.graph_objects as go 
+import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 
 from MetaPepView.server import app
@@ -12,9 +12,9 @@ from backend.plots import \
     taxonomic_abundance_barplot, \
     taxonomic_abundance_heatmap, \
     taxonomy_dropoff_scatter
-from constants import *
-    
-    
+from constants import GlobalConstants as gc
+
+
 @app.callback(
     Output('taxa_barplot_graph', 'children'),
     Output('taxa_barplot_graph', 'style'),
@@ -44,39 +44,39 @@ def update_taxa_graph(page_active,
                       global_annot_fallback):
     if page_active is False:
         raise PreventUpdate
-    
+
     if peptide_json is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Import PSM and protein db datasets...")
         return block_element, dict(), 'Figure'
-    
+
     if tax_rank is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select taxonomy rank in dropdown menu...")
         return block_element, dict(), 'Figure'
-    
+
     peptide_df = MetaPepTable.read_json(peptide_json).data
-    
+
     # substitute missing taxonomy annotation with global annotation if specified
     glob_tax_fields = GlobalConstants.metapep_table_global_taxonomy_lineage
     if global_annot_fallback is True and \
         all(i in peptide_df.columns for i in glob_tax_fields):
-        peptide_df = substitute_lineage_with_global_lineage(peptide_df)        
-        
-    
+        peptide_df = substitute_lineage_with_global_lineage(peptide_df)
+
+
     if filter_clade and clade_rank and clade_rank != 'Root':
         # filter the dataset based on taxa at corresponding rank
         peptide_df = peptide_df[peptide_df[clade_rank + " Name"] == filter_clade]
         plot_title = f"Taxonomic abundances from {filter_clade} clade, {tax_rank} rank"
     else:
         plot_title = f"Taxonomic abundances, {tax_rank} rank"
-    
+
     if bar_graph is True:
         plot_method = taxonomic_abundance_barplot
     else:
         plot_method = taxonomic_abundance_heatmap
-        
-    
+
+
     if tax_ids != [] and top_n == 2:
         peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
         plot = plot_method(peptide_df, rank=tax_rank, fractional_abundance=fractional)
@@ -88,11 +88,11 @@ def update_taxa_graph(page_active,
         n_taxa = 9 if top_n == 1 else 23
         plot = plot_method(peptide_df, topn=n_taxa, rank=tax_rank, fractional_abundance=fractional, include_undefined=unannotated)
     # plot.update_layout(height=500)
-    
+
     return dcc.Graph(figure=plot,
                      id="taxonomy_barplot_figure",
                      style={'height': "45rem"}), dict(), plot_title
-    
+
 
 @app.callback(
     Output('taxonomic_dropoff_modal', 'is_open'),
@@ -122,26 +122,27 @@ def update_taxonomy_dropoff_graph(clickData,
     if page_active is False \
         or clickData is None \
         or tax_rank is None \
-        or peptide_json is None:
-        return (False, 
-                {'display': 'None'}, 
-                go.Figure(), 
+        or peptide_json is None \
+        or gc.show_advanced_settings is False:
+        return (False,
+                {'display': 'None'},
+                go.Figure(),
                 None,
                 "",
                 "",
                 [],
                 "Root")
-    
+
     # extract data from clickdata
     datapoint = clickData['points'][0]
     sample_name = datapoint['x']
     tax_id = datapoint['customdata'][0]
-    
+
     # can only construct figure from valid tax id's.
     if tax_id is None:
-        return (False, 
-                {'display': 'None'}, 
-                go.Figure(), 
+        return (False,
+                {'display': 'None'},
+                go.Figure(),
                 None,
                 "",
                 "",
@@ -150,44 +151,44 @@ def update_taxonomy_dropoff_graph(clickData,
 
     peptide_df = MetaPepTable.read_json(peptide_json).data
     peptide_df = peptide_df[peptide_df["Sample Name"] == sample_name]
-    
+
     # substitute missing taxonomy annotation with global annotation if specified
     glob_tax_fields = GlobalConstants.metapep_table_global_taxonomy_lineage
     if global_annot_fallback is True and \
         all(i in peptide_df.columns for i in glob_tax_fields):
         peptide_df = substitute_lineage_with_global_lineage(peptide_df)
-    
+
     # select column to sum, match count or total signal
     quant_col = "PSM Count" # alternative: "Area"
-    
+
     # fetch lineage directly from peptide json
     rank_names = GlobalConstants.standard_lineage_ranks
     lineage_cols = [rank + ' Name' for rank in rank_names]
     lineage = peptide_df[peptide_df[tax_rank + ' Id'] == tax_id]
-    
+
     # stop execution if no valid lineage found, else, retrieve first row and convert to list
     if lineage.shape[0] == 0:
         raise PreventUpdate
     else:
         tax_name = lineage.iloc[0][tax_rank + ' Name']
         lineage = lineage.iloc[0][lineage_cols].fillna("-").to_list()
-        
+
         # cut off any rand definitions beyond rank name
         rank_idx = GlobalConstants.standard_lineage_ranks.index(tax_rank)
         for i in range(rank_idx + 1, len(lineage)):
             lineage[i] = "-"
-    
+
     lineage_counts, pept_allocation = peptide_allocation_across_lineage(
         peptide_df,
         lineage,
         quant_col)
-    
+
     # configure dropoff dropdown menu and check that current value is part of dropdown menu
     dropoff_menu_options = [
         {'label': 'Root', 'value':"Root"}
     ]
-    
-    for rank, rank_short, clade in zip(GlobalConstants.standard_lineage_ranks, 
+
+    for rank, rank_short, clade in zip(GlobalConstants.standard_lineage_ranks,
                                        GlobalConstants.lineage_ranks_short,
                                        lineage):
         if clade != "-":
@@ -195,7 +196,7 @@ def update_taxonomy_dropoff_graph(clickData,
             dropoff_menu_options.append({'label': clade, 'value': rank})
     if dropoff_root_rank not in [x['value'] for x in dropoff_menu_options]:
         dropoff_root_rank = "Root"
-    
+
     # get clade from root rank
     if dropoff_root_rank == "Root":
         dropoff_root_clade = "Root"
@@ -213,13 +214,13 @@ def update_taxonomy_dropoff_graph(clickData,
             lin_loss_text = "-".format(combined_lin_loss)
         else:
             lin_loss_text = "{:.1f}%".format(combined_lin_loss)
-        
+
         combined_glob_loss = compute_global_cumulative_annotation_drop(
             peptide_df,
             dropoff_root_rank,
             dropoff_root_clade,
             tax_rank,
-            quant_col   
+            quant_col
         )
         if combined_glob_loss != combined_glob_loss:
             glob_loss_text = " -".format(combined_glob_loss)
@@ -227,22 +228,21 @@ def update_taxonomy_dropoff_graph(clickData,
             glob_loss_text = "{:.1f}%".format(combined_glob_loss)
     else:
         lin_loss_text, glob_loss_text = "-", "-"
-    
+
 
     fig = taxonomy_dropoff_scatter(
         peptide_df,
         lineage_counts,
         pept_allocation,
         normalize_bars)
-    
+
     title = "Taxonomic dropoff: {} from {}".format(tax_name, sample_name)
-     
-    return (True, 
-            dict(), 
-            fig, 
+
+    return (True,
+            dict(),
+            fig,
             title,
             lin_loss_text,
             glob_loss_text,
             dropoff_menu_options,
             dropoff_root_rank)
-    

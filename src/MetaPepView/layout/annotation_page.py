@@ -2,6 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 import dash_bootstrap_components as dbc
 
 from MetaPepView.html_templates import *
+from constants import GlobalConstants as gc
 
 
 
@@ -19,10 +20,11 @@ sample_options_block = [
             ),
             html.Div(
                 [
-                    html.H4("merge DB search files", className="align-self-center me-4"),
+                    html.H4("merge DB search files",
+                        className="align-self-center me-4"),
                     dbc.Switch(id="merge_psm_switch", className="align-self-center", value=True),
                 ],
-                className="d-flex justify-content-start"
+                className="d-flex justify-content-start" if gc.show_advanced_settings is True else "d-none"
             ),
             html.Div(
                 [
@@ -45,7 +47,7 @@ sample_options_block = [
     # de_novo_data,
     # taxonomic_annotation,
     # functional_annotation,
-    
+
     dcc.Store(id="current_taxonomy_db_loc"),
     # dcc.Store(id="valid_import_data"),
 ]
@@ -95,39 +97,7 @@ peptide_data_block = html.Div(
         ),
         html.Hr(className="my-0 py-0"),
         html.Div(
-            [
-                html.Div(
-                    [
-                        html.H4("DB search format", className="text-secondary"),
-                        html.H6("-", id="peptides_db_search_format", className="ps-4 mb-1")
-                    ],
-                    className="w-25 py-2 px-4"
-                ),
-                html.Div(className="vr my-0"),
-                html.Div(
-                    [
-                        html.H4("De novo format", className="text-secondary"),
-                        html.H6("-", id="peptides_de_novo_format", className="ps-4 mb-1")
-                    ],
-                    className="w-25 py-2 px-4"
-                ),
-                html.Div(className="vr"),
-                html.Div(
-                    [
-                        html.H4("Taxonomy db format", className="text-secondary"),
-                        html.H6("-", id="peptides_taxonomy_db_format", className="ps-4 mb-1")
-                    ],
-                    className="w-25 py-2 px-4"
-                ),
-                html.Div(className="vr"),
-                html.Div(
-                    [
-                        html.H4("Function db format", className="text-secondary"),
-                        html.H6("-", id="peptides_function_db_format", className="ps-4 mb-1")
-                    ],
-                    className="w-25 py-2 px-4"
-                ),
-            ],
+            configure_metadata_format_container(),
             style={'float': 'bottom'},
             className="d-flex justify-content-between my-0 mx-0"
         ),
@@ -143,14 +113,14 @@ db_search_options_modal = dbc.Modal(
         dbc.ModalBody(
             [
                 html.Div(
-                    [   
+                    [
                         html.B("Confidence threshold:", className="me-3 align-self-center"),
                         dbc.Input(value=30, min=0, id="db_search_psm_score_threshold", size="sm", type="number", style={"width": "4rem"}),
                     ],
                     className="d-flex justify-content-between mb-3"
                 ),
                 html.Div(
-                    [   
+                    [
                         dbc.Checkbox(label= html.B("filter cRAP",
                                                    id="db_search_filter_crap_text",
                                                    className="ms-2 me-3 align-top text-decoration-underline"),
@@ -170,7 +140,7 @@ db_search_options_modal = dbc.Modal(
                     ],
                     className="d-flex mt-4 justify-content-start align-items-center"
                 ),
-                
+
             ],
             className="vstack p-5"
         )
@@ -187,14 +157,14 @@ de_novo_options_modal = dbc.Modal(
         dbc.ModalBody(
             [
                 html.Div(
-                    [   
+                    [
                         html.B("Confidence threshold:", className="me-3 align-self-center"),
                         dbc.Input(value=30, min=0, id="de_novo_score_threshold", size="sm", type="number", style={"width": "4rem"}),
                     ],
                     className="d-flex justify-content-between mb-3"
                 ),
                 html.Div(
-                    [   
+                    [
                         dbc.Checkbox(label= html.B("filter cRAP",
                                                    id="De_novo_filter_crap_text",
                                                    className="ms-2 me-3 align-top text-decoration-underline"),
@@ -214,7 +184,7 @@ de_novo_options_modal = dbc.Modal(
                     ],
                     className="d-flex mt-4 justify-content-start align-items-center"
                 ),
-                
+
             ],
             className="vstack p-5"
         )
@@ -231,7 +201,7 @@ taxonomy_map_options_modal = dbc.Modal(
         dbc.ModalBody(
             [
                 html.Div(
-                    [   
+                    [
                         html.B("Delimiter:", className="me-3 align-self-center"),
                         dbc.Input(value=r'\t', id="acc_tax_map_delim", size="sm", type="text", style={"width": "4rem"}),
                     ],
@@ -239,7 +209,7 @@ taxonomy_map_options_modal = dbc.Modal(
                     style={"width": "20rem"}
                 ),
                 html.Div(
-                    [   
+                    [
                         html.Div(
                             [
                                 html.B("Accession column index:", className="me-3 align-self-center"),
@@ -253,15 +223,16 @@ taxonomy_map_options_modal = dbc.Modal(
                                 html.B("Pattern match (regex): ", className="ms-5 me-3 align-self-center"),
                                 dbc.Input(id="acc_tax_map_acc_pattern", size="sm", type="text", style={"width": "10rem"}),
                             ],
-                            className="d-flex justify-content-between",
+                            hidden=not gc.show_advanced_settings,
+                            className="d-flex justify-content-between" if gc.show_advanced_settings is True else "d-none",
                             style={"width": "25rem"}
                         )
                     ],
                     className="d-flex justify-content-between mb-3",
-                    style={"width": "45rem"}
+                    style={"width": "45rem"} if gc.show_advanced_settings is True else None
                 ),
                 html.Div(
-                    [   
+                    [
                         html.B("Taxonomy column index:", className="me-3 align-self-center"),
                         dbc.Input(value=1, min=0, id="acc_tax_tax_idx", size="sm", type="number", style={"width": "4rem"}),
                     ],
@@ -285,12 +256,12 @@ taxonomy_map_options_modal = dbc.Modal(
                                     taxonomy id's or taxonomy names.
                             """,
                                     # In NCBI, id's
-                                    # are integer values that represent a taxonomy element. 
-                                    # For example, the Genus Escherichia has the id: '562'. 
+                                    # are integer values that represent a taxonomy element.
+                                    # For example, the Genus Escherichia has the id: '562'.
                                     # If the taxonomy column contains names, then these will be matched against
-                                    # scientific names stored in the NCBI taxonomy database. 
+                                    # scientific names stored in the NCBI taxonomy database.
                                     # These are guaranteed unique for each taxonomy element.\n
-                                    # For GTDB, taxonomy id's are stored as taxonomy name with a rank suffix. 
+                                    # For GTDB, taxonomy id's are stored as taxonomy name with a rank suffix.
                                     # For example, the genus Escherichia has id: 'g__Escherichia'.
                                     # If the taxonomy column contains names, the values will be matched against gtdb id's without the rank suffix: 'Escherichia'.
                                     # At the strain level, GTDB only stores NCBI genome names. These are valid taxonomy identifiers for both names and id's.
@@ -299,14 +270,16 @@ taxonomy_map_options_modal = dbc.Modal(
                             target="taxonomy_id_format_text",
                             trigger="hover",
                             placement='top',
-                            className="px-3 py-1",
+                            className="px-3 py-1" ,
                             style={"width": "100rem"}
                         )
                     ],
-                    className="d-flex mt-4 justify-content-start align-items-center"
+                    hidden=not gc.show_advanced_settings,
+                    className="d-flex mt-4 justify-content-start align-items-center"\
+                        if gc.show_advanced_settings is True else "d-none"
                 ),
                 html.Div(
-                    [   
+                    [
                         dbc.Checkbox(label= html.B("To NCBI taxonomy id (genome id's only)",
                                         id="gtdb_genome_to_ncbi_text",
                                         className="ms-2 me-3 align-top text-decoration-underline"
@@ -314,9 +287,9 @@ taxonomy_map_options_modal = dbc.Modal(
                                         id="gtdb_genome_to_ncbi_checkbox",
                                         value=False),
                         dbc.Popover("""
-                            Convert genome id from GTDB database to NCBI taxonomy id. 
+                            Convert genome id from GTDB database to NCBI taxonomy id.
                             After conversion, proteins will be mapped to the NCBI taxonomy DB.
-                            NOTE: Only Genome id's present in the GTB database can be mapped to NCBI taxonomy format. 
+                            NOTE: Only Genome id's present in the GTB database can be mapped to NCBI taxonomy format.
                             Any protein mapped to a GTDB taxonomy id will be discarded!""",
                             id="gtdb_genome_to_ncbi_info",
                             target="gtdb_genome_to_ncbi_text",
@@ -327,10 +300,11 @@ taxonomy_map_options_modal = dbc.Modal(
                     ],
                     id="gtdb_genome_to_ncbi_container",
                     hidden=True,
-                    className="d-flex mt-4 justify-content-start align-items-center",
+                    className="d-flex mt-4 justify-content-start align-items-center"\
+                        if gc.show_advanced_settings is True else "d-none",
                 ),
                 html.Div(
-                    [   
+                    [
                         # html.B("Combine multiple annotations",
                         #        id="func_annot_combine_text",
                         #        className="me-3 align-top"),
@@ -353,14 +327,15 @@ taxonomy_map_options_modal = dbc.Modal(
                         )
                     ],
                     id="global_taxonomy_annotation_container",
-                    className="d-flex mt-4 justify-content-start align-items-center",
+                    className="d-flex mt-4 justify-content-start align-items-center"\
+                        if gc.show_advanced_settings is True else "d-none",
                 ),
             ],
             className="vstack p-5"
         )
     ],
     id="taxonomy_map_modal",
-    size="lg",
+    size="lg" if gc.show_advanced_settings is True else False,
     scrollable=True,
     is_open=False,
 )
@@ -372,7 +347,7 @@ function_map_options_modal = dbc.Modal(
         dbc.ModalBody(
             [
                 html.Div(
-                    [   
+                    [
                         # html.B("Combine multiple annotations",
                         #        id="func_annot_combine_text",
                         #        className="me-3 align-top"),
@@ -416,7 +391,7 @@ db_search_import_block = [
                     dbc.Button("Options",
                                id="db_search_modal_open",
                                size="sm",
-                               className="d-none" if GlobalConstants.func_level != 3 else "",
+                               className="" if gc.show_advanced_settings is True else "d-none",
                                color="secondary",
                                outline=True),
                 ],
@@ -424,7 +399,7 @@ db_search_import_block = [
             ),
             annotation_mini_importer_block(
                 "db_search_psm_upload", "db_search_psm_import_txt", "db_search_psm_valid",
-                format_options=GlobalConstants.db_search_dropdown_options,
+                format_options=gc.db_search_dropdown_options,
                 format_id="db_search_psm_format",
                 allow_multiple=True
             ),
@@ -450,7 +425,7 @@ de_novo_import_block = [
                     dbc.Button("Options",
                                id="de_novo_modal_open",
                                size="sm",
-                               className="d-none" if GlobalConstants.func_level != 3 else "",
+                               className="" if gc.show_advanced_settings is True else "d-none",
                                color="secondary",
                                outline=True),
                 ],
@@ -458,7 +433,7 @@ de_novo_import_block = [
             ),
             annotation_mini_importer_block(
                 "denovo_upload", "de_novo_import_txt", "de_novo_valid",
-                format_options=GlobalConstants.de_novo_dropdown_options,
+                format_options=gc.de_novo_dropdown_options,
                 format_id="de_novo_format",
                 allow_multiple=True
             )
@@ -488,8 +463,10 @@ taxonomy_map_import_block = [
             ),
             annotation_mini_importer_block(
                 "taxonomy_db_upload", "tax_map_import_txt", "taxonomy_db_valid",
-                format_options=[{'label': 'NCBI', 'value': 'NCBI'},
-                                {'label': 'GTDB', 'value': 'GTDB'}],
+                format_options=[{'label': 'NCBI', 'value': 'NCBI'}] +
+                    ([{'label': 'GTDB', 'value': 'GTDB'}] if gc.show_advanced_settings is True\
+                    else []),
+
                 format_id="taxonomy_db_format"
             )
         ],
@@ -511,7 +488,12 @@ function_map_import_block = [
             html.Div(
                 [
                     html.H4("Functional annotation"),
-                    dbc.Button("Options", id="function_map_modal_open", size="sm", color="secondary", outline=True),
+                    dbc.Button("Options",
+                        id="function_map_modal_open",
+                        className="" if gc.show_advanced_settings is True else "d-none",
+                        size="sm",
+                        color="secondary",
+                        outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
@@ -582,7 +564,7 @@ import_block = html.Div(
                     className="p-3",
                     #style={"height": "31rem"}
                 ),
-                html.Hr(className="m-0"),                
+                html.Hr(className="m-0"),
                 html.Div(
                     data_import_container,
                     id="data_import_container",
@@ -599,7 +581,6 @@ import_block = html.Div(
                 html.Div(
                     [
                         dash_table.DataTable(
-                            columns=[{'id': c, 'name': c} for c in GlobalConstants.experiment_sample_table_cols],
                             id="experiment_sample_table",
                             style_data={'table-layout': 'fixed', 'backgroundColor': 'rgba(0, 0, 0, 0)'},
                             style_header={'backgroundColor': 'rgb(216, 216, 235)',
@@ -608,9 +589,9 @@ import_block = html.Div(
                             style_cell={'textAlign': 'left', 'font-family': 'Arial'},
                             style_cell_conditional=[
                                 {'if': {'column_id': 'DB Search Imported'},
-                                'width': '12%'},
+                                'width': '15%'},
                                 {'if': {'column_id': 'De Novo Imported'},
-                                'width': '12%'}],
+                                'width': '15%'}],
                             style_as_list_view=True,
                             row_deletable=True,
                             page_size=10)

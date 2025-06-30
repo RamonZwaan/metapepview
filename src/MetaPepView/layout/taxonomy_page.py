@@ -1,7 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from constants import *
+from constants import GlobalConstants as gc
 
 
 # buttongroup to select the type of graph to show
@@ -82,7 +82,7 @@ taxonomy_rank_selector = dbc.Row(
         dbc.Col(html.B("Display rank")),
         dbc.Col(
             dcc.Dropdown(
-                GlobalConstants.standard_lineage_ranks,
+                gc.standard_lineage_ranks,
                 value='Phylum',
                 id='barplot_taxa_rank_items',
                 style={"width": "15rem"}
@@ -134,6 +134,7 @@ global_fallback_selector = dbc.Row(
             )
         )
     ],
+    className="" if gc.show_advanced_settings is True else "d-none",
     style={"margin": "1.5rem 0rem"}
 )
 
@@ -260,7 +261,7 @@ taxonomic_dropoff_modal = dbc.Modal(
                         html.P("Cumulative annotation drop from:",
                                 className="mb-0 me-3 fs-5 text"),
                         dcc.Dropdown(
-                            ["Root"] + GlobalConstants.standard_lineage_ranks,
+                            ["Root"] + gc.standard_lineage_ranks,
                             value="Root",
                             clearable=False,
                             id='taxonomy_cumulative_dropoff_rank',
@@ -301,7 +302,7 @@ taxonomic_dropoff_modal = dbc.Modal(
                         dcc.Graph(id="taxonomic_dropoff_figure"),
                     ],
                     id='taxonomic_dropoff_graph', style={'display': 'None'})
-            ], 
+            ],
             className="px-1 pb-1")
     ],
     id="taxonomic_dropoff_modal",
@@ -335,7 +336,7 @@ def taxonomy_page_constructor(
             dbc.Col(
                 dbc.Card( # stacked barplot card
                     [
-                        dbc.CardBody(graph)    
+                        dbc.CardBody(graph)
                     ],
                     className="shadow-sm",
                     style={"margin": "0rem 0rem 1rem 0rem", "height": "64rem"}
@@ -374,4 +375,3 @@ taxonomy_de_novo_analysis = taxonomy_page_constructor(
         dcc.Download(id="download_taxonomy_composition_csv")
     ]
 )
-

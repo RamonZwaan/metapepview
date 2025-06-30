@@ -9,7 +9,7 @@ import dash_bootstrap_components as dbc
 from typing import Any, Sequence, List, Optional, Tuple, Dict
 
 from backend.io import *
-from constants import GlobalConstants, StyleConstants
+from constants import GlobalConstants as gc, StyleConstants
 
 
 def importer_block(
@@ -19,7 +19,7 @@ def importer_block(
     valid_state_id: str,
     multiple=False,
     title_id=None) -> Any:
-    
+
     if multiple is True:
         filenames_feedback = html.Div(
             [
@@ -27,7 +27,7 @@ def importer_block(
                                         "text-align": "left"})
             ],
             id=return_data_id,
-            className="overflow-auto", 
+            className="overflow-auto",
             style={"height": "5rem"}
         )
     else:
@@ -36,14 +36,14 @@ def importer_block(
             html.P("No file...", style={"padding": "0rem .5rem",
                                         "text-align": "left"})
             ],
-            id=return_data_id, 
+            id=return_data_id,
         )
-        
+
     if title_id is None:
         header_block = html.H4(title)
     else:
         header_block = html.H4(title, id=title_id)
-    
+
     return [
         dbc.Row(
             [
@@ -102,24 +102,36 @@ def annotation_mini_importer_block(
             Defaults to None.
         format_id (str | None, optional): Dash component id for format dropdown
             menu. Defaults to None.
-        
+
     Returns:
         Any: List[Any]: Dash component block.
     """
     header_block = html.B("Format", className="me-5")
 
     if format_options is not None:
+        hide_dropdown = True if len(format_options) == 1 else False
+
         initial_val = format_options[0] if isinstance(format_options[0], str) else format_options[0]['value']
-        format_block = dcc.Dropdown(
-                format_options,
-                value=initial_val,
-                clearable=False,
-                id=format_id,
-                style={'height': "30px", "width": "15rem"}
+
+        format_dropdown = dcc.Dropdown(
+            format_options,
+            value=initial_val,
+            clearable=False,
+            id=format_id,
+            style={'height': "30px", "width": "15rem"} if not hide_dropdown else None,
+            className="" if len(format_options) > 1 else "d-none"
             )
+
+        label = format_options[0] if isinstance(format_options[0], str) else format_options[0]['label']
+        format_name = html.H6(label,
+            style={"height": "30px", "width": "10rem"} if hide_dropdown else None,
+            className="d-flex align-items-center mb-0" if len(format_options) == 1 else\
+                "d-none"
+        )
     else:
-        format_block = dbc.Col(None)
-        
+        format_dropdown = dbc.Col(None)
+        format_name = None
+
     upload_style = {
         'borderWidth': '1px',
         'borderStyle': 'dashed',
@@ -131,22 +143,23 @@ def annotation_mini_importer_block(
                 'Drag and Drop or ',
                 html.A("Select Files", style={'cursor': 'pointer', 'fontWeight': 'bold'})
             ],
-            id=return_data_id, 
+            id=return_data_id,
         )
     else:
         filenames_feedback = html.Div([
                 'Drag and Drop or ',
                 html.A("Select File", style={'cursor': 'pointer', 'fontWeight': 'bold'})
             ],
-            id=return_data_id, 
+            id=return_data_id,
         )
-        
+
 
     return html.Div([
         html.Div(
             [
                 header_block,
-                format_block,
+                format_dropdown,
+                format_name
             ],
             className="d-flex align-items-center justify-content-between my-3"
         ),
@@ -187,7 +200,7 @@ def qa_importer_block(
             Defaults to None.
         format_id (str | None, optional): Dash component id for format dropdown
             menu. Defaults to None.
-        
+
     Returns:
         Any: List[Any]: Dash component block.
     """
@@ -195,7 +208,7 @@ def qa_importer_block(
             'Drag and Drop or ',
             html.A("Select File", style={'cursor': 'pointer', 'fontWeight': 'bold'})
         ],
-        id=return_data_id, 
+        id=return_data_id,
     )
 
     if title_id is None:
@@ -216,7 +229,7 @@ def qa_importer_block(
         )
     else:
         format_block = dbc.Col(None, width=4)
-    
+
     return [
         dbc.Row(
             [
@@ -279,7 +292,7 @@ def import_single_file(names: Optional[str],
         if len(names) > max_name_len:
             names = names[:max_name_len-3] + '...'
         return [html.P(names, className="fw-bold")]
-    
+
 
 def import_multiple_files(names: Optional[Sequence[str]],
                           dates: Optional[Sequence[str]],
@@ -299,10 +312,10 @@ def import_multiple_files(names: Optional[Sequence[str]],
     Returns:
         List[html.P] | html.P: List of html p elements to display.
     """
-    
+
     if names is None or dates is None:
         return html.P("No file...")
-    
+
     # limit displayed rows if desired
     if max_rows > 0 and max_rows < len(names):
         names, dates = names[:max_rows], dates[:max_rows]
@@ -333,7 +346,7 @@ def validate_multiple_files(contents: List[str] | None,
     """
     msg = None
     box_style = {}
-    
+
     # validate file contents, if invalid format, notify user
     if contents is not None and names is not None:
         # allow import of single archive, extract all files
@@ -343,13 +356,13 @@ def validate_multiple_files(contents: List[str] | None,
                                                          archive_format)
         else:
             file_data, file_names = contents, names
-        
-        current_name = None
+
+        current_name, success = None, False
         try:
             for idx, file in enumerate(file_data):
                 if file is None:
                     raise ValueError("Non-file-like encountered, likely directory")
-                
+
                 # read buffer to keep content validator input consistent
                 file = file.read() if isinstance(file, IO) else file
 
@@ -372,11 +385,11 @@ def validate_multiple_files(contents: List[str] | None,
     else:
         valid_data = None
         file_names= None
-        
+
     name_list = import_multiple_files(file_names,
                                       dates,
                                       max_name_len=30)
-    
+
     return (valid_data, name_list, contents, msg, False, box_style)
 
 
@@ -400,20 +413,20 @@ def validate_single_file(contents: str | None,
         contents (str): File contents,
         name (str): File name
         dates (Any): Last modified date
-        content_validator (Callable[[str, str  |  None], Tuple[bool, str  |  None]]): 
+        content_validator (Callable[[str, str  |  None], Tuple[bool, str  |  None]]):
             Function that takes content file, as well as compression format as input
             and returns success status and error message in case of fail as output.
         drag_and_drop (bool, optional): Return element text made for display inside
             drag and drop field. Defaults to False.
 
     Returns:
-        Tuple[bool | None, List[Any] | html.P, str | None, str | None, bool, Dict[str, str]]: 
-            Validation status as well as html elements: 
+        Tuple[bool | None, List[Any] | html.P, str | None, str | None, bool, Dict[str, str]]:
+            Validation status as well as html elements:
             {valid data status, filename block, file contents, error message, success status,
             style element for import box}
     """
     msg, valid_data, box_style, success = None, None, {}, True
-    
+
     if contents is not None and name is not None:
         # validate format if data given
         archive_format = determine_archive_format(name)
@@ -454,30 +467,30 @@ def hidden_graph_with_text(graph_id: str, text_overlay: str, div_encapsulate: bo
 
 
 def sample_color_table_block(sample_color_map: Dict[str, str]) -> List[Any]:
-    
+
     def row_block(sample: str,
                   color: str):
         return dbc.Row(
             [
                 dbc.Col(
-                    html.P(sample, 
-                           className="ms-5"), 
+                    html.P(sample,
+                           className="ms-5"),
                     width=8),
                 dbc.Col(
-                    html.Div(style={'backgroundColor': color, 
-                                    'height': '1rem', 
+                    html.Div(style={'backgroundColor': color,
+                                    'height': '1rem',
                                     'width': '1rem'}),
                     width=4
                 )
             ],
             className="d-flex align-items-center"
         )
-    
+
     div_children = []
-    
+
     for sample, color in sample_color_map.items():
         div_children.append(row_block(sample, color))
-    
+
     return div_children
 
 
@@ -503,25 +516,14 @@ def configure_import_container(
             import components.
     """
     # Show or hide components based on dashboard function level
-    de_novo_class_name = "d-flex"
-    db_search_class_name = "d-flex"
-    taxonomy_class_name = "d-flex"
-    function_class_name = "d-flex"
-    
-    func_level = GlobalConstants.func_level
-    if func_level == 1:
-        db_search_class_name = "d-none"
-        taxonomy_class_name = "d-none"
-        function_class_name = "d-none"
-    if func_level == 0:
-        de_novo_class_name = "d-none"
-    
-    # configure block width based on number of disabled blocks
-    # b_width = 100 / (4 - hide_db_search - hide_de_novo)
-    
+    db_search_class_name = "d-flex" if gc.display_db_search is True else "d-none"
+    de_novo_class_name = "d-flex" if gc.display_de_novo is True else "d-none"
+    taxonomy_class_name = "d-flex" if gc.display_db_search is True else "d-none"
+    function_class_name = "d-flex" if gc.display_db_search is True else "d-none"
+
     return [
         html.Div(
-            [    
+            [
                 html.Div(
                     db_search_block,
                     id="db_search_import_box",
@@ -533,7 +535,7 @@ def configure_import_container(
         ),
         html.Div(
             [
-                html.Div(className="vr"),    
+                html.Div(className="vr"),
                 html.Div(
                     de_novo_block,
                     id="de_novo_import_box",
@@ -541,7 +543,7 @@ def configure_import_container(
                 )
             ],
             className=de_novo_class_name,
-            style={"width": "34%"}            
+            style={"width": "34%"}
         ),
         html.Div(
             [
@@ -565,10 +567,77 @@ def configure_import_container(
                 )
             ],
             className=function_class_name,
-            style={"width": "34%"}            
+            style={"width": "34%"}
         )
     ]
 
 
+def configure_metadata_format_container():
+    """Hide metadata components from Data Import page that are not relevant
+    given the defined function level of the dashboard
+    """
+    gc = GlobalConstants
+    # Show or hide components based on dashboard function level
+    db_search_class_name = "d-flex" if gc.display_db_search is True else "d-none"
+    de_novo_class_name = "d-flex" if gc.display_de_novo is True else "d-none"
+    taxonomy_class_name = "d-flex" if gc.display_db_search is True else "d-none"
+    function_class_name = "d-flex" if gc.display_db_search is True else "d-none"
 
-    
+    return [
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.H4("DB search format", className="text-secondary"),
+                        html.H6("-", id="peptides_db_search_format", className="ps-4 mb-1")
+                    ],
+                    className="w-auto py-2 px-4",
+                ),
+            ],
+            className=db_search_class_name,
+            style={"width": "50%"}
+        ),
+        html.Div(
+            [
+                html.Div(className="vr my-0"),
+                html.Div(
+                    [
+                        html.H4("De novo format", className="text-secondary"),
+                        html.H6("-", id="peptides_de_novo_format", className="ps-4 mb-1")
+                    ],
+                    className="w-auto py-2 px-4",
+                ),
+            ],
+            className=de_novo_class_name,
+            style={"width": "50%"}
+        ),
+        html.Div(
+            [
+                html.Div(className="vr"),
+                html.Div(
+                    [
+                        html.H4("Taxonomy db format", className="text-secondary"),
+                        html.H6("-", id="peptides_taxonomy_db_format", className="ps-4 mb-1")
+                    ],
+                    className="w-auto py-2 px-4",
+                ),
+            ],
+            className=taxonomy_class_name,
+            style={"width": "50%"}
+        ),
+        html.Div(
+            [
+                html.Div(className="vr"),
+                html.Div(
+                    [
+                        html.H4("Function db format", className="text-secondary"),
+                        html.H6("-", id="peptides_function_db_format", className="ps-4 mb-1")
+                    ],
+                    className="w-auto py-2 px-4",
+                )
+            ],
+            className=function_class_name,
+            style={"width": "50%"}
+        )
+,
+    ]

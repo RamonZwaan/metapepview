@@ -1,16 +1,19 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
+from copy import deepcopy
 
 from MetaPepView.server import app
 
 from backend import *
 from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap
 from backend.utils import truncate_end
-        
-        
+from constants import GlobalConstants as gc
+
+
 @app.callback(
     Output('experiment_sample_table', 'data'),
+    Output('experiment_sample_table', 'columns'),
     Output('peptides_db_search_format', 'children'),
     Output('peptides_de_novo_format', 'children'),
     Output('peptides_taxonomy_db_format', 'children'),
@@ -21,23 +24,27 @@ def show_samples_data(peptides_json):
     """Display sample of protein db data into datatable and display format
     information.
     """
-    
-    table_cols = GlobalConstants.experiment_sample_table_cols
-    
+    table_cols = deepcopy(gc.experiment_sample_table_cols)
+
+    # remove unrelevant columns from table depending on dashboard function level
+    if gc.display_db_search is False:
+        table_cols.remove("DB Search Imported")
+        table_cols.remove("De Novo Imported")
+        table_cols.remove("Taxonomy DB Name")
+        table_cols.remove("Functional Annotation DB Name")
+    if gc.display_de_novo is False:
+        table_cols.remove("DB Search Imported")
+        table_cols.remove("De Novo Imported")
+
     # display message to import data if no peptides dataset is present
     if peptides_json is None:
         return (None,
+                [{'id': c, 'name': c} for c in table_cols],
                 "-",
                 "-",
                 "-",
                 "-")
-        # return ([html.H4("Import peptides dataset or annotate manually...",
-        #                  className="px-2 py-2")],
-        #         "-",
-        #         "-",
-        #         "-",
-        #         "-")
-    
+
     peptides_obj = MetaPepTable.read_json(peptides_json)
     peptides_df = peptides_obj.data
 
@@ -49,7 +56,11 @@ def show_samples_data(peptides_json):
     # fetch sample names and annotation db name + formats
     sample_df = peptides_df.drop_duplicates(subset=['Sample Name'], keep="first")
     sample_df = sample_df[table_cols]
-    
+
+    # ensure that subset selection is dataframe, should not ever be triggered.
+    if not isinstance(sample_df, pd.DataFrame):
+        raise TypeError("DataFrame subset selection did not result in a DataFrame.")
+
     # limit length of name columns in dataset
     for col in ['Sample Name', 'Taxonomy DB Name', 'Functional Annotation DB Name']:
         def text_processing(cell) -> str:
@@ -58,14 +69,14 @@ def show_samples_data(peptides_json):
                 trunc = "None"
             return trunc
         sample_df[col] = sample_df[col].apply(text_processing)
-    
-    
+
     return (sample_df.to_dict('records'),
-            db_search_format, 
-            de_novo_format, 
-            tax_db_format, 
+            [{'id': c, 'name': c} for c in table_cols],
+            db_search_format,
+            de_novo_format,
+            tax_db_format,
             func_db_format)
-    
+
 
 @app.callback(
     Output('peptides', 'data', allow_duplicate=True),
@@ -77,17 +88,17 @@ def remove_peptide_data(datatable_data,
                         peptides_json):
     if peptides_json is None:
         raise PreventUpdate
-        
+
     metapep_obj = MetaPepTable.read_json(peptides_json)
     metapep_samples = metapep_obj.sample_names
-    
+
     samples_datatable = [row.get('Sample Name') for row in datatable_data]
     filter_samples = set(metapep_samples) - set(samples_datatable)
     if len(filter_samples) == 0:
         raise PreventUpdate
-    
+
     metapep_obj = metapep_obj.remove_samples(filter_samples)
-    
+
     return metapep_obj.to_json()
 
 
@@ -113,8 +124,8 @@ def update_experiment_name(current_field_name, stored_data):
 )
 def clear_peptide_data(_):
     return None , None
- 
-            
+
+
 @app.callback(
     Output('psm_table_selector', 'options'),
     Input('db_search_psm_upload', 'filename'),
@@ -126,5 +137,3 @@ def update_psm_sample_menu(names):
         return []
     else:
         return names
-    
-    
