@@ -243,8 +243,8 @@ def reshape_taxonomy_df_to_denovo(input_df: pd.DataFrame,
     renamer = {i: j for i, j in zip(global_lin_ids + global_lin_names,
                                     lin_ids + lin_names)}
     global_annot = global_annot.rename(columns=renamer)
-    metagenome_annot['Sample Name'] = 'DB search protein annotation'
-    global_annot['Sample Name'] = 'Global annotation'
+    metagenome_annot['Sample Name'] = 'DB search taxonomy'
+    global_annot['Sample Name'] = 'De novo taxonomy (Unipept)'
     
     return pd.concat([metagenome_annot, global_annot])
 
