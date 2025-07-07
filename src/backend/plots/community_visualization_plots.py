@@ -244,8 +244,14 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
 
 
 def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
-                             lineage_counts: Tuple[str, int | float],
-                             lineage_dropoff: List[Tuple[str, Tuple[int | float]]],
+                             lineage_counts: List[Tuple[str, int | float]],
+                             lineage_dropoff: List[Tuple[str, 
+                                                         Tuple[float,
+                                                               float,
+                                                               float,
+                                                               float,
+                                                               Dict[str, 
+                                                                    float]]]],
                              normalize_bars: bool = False):
     
     # fetch allocation categories into separate arrays
@@ -261,7 +267,10 @@ def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
         if x[4] == x[4]:
             other_branches_names += [list(x[4].keys())]
             other_branches_values += [np.array(list(x[4].values()), dtype=np.float64)]
-
+        else:
+            other_branches_names += [[]]
+            other_branches_values += [np.array([])]
+            
     
     # normalize peptide annotation allocation to 100%
     sum_array = annotation_dropoff + branching_dropoff + valid_counts
