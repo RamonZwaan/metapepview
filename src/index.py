@@ -1,4 +1,8 @@
+from waitress import serve
+from waitress.server import create_server
+
 from MetaPepView.server import app
+
 import plotly.io as pio
 
 from constants import GraphConstants
@@ -23,5 +27,6 @@ pio.templates.default = GraphConstants.default_template
 app.layout = app_layout
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
+    # app.run(host="0.0.0.0", debug=True)
+    serve(app.server, host="127.0.0.1", port=8050, threads=100) #type:ignore
     

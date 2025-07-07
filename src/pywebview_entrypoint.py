@@ -1,4 +1,6 @@
 import webview
+from waitress import serve
+from threading import Thread
 
 from MetaPepView.server import app
 import plotly.io as pio
@@ -25,7 +27,15 @@ pio.templates.default = GraphConstants.default_template
 # Build the app layout from the components
 app.layout = app_layout
 
+def mpv_server():
+    serve(app.server, host="127.0.0.1", port=8050, threads=100)#type:ignore
+
 if __name__ == '__main__':
-    webview.create_window("MetaPepView", app.server, maximized=True)
+    Thread(target=mpv_server,
+           daemon=True).start()
+    
+    webview.create_window("MetaPepView", 
+                          "http://127.0.0.1:8050", 
+                          maximized=True) #type:ignore
     webview.start()
     # app.run(host="0.0.0.0", debug=True)
