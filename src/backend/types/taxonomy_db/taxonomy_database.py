@@ -10,7 +10,7 @@ from __future__ import annotations
 from abc import ABCMeta, abstractmethod
 from functools import lru_cache
 from pathlib import Path
-from typing import Tuple, List, Any, overload, TypeVar
+from typing import Tuple, List, Any, overload, TypeVar, Sequence
 from warnings import warn
 
 import numpy as np
@@ -26,6 +26,8 @@ class TaxonomyDatabase(metaclass=ABCMeta):
     Args:
         metaclass (_type_, optional): _description_. Defaults to ABCMeta.
     """ 
+    
+    RANK_LIST: List[str]
     
     @classmethod
     @abstractmethod
@@ -71,7 +73,7 @@ class TaxonomyDatabase(metaclass=ABCMeta):
         ...
     
     @abstractmethod
-    def id_to_standard_lineage(self, tax_id: Any) -> Tuple[Any]:
+    def id_to_standard_lineage(self, tax_id: Any) -> Tuple[Any, ...]:
         """Return the lineage at the standard rank levels for a given taxonomy id.
         Any taxa inbetween valid ranks (sub-, clade, etc.) are filtered from the
         lineage.
@@ -97,28 +99,28 @@ class TaxonomyDatabase(metaclass=ABCMeta):
         ...
         
     @abstractmethod
-    def id_to_rank(self, tax_id: Any) -> str:
+    def id_to_rank(self, tax_id: Any) -> str | float:
         """Get the rank of a specified taxonomy id.
 
         Args:
             tax_id (Any): Taxonomy id.
 
         Returns:
-            str: Taxonomy rank.
+            str | float: Taxonomy rank if of tax_id if valid, else nan.
         """
         ...
     
     @abstractmethod
-    def id_to_parent(self, tax_id: Any, rank: str) -> Any:
+    def id_to_parent(self, tax_id: Any, parent_rank: str) -> str | float:
         """Return a parent taxonomy id at a specified rank for a
         given taxonomy id.
 
         Args:
-            tax_id (Any): Taxonomy id.
+            tax_id (T): Taxonomy id.
             rank (str): Rank to fetch parent id from.
 
         Returns:
-            Any: Taxonomy id of parent.
+            T | float: Taxonomy id of parent if valid tax_id, else nan.
         """
         ...
     
@@ -159,26 +161,26 @@ class TaxonomyDatabase(metaclass=ABCMeta):
         ...
     
     @abstractmethod
-    def id_to_name(self, tax_id: Any) -> str:
+    def id_to_name(self, tax_id: Any) -> str | float:
         """Convert taxonomy id to taxa name.
 
         Args:
             tax_id (Any): Taxonomy id
 
         Returns:
-            str:  Taxa name
+            str | float:  Taxa name if valid id, else nan
         """
         ...
         
     @abstractmethod
-    def lineage_id_to_name(self, id_lineage: List[Any] | Tuple[Any, ...]) -> List[str | None] | Tuple[str | None]:
+    def lineage_id_to_name(self, id_lineage: List[Any] | Tuple[Any, ...]) -> Tuple[str | float, ...]:
         """Convert lineage of taxonomy id's to a lineage array of taxa names.
 
         Args:
             id_lineage (List[Any] | Tuple[Any, ...]): Lineage array of taxonomy id's.
 
         Returns:
-            Tuple[str | None]: Lineage array of taxa names
+            Tuple[str | float]: Lineage array of taxa names
         """
         ...
     
@@ -196,9 +198,9 @@ class TaxonomyDatabase(metaclass=ABCMeta):
         """
         ...
     
-    @staticmethod
+    @classmethod
     @abstractmethod
-    def lineages_to_lca(lin_series: List[Any] | Tuple[Any, ...] | pd.Series) -> Any:
+    def lineages_to_lca(cls, lineages: Sequence[Sequence[Any]]) -> Any:
         """Retrieve the last common ancestor tax id from a list of taxonomy
         lineages. This function does not require any external taxonomy
         datasets.

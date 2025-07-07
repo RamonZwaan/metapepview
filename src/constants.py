@@ -6,7 +6,7 @@ import plotly.express as px
 
 # type literals
 
-RankType = Literal['Superkingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
+RankType = Literal['Domain', 'Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
 AbundanceMetricType = Literal['Match Count', 'Area']
 KeggDbs = Literal['pathway', 'brite', 'module', 'ko', 'enzyme']
 
@@ -23,7 +23,7 @@ class GlobalConstants:
     # 1: De novo only mode: import de novo and annotate with Unipept
     # 2: All annotation functions, fewer options, no Quality Control
     # 3: Default mode, all functions present
-    func_level = 2
+    func_level = 3
 
     # set display configuration depending on the func_level value
     display_db_search = False if func_level == 1 else True              # display ui elements related to db search data
@@ -32,8 +32,8 @@ class GlobalConstants:
     show_advanced_settings = False if func_level in [0, 1, 2] else True # display advanced options in the dashboard
 
     # remote annotation databases
-    standard_lineage_ranks: List[RankType] = ["Superkingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
-    lineage_ranks_short: List[str] = ['K', 'P', 'C', 'O', 'F', 'G', 'S']
+    standard_lineage_ranks: List[RankType] = ["Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
+    lineage_ranks_short: List[str] = ['D', 'P', 'C', 'O', 'F', 'G', 'S']
 
     ncbi_taxonomy_dir: str = r"./data/local/ncbi_taxonomy"
     ncbi_taxonomy_url: str = "ftp.ncbi.nlm.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz"

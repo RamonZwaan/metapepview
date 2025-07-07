@@ -2,6 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
+from copy import deepcopy
 import json
 import numpy as np
 from io import StringIO
@@ -65,7 +66,7 @@ def show_db_psm_search_qa_name(contents, file_format, name, date):
     valid_data, name, content, err_msg, success, import_box_style = validate_single_file(contents, name, date, valid_func, drag_and_drop=True)
     
     # update import box style
-    qa_box_style = StyleConstants.qa_import_box_style
+    qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
     if "background-color" in import_box_style.keys():
         qa_box_style["background-color"] = import_box_style["background-color"]
     
@@ -93,7 +94,7 @@ def show_denovo_search_qa_name(contents, file_format, name, date):
     valid_data, name, content, err_msg, success, import_box_style = validate_single_file(contents, name, date, valid_func, drag_and_drop=True)
 
     # update import box style
-    qa_box_style = StyleConstants.qa_import_box_style
+    qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
     if "background-color" in import_box_style.keys():
         qa_box_style["background-color"] = import_box_style["background-color"]
     
@@ -133,7 +134,7 @@ def store_mzml_dataset(content, filename):
     
     archive_format = determine_archive_format(filename)
     
-    qa_box_style = StyleConstants.qa_import_box_style
+    qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
     
     try:
         data, metadata = mzml_to_df(memory_to_file_like(content, archive_format),

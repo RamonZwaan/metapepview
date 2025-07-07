@@ -23,9 +23,10 @@ class GtdbTaxonomy(TaxonomyDatabase):
     
     LINEAGE_COLUMNS = ("taxonomy_id", "lineage")
     
+    # GTDB taxonomy lacks the Kingdom rank in the lineage
     RANK_LIST = [x.lower() for x in GlobalConstants.standard_lineage_ranks]
     
-    RANK_ID_TO_NAME = {"k": "superkingdom",
+    RANK_ID_TO_NAME = {"d": "domain",
                        "p": "phylum",
                        "c": "class",
                        "o": "order",
@@ -35,7 +36,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
     
     ROOT_NAME = "Root"
     
-    RANK_PREFIX = re.compile(r"[kpcofgs]__$")
+    RANK_PREFIX = re.compile(r"[dpcofgs]__$")
     
     
     def __init__(self,
@@ -160,7 +161,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
     
     
     @lru_cache(maxsize=None)
-    def id_to_standard_lineage(self, tax_id: str) -> List[str | float]:
+    def id_to_standard_lineage(self, tax_id: str) -> Tuple[str | float, ...]:
         """Return the lineage from a given taxonomy id.
 
         Args:
@@ -170,7 +171,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
             Tuple[str | float]: Standard lineage array.
         """
         if not self.id_in_dataset(tax_id):
-            return (np.nan,)*7
+            return (np.nan,) * 7
         
         # if genome given, convert to species id
         if self.genome_id_in_dataset(tax_id):
@@ -181,7 +182,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
         
         # if lineage does not go to species, add none values
         trailing_none = len(self.RANK_LIST) - len(lineage)
-        return lineage + [np.nan] * trailing_none
+        return tuple(lineage + [np.nan] * trailing_none)
         
         
     def id_in_dataset(self, tax_id: str) -> bool:
@@ -445,7 +446,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
         if self.genome_id_in_dataset(tax_name):
             return self.genome_id_to_species_id(tax_name)
         
-        potential_ids = np.array([i + f"__{tax_name}" for i in self.RANK_LIST])
+        potential_ids = np.array([i + f"__{tax_name}" for i in self.RANK_ID_TO_NAME.keys()])
         id_in_dataset = [self.id_in_dataset(i) for i in potential_ids]
         valid_ids = potential_ids[id_in_dataset]
         
@@ -464,12 +465,10 @@ class GtdbTaxonomy(TaxonomyDatabase):
             return valid_ids.tolist()
         else:
             raise ValueError(f"Invalid `on_duplicates` value given '{on_duplicates}'. Choose from {'nan', 'all'}.")
-        
-            
-        
+
     
     @classmethod
-    def lineages_to_lca(cls, lineages: List[List[str]] | List[Tuple[str, ...]]) -> str | float:
+    def lineages_to_lca(cls, lineages: Sequence[Sequence[str]]) -> str | float:
         """Retrieve the last common ancestor tax id from a list of taxonomy
         lineages. This method parses an array of lineage strings retrieved from
         the lineage dataset. It will return the highest ranked taxonomy for which
@@ -624,6 +623,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
         Returns:
             pd.DataFrame: Lineage dataset.
         """
+        # split lineage string into rank cells, ignore 'domain' rank
         dataset = pd.DataFrame.from_records(dataset["lineage"].str.split(";"),
                                             columns=cls.RANK_LIST)
         return dataset.drop_duplicates()

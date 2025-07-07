@@ -440,7 +440,10 @@ def validate_single_file(contents: str | None,
             valid_data = False
             box_style = StyleConstants.failed_box_style
             contents = None
-
+    # remove name if no contents is imported
+    elif contents is None:
+        name = None
+    
     return (valid_data,
             import_single_file(name, dates, max_name_len=30, drag_and_drop=drag_and_drop),
             contents,

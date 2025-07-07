@@ -123,6 +123,7 @@ def update_taxonomy_dropoff_graph(clickData,
         or clickData is None \
         or tax_rank is None \
         or peptide_json is None \
+        or 'customdata' not in clickData['points'][0] \
         or gc.show_advanced_settings is False:
         return (False,
                 {'display': 'None'},

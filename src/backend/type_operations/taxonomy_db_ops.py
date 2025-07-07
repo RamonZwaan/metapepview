@@ -31,7 +31,7 @@ def add_lineage(dataset: pd.DataFrame,
     lineage_names = lineage.transform(taxonomy_db.lineage_id_to_name)
 
     # Add both lineage of ids and names to grouped dataset
-    lin = GlobalConstants.standard_lineage_ranks
+    lin = [x.capitalize() for x in taxonomy_db.RANK_LIST]
     lin_id_df = pd.DataFrame(lineage.tolist(),
                                 index=lineage.index,
                                 columns=[i + " Id" for i in lin])

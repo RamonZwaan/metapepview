@@ -61,7 +61,7 @@ def download_gtdb_taxonomy(
               dir_loc.resolve().as_posix())
         dir_loc.mkdir(parents=True)
 
-    # check if dir contains existing ncbi taxonomy
+    # check if dir contains existing gtdb taxonomy
     gtdb_exist = check_gtdb_taxonomy_present(dir_loc)[1]
     
     if gtdb_exist is True and overwrite is False:
@@ -91,7 +91,8 @@ def download_gtdb_taxonomy(
         try:
             extr_archive = extr_archive.decode()
             write_file = open(Path(dir_loc, file_name).resolve().as_posix(),
-                                "wt")
+                              "wt",
+                              encoding="utf-8")
             write_file.write(extr_archive)
             write_file.close()
         except:

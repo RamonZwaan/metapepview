@@ -17,7 +17,7 @@ mzml_import = qa_importer_block(
 
 
 psm_file_validation_import = qa_importer_block(
-    "PSM Import",
+    "DB search Import",
     "db_search_psm_qa_upload",
     "db_search_psm_qa_name",
     "db_search_psm_qa_valid",
