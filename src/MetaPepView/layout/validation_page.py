@@ -267,7 +267,7 @@ transmission_scatter = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("MS2 Efficiency"),
+                        html.H4("MS2 Ion Transmission"),
                         html.Div(
                             [
                                 html.Div(
@@ -330,10 +330,9 @@ ident_score_rank_dist = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("Confidence cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("Confidence cutoff DB search:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dbc.Input(type="number",
                                                   min=0,
-                                                  max=200,
                                                   step=1,
                                                   value=35,
                                                   id="pept_conf_lgp_cutoff",
@@ -344,7 +343,7 @@ ident_score_rank_dist = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("Confidence cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("Confidence cutoff de novo:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=200,
@@ -378,7 +377,7 @@ ref_confidence_dist_line = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Score Confidence Distribution"),
+                        html.H4("Confidence Ranked Distribution"),
                         html.Div(
                             [
                                 html.B("Metric:", style={"margin-right": "1rem", "text-align": "center"}),
@@ -418,7 +417,7 @@ ref_confidence_dist_scatter = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Score Threshold Distribution"),
+                        html.H4("Confidence Thresholds Scatter"),
                         html.Div(
                             [
                                 html.B("Normalize:", style={"margin-right": "1rem", "text-align": "center"}),
@@ -495,7 +494,7 @@ ref_confidence_dist_bar = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Spectral Matches"),
+                        html.H4("Confidence Thresholds Barplot"),
                         html.Div(
                             [
                                 html.Div(

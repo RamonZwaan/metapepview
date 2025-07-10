@@ -492,8 +492,8 @@ def show_tic_dist(mzml_content,
                              alc_cutoff,
                              norm_bars)
     fig.update_layout(autosize=True)
-    graph = dcc.Graph(figure=fig, id="scan_int_dist_fig", style={'height': '100%'})
-    return (graph, {"display": 'block', 'height': '19rem'})
+    graph = dcc.Graph(figure=fig, id="scan_int_dist_fig", style={'height': '80%'})
+    return (graph, {"display": 'block', 'height': '21rem'})
 
 
 @app.callback(
