@@ -73,16 +73,19 @@ def load_metapep_db_search(file_buffer: str | IO[str],
     Returns:
         MetaPepDbSearch: Db search psm data in MetaPep table format
     """
-    importer = db_search_importers.get(file_format)
-    
-    if importer is None:
-        raise ValueError("Invalid file format supplied")
-    else:
-        db_search_obj = importer.read_file_buffer(file_buffer, sample_name)
-    
-    # convert db search data to metapep format. If multiple source files in dataset,
-    # omit all data that are not of the currently processed source file.
-    return db_search_obj.to_metapep_db_search(sample_name, crap_dataset)
+    try:
+        importer = db_search_importers.get(file_format)
+        
+        if importer is None:
+            raise ValueError("Invalid file format supplied")
+        else:
+            db_search_obj = importer.read_file_buffer(file_buffer, sample_name)
+        
+        # convert db search data to metapep format. If multiple source files in dataset,
+        # omit all data that are not of the currently processed source file.
+        return db_search_obj.to_metapep_db_search(sample_name, crap_dataset)
+    except Exception as err:
+        raise ValueError(f"Failed to load db search sample '{sample_name}': {err}")
     
     
 def load_metapep_de_novo(file_buffer: str | IO[str],
@@ -105,15 +108,17 @@ def load_metapep_de_novo(file_buffer: str | IO[str],
     """
 
     importer = de_novo_importers.get(file_format)
-    
-    if importer is None:
-        raise ValueError("Invalid file format supplied")
-    else:
-        de_novo_obj = importer.read_file_buffer(file_buffer, sample_name)
-    
-    # convert de novo data to metapep format. If multiple source files in dataset,
-    # omit all data that are not of the currently processed source file.
-    return de_novo_obj.to_metapep_de_novo(sample_name, crap_dataset)
+    try:
+        if importer is None:
+            raise ValueError("Invalid file format supplied")
+        else:
+            de_novo_obj = importer.read_file_buffer(file_buffer, sample_name)
+        
+        # convert de novo data to metapep format. If multiple source files in dataset,
+        # omit all data that are not of the currently processed source file.
+        return de_novo_obj.to_metapep_de_novo(sample_name, crap_dataset)
+    except Exception as err:
+        raise ValueError(f"Failed to load de novo sample '{sample_name}': {err}")
 
 
 def metapep_table_to_peptides(metapep_table: MetaPepDbSearch | MetaPepDeNovo,

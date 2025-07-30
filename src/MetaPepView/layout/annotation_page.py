@@ -552,6 +552,12 @@ import_block = html.Div(
             is_open=False,
             color="danger"
         ),
+        dbc.Alert(
+            id="annotation_error_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger"
+        ),
         db_search_options_modal,
         de_novo_options_modal,
         taxonomy_map_options_modal,

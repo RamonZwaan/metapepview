@@ -1,4 +1,3 @@
-from sys import displayhook
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
@@ -9,6 +8,7 @@ from MetaPepView.server import app
 from MetaPepView.layout.annotation_page import *
 
 from backend.annotation import *
+from backend.exceptions import AnnotationError
 from backend.io import *
 from backend.types import *
 from backend.type_operations import *
@@ -362,6 +362,8 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     Output('peptides_metadata', 'data', allow_duplicate=True),
     Output('annotation_loading_spot', 'children'),
     Output('data_import_container', 'children'),
+    Output('annotation_error_alert', 'children'),
+    Output('annotation_error_alert', 'is_open'),
     Input('start_annotation_button', 'n_clicks'),
     State('peptides', 'data'),
     State('peptides_metadata', 'data'),
@@ -428,7 +430,17 @@ def process_manual_annotation(n_clicks,
                               ncbi_tax_db_loc):
     """Annotate and combine imported datasets into one peptide dataset
     """
-    no_update = (current_peptides, current_metadata, None, data_import_container)
+    # default state of output
+    alert_content = None
+    alert_open = False
+    loading_status = None
+    
+    no_update = (current_peptides, 
+                 current_metadata, 
+                 loading_status, 
+                 data_import_container, 
+                 alert_content, 
+                 alert_open)
 
     # keep multi file import consistent with empty list as opposed to nonetype
     psm_list = [] if psm_list is None else psm_list
@@ -450,38 +462,79 @@ def process_manual_annotation(n_clicks,
 
     # if archive given for psm files and de novo files, extract:
     if len(psm_list) != 0:
-        archive_format = determine_archive_format(psm_names[0])
-        if len(psm_list) == 1 and archive_format is not None:
-            psm_list, psm_names = archive_to_file_list(psm_list[0],
-                                                       archive_format)
-        elif archive_format is not None:
-            return no_update
+        try:
+            archive_format = determine_archive_format(psm_names[0])
+            if len(psm_list) == 1 and archive_format is not None:
+                psm_list, psm_names = archive_to_file_list(psm_list[0],
+                                                        archive_format)
+            elif archive_format is not None:
+                return no_update
+        except:
+            alert_msg = "Failed to extract DB search data. Ensure the archive only contains valid DB search files in consistent format."
+            alert_open = True
+            return (current_peptides, 
+                    current_metadata, 
+                    loading_status, 
+                    data_import_container, 
+                    alert_msg, 
+                    alert_open)
 
     # extract denovo if archive given
     if len(denovo_data) != 0:
-        archive_format = determine_archive_format(denovo_names[0])
-        if len(denovo_data) == 1 and archive_format is not None:
-            denovo_data, denovo_names = archive_to_file_list(denovo_data[0],
-                                                             archive_format)
-        elif archive_format is not None:
-            return no_update
+        try:
+            archive_format = determine_archive_format(denovo_names[0])
+            if len(denovo_data) == 1 and archive_format is not None:
+                denovo_data, denovo_names = archive_to_file_list(denovo_data[0],
+                                                                archive_format)
+            elif archive_format is not None:
+                return no_update
+        except:
+            alert_msg = "Failed to extract de novo data. Ensure the archive only contains valid de novo files in consistent format."
+            alert_open = True
+            return (current_peptides, 
+                    current_metadata, 
+                    loading_status, 
+                    data_import_container, 
+                    alert_msg, 
+                    alert_open)
 
     # Import current peptides dataset, if data present, add new data
     if current_peptides is None:
-        current_peptides = None
+        current_peptides_df = None
         current_sample_names = []
     else:
-        current_peptides = MetaPepTable.read_json(current_peptides)
-        current_sample_names = current_peptides.data["Sample Name"].unique().tolist()
-
+        try:
+            current_peptides_df = MetaPepTable.read_json(current_peptides)
+            current_sample_names = current_peptides_df.data["Sample Name"].unique().tolist()
+        except:
+            alert_msg = "Failed to parse project data..."
+            alert_open = True
+            return (current_peptides, 
+                    current_metadata, 
+                    loading_status, 
+                    data_import_container, 
+                    alert_msg, 
+                    alert_open)
+           
+            
     # deduplicate (or filter) input file (names) and deduplicate sample name
-    if merge_psms is False:
-        sample_name, psm_list, psm_names = deduplicate_input_lists(current_sample_names,
-                                                                   sample_name,
-                                                                   psm_list,
-                                                                   psm_names)
-    else:
-        sample_name = deduplicate_strings(sample_name, current_sample_names)
+    try:
+        if merge_psms is False:
+            sample_name, psm_list, psm_names = deduplicate_input_lists(current_sample_names,
+                                                                       sample_name,
+                                                                       psm_list,
+                                                                       psm_names)
+        else:
+            sample_name = deduplicate_strings(sample_name, current_sample_names)
+    except:
+        alert_msg = "Failed to parse db search filenames..."
+        alert_open = True
+        return (current_peptides, 
+                current_metadata, 
+                loading_status, 
+                data_import_container, 
+                alert_msg, 
+                alert_open)
 
     # set data formats to None if no data supplied
     if len(psm_list) == 0: psm_format = None
@@ -515,20 +568,61 @@ def process_manual_annotation(n_clicks,
     )
 
     # perform taxonomy and functional annotation to psm data
-    new_peptides = annotate_peptides(sample_name,
-                                     psm_list,
-                                     psm_names,
-                                     denovo_data, # type: ignore
-                                     acc_tax_map,
-                                     func_annot_db,
-                                     tax_db_loc,
-                                     options)
+    try:
+        new_peptides = annotate_peptides(sample_name,
+                                        psm_list,
+                                        psm_names,
+                                        denovo_data, # type: ignore
+                                        acc_tax_map,
+                                        func_annot_db,
+                                        tax_db_loc,
+                                        options)
+    except AnnotationError as err:
+        alert_open = True
+        return (current_peptides, 
+                current_metadata, 
+                loading_status, 
+                data_import_container, 
+                err.msg, 
+                alert_open)
+    except Exception as err:
+        alert_msg = "Failed annotation due to unexpected problem: {err}"
+        alert_open = True
+        return (current_peptides, 
+                current_metadata, 
+                loading_status, 
+                data_import_container, 
+                alert_msg, 
+                alert_open)
 
     # merge new data to current data if present and store as json
-    if current_peptides is not None:
-        new_peptides = MetaPepTable.concat_tables([current_peptides, new_peptides])
+    if current_peptides_df is not None:
+        try:
+            new_peptides = MetaPepTable.concat_tables([current_peptides_df, new_peptides])
+        except ValueError as e:
+            alert_msg = f"Failed to add sample to project table: {e}"
+            alert_open = True
+            return (current_peptides, 
+                    current_metadata, 
+                    loading_status, 
+                    data_import_container, 
+                    alert_msg, 
+                    alert_open)
 
-    return new_peptides.to_json(), current_metadata, None, data_import_container
+    try:
+        new_peptides_dump = new_peptides.to_json()
+    except:
+        alert_msg = "failed to store project table..."
+        alert_open = True
+        return (current_peptides, 
+                current_metadata, 
+                loading_status, 
+                data_import_container, 
+                alert_msg, 
+                alert_open)
+        
+        
+    return new_peptides_dump, current_metadata, None, data_import_container
 
 
 def global_taxonomy_annotation_only():

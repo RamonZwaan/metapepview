@@ -88,7 +88,6 @@ class EggnogMapper(FunctionDbMapper, DataValidator):
         df.rename(columns={"#query": "query"}, inplace=True)
         #df.set_index("query", drop=True, inplace=True)
 
-        # filter dataset with e-value below 1e-6, so that at most one alignment due to randomness will be encountered (given protein database size of 1.5 million)
         df = df[df["evalue"] < max_evalue]
 
         # convert '-' to NaN

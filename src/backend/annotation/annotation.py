@@ -14,6 +14,7 @@ from backend.utils import *
 from ..type_operations import *
 from .unipept_search import global_taxonomic_annotation
 from constants import *
+from ..exceptions import AnnotationError
 
 # add type classes
 from ..types import *
@@ -83,28 +84,37 @@ def annotate_peptides(sample_name: str,
         options.tax_db_format == "GTDB" and \
         options.tax_db_name is not None:
         print("import taxonomy database...")
-        taxonomy_db = import_taxonomy_db(Path(options.ncbi_db_loc,
-                                              GlobalConstants.ncbi_taxonomy_archive),
-                                         "NCBI")
+        try:
+            taxonomy_db = import_taxonomy_db(Path(options.ncbi_db_loc,
+                                                GlobalConstants.ncbi_taxonomy_archive),
+                                            "NCBI")
+        except Exception as err:
+            raise AnnotationError(f"Failed to import taxonomy database: {err}")
         
         print("import protein to taxonomy map...")
         tax_db_archive_format = determine_archive_format(options.tax_db_name)
         
         # load gtdb to ncbi mapping object
         bac_metadata, ar_metadata = [Path(tax_db_loc, x) for x in GlobalConstants.gtdb_metadata_files]
-        gtdb_to_ncbi_obj = GtdbGenomeToNcbi.from_metadata_file(bac_metadata, 
-                                                               ar_metadata)
+        try:
+            gtdb_to_ncbi_obj = GtdbGenomeToNcbi.from_metadata_file(bac_metadata, 
+                                                                ar_metadata)
+        except Exception as err:
+            raise AnnotationError(f"Failed to load GTDB to NCBI mapping: {err}")
         
-        tax_df = import_acc_tax_map(taxonomy_map,
-                                    options.tax_db_acc_idx,
-                                    options.tax_db_tax_idx,
-                                    options.tax_db_acc_pattern,
-                                    options.tax_db_delimiter,
-                                    taxonomy_db,
-                                    options.tax_db_format,
-                                    options.tax_db_element_format,
-                                    gtdb_to_ncbi_obj,
-                                    tax_db_archive_format)
+        try:
+            tax_df = import_acc_tax_map(taxonomy_map,
+                                        options.tax_db_acc_idx,
+                                        options.tax_db_tax_idx,
+                                        options.tax_db_acc_pattern,
+                                        options.tax_db_delimiter,
+                                        taxonomy_db,
+                                        options.tax_db_format,
+                                        options.tax_db_element_format,
+                                        gtdb_to_ncbi_obj,
+                                        tax_db_archive_format)
+        except Exception as err:
+            raise AnnotationError(f"Failed to import taxonomy annotations: {err}")
         # Change taxonomy db format after conversion to NCBI
         options.tax_db_format = "NCBI"
         
@@ -112,24 +122,33 @@ def annotate_peptides(sample_name: str,
         options.tax_db_format is not None and \
         options.tax_db_name is not None:
         print("import taxonomy database...")
-        taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
-                                         options.tax_db_format)
+        try:
+            taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
+                                            options.tax_db_format)
+        except Exception as err:
+            raise AnnotationError(f"Failed to import taxonomy database: {err}")
         
         print("import protein to taxonomy map...")
         tax_db_archive_format = determine_archive_format(options.tax_db_name)
-        tax_df = import_acc_tax_map(taxonomy_map,
-                                    options.tax_db_acc_idx,
-                                    options.tax_db_tax_idx,
-                                    options.tax_db_acc_pattern,
-                                    options.tax_db_delimiter,
-                                    taxonomy_db,
-                                    options.tax_db_format,
-                                    options.tax_db_element_format, 
-                                    None,
-                                    tax_db_archive_format)
+        try:
+            tax_df = import_acc_tax_map(taxonomy_map,
+                                        options.tax_db_acc_idx,
+                                        options.tax_db_tax_idx,
+                                        options.tax_db_acc_pattern,
+                                        options.tax_db_delimiter,
+                                        taxonomy_db,
+                                        options.tax_db_format,
+                                        options.tax_db_element_format, 
+                                        None,
+                                        tax_db_archive_format)
+        except Exception as err:
+            raise AnnotationError(f"Failed to import taxonomy annotations: {err}")
     else:
-        taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
-                                         options.tax_db_format)
+        try:
+            taxonomy_db = import_taxonomy_db(Path(tax_db_loc),
+                                             options.tax_db_format)
+        except Exception as err:
+            raise AnnotationError(f"Failed to import taxonomy database: {err}")
         tax_df = None
         
     
@@ -139,15 +158,21 @@ def annotate_peptides(sample_name: str,
         print("import functional annotation db...")
         # define archive format, get file name by removing archive suffix
         func_annot_archive_format = determine_archive_format(options.func_db_name)
-        func_annot_db = import_func_map(func_annot_map,
-                                        options.func_db_format,
-                                        archive_format=func_annot_archive_format)
+        try:
+            func_annot_db = import_func_map(func_annot_map,
+                                            options.func_db_format,
+                                            archive_format=func_annot_archive_format)
+        except Exception as err:
+            raise AnnotationError(f"Failed to import functional annotations: {err}")
     else:
         func_annot_db = None
 
     # load crap dataset if present
     if Path(GlobalConstants.crap_fasta_loc).exists():
-        crap_pept = fasta_to_peptides(Path(GlobalConstants.crap_fasta_loc))
+        try:
+            crap_pept = fasta_to_peptides(Path(GlobalConstants.crap_fasta_loc))
+        except Exception as err:
+            raise AnnotationError(f"Failed to import cRAP dataset: {err}")
     else:
         crap_pept = None
 
@@ -156,9 +181,12 @@ def annotate_peptides(sample_name: str,
         print("import de novo files...")
         
         de_novo_crap = crap_pept if options.de_novo_filter_crap is True else None
-        de_novo_dict = match_source_denovo(de_novo_list,
-                                           options.de_novo_format,
-                                           de_novo_crap)
+        try:
+            de_novo_dict = match_source_denovo(de_novo_list,
+                                               options.de_novo_format,
+                                               de_novo_crap)
+        except Exception as err:
+            raise AnnotationError(f"failed to import de novo data: {err}")
     else:
         de_novo_dict = None
     
@@ -168,51 +196,75 @@ def annotate_peptides(sample_name: str,
         db_search_crap = crap_pept if options.db_search_filter_crap is True else None
         # assign identical names to peptide blocks if merger desired
         if options.merge_psms is True:
-            psm_df_list = [load_metapep_db_search(db_search_psm,
-                                                  sample_name,
-                                                  options.db_search_format,
-                                                  db_search_crap)
-                        for db_search_psm in db_search_list]
+            try:
+                psm_df_list = [load_metapep_db_search(db_search_psm,
+                                                    sample_name,
+                                                    options.db_search_format,
+                                                    db_search_crap)
+                            for db_search_psm in db_search_list]
+            except Exception as err:
+                raise AnnotationError(str(err))
             
-            # psm_merge_df = pd.concat(psm_df_list, axis=0)
-            psm_merge_df = MetaPepDbSearch.concat_tables(psm_df_list)
+            # psm_merge_df = pd.concat(psm_df_list, axis=0)]
+            try:
+                psm_merge_df = MetaPepDbSearch.concat_tables(psm_df_list)
+            except Exception as err:
+                raise AnnotationError(f"Failed to merge supplied db search files: {err}")
 
-            metapep_table = build_metapep_table(psm_merge_df,
-                                                tax_df,
-                                                func_annot_db,
-                                                de_novo_dict,
-                                                sample_name,
-                                                taxonomy_db,
-                                                options)
+            try:
+                metapep_table = build_metapep_table(psm_merge_df,
+                                                    tax_df,
+                                                    func_annot_db,
+                                                    de_novo_dict,
+                                                    sample_name,
+                                                    taxonomy_db,
+                                                    options)
+            except Exception as err:
+                raise AnnotationError(f"Failed to combine imports into new sample: {err}")
         else:
             metapep_table_list = []
             for i, db_search_psm in enumerate(db_search_list):
                 print(f"process {db_search_names[i]}...")
-                psm_df = load_metapep_db_search(db_search_psm,
-                                                db_search_names[i],
-                                                options.db_search_format,
-                                                db_search_crap)
-                sample_metapep_table = build_metapep_table(psm_df,
-                                                           tax_df,
-                                                           func_annot_db,
-                                                           de_novo_dict,
-                                                           db_search_names[i],
-                                                           taxonomy_db,
-                                                           options)
+                
+                try:
+                    psm_df = load_metapep_db_search(db_search_psm,
+                                                    db_search_names[i],
+                                                    options.db_search_format,
+                                                    db_search_crap)
+                except Exception as err:
+                    raise AnnotationError(str(err))
+                
+                try:
+                    sample_metapep_table = build_metapep_table(psm_df,
+                                                            tax_df,
+                                                            func_annot_db,
+                                                            de_novo_dict,
+                                                            db_search_names[i],
+                                                            taxonomy_db,
+                                                            options)
+                except Exception as err:
+                    raise AnnotationError(f"Failed to combine imports into new sample: {err}")
                 metapep_table_list.append(sample_metapep_table)
-            metapep_table = MetaPepTable.concat_tables(metapep_table_list)
+                
+            try:
+                metapep_table = MetaPepTable.concat_tables(metapep_table_list)
+            except Exception as err:
+                raise AnnotationError(f"Failed to add sample to project table: {err}")
             
     # without db search data, build metapep table with only global taxonomy
     elif de_novo_dict is not None:
-        metapep_table = build_metapep_table(None,
-                                            None,
-                                            None,
-                                            de_novo_dict,
-                                            sample_name,
-                                            taxonomy_db,
-                                            options)
+        try:
+            metapep_table = build_metapep_table(None,
+                                                None,
+                                                None,
+                                                de_novo_dict,
+                                                sample_name,
+                                                taxonomy_db,
+                                                options)
+        except Exception as err:
+            raise AnnotationError(f"Failed to combine imports into new sample: {err}")
     else:
-        raise ValueError("No valid db search or de novo data supplied")
+        raise AnnotationError("No valid db search or de novo data supplied")
     
     return metapep_table
 
@@ -329,22 +381,31 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
                         options: AnnotationOptions) -> MetaPepTable:
     print("wrangle db search dataset to metapepview format...")
     if metapep_db_search is not None:
-        peptides = process_db_search_data(metapep_db_search, options)
+        try:
+            peptides = process_db_search_data(metapep_db_search, options)
+        except Exception as err:
+            raise AnnotationError("Failed db search data wrangling.")
 
         if taxonomy_mapper is not None and options.tax_db_format is not None:
             print("annotate taxonomy...")
-            peptides = taxonomic_annotation(peptides,
-                                            taxonomy_mapper,
-                                            taxonomy_db)
+            try:
+                peptides = taxonomic_annotation(peptides,
+                                                taxonomy_mapper,
+                                                taxonomy_db)
+            except Exception as err:
+                raise AnnotationError("Failed taxonomy annotation of db search peptides.")
         else:
             peptides[GlobalConstants.metapep_table_taxonomy_fields] = np.nan
         
         if functional_mapper is not None:
             print("annotate function...")
             # perform functional annotation
-            peptides = functional_annotation(peptides,
-                                             functional_mapper,
-                                             combine=options.func_annot_combine)
+            try:
+                peptides = functional_annotation(peptides,
+                                                functional_mapper,
+                                                combine=options.func_annot_combine)
+            except:
+                raise AnnotationError("Failed functional annotation of db search peptides.")
         else:
             peptides[GlobalConstants.metapep_table_function_fields] = np.nan
             
@@ -360,15 +421,21 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
         db_search_source_files = None
     
     # add de novo information to peptide table
-    peptides, de_novo_format, de_novo_confidence_format = include_de_novo(
-        peptides,
-        denovo_source_map, 
-        db_search_source_files, # type: ignore
-        options)
+    try:
+        peptides, de_novo_format, de_novo_confidence_format = include_de_novo(
+            peptides,
+            denovo_source_map, 
+            db_search_source_files, # type: ignore
+            options)
+    except Exception as err:
+        raise AnnotationError("Failed to supplement de novo peptides to sample data.")
     
     # perform de novo sequence taxonomy annotation, only supports ncbi format
     if options.global_taxonomy_annotation is True and isinstance(taxonomy_db, NcbiTaxonomy):
-        peptides = global_taxonomic_annotation(peptides, taxonomy_db)
+        try:
+            peptides = global_taxonomic_annotation(peptides, taxonomy_db)
+        except Exception as err:
+            raise AnnotationError(f"Unipept error: {err}")
         peptides['Global Taxonomy Annotation'] = True
     else:
         peptides['Global Taxonomy Annotation'] = False
@@ -389,15 +456,18 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
         db_search_confidence_format = None
     
     # initialize into MetaPepTable object
-    return MetaPepTable(
-        peptides,
-        options.tax_db_format,
-        options.func_db_format,
-        db_search_data_source,
-        db_search_confidence_format,
-        de_novo_format,
-        de_novo_confidence_format,
-        None)
+    try:
+        return MetaPepTable(
+            peptides,
+            options.tax_db_format,
+            options.func_db_format,
+            db_search_data_source,
+            db_search_confidence_format,
+            de_novo_format,
+            de_novo_confidence_format,
+            None)
+    except Exception as err:
+        raise AnnotationError(f"Generated invalid project table: {err}")
 
 
 def process_db_search_data(
