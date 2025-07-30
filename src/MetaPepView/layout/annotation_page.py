@@ -527,36 +527,47 @@ data_import_container = configure_import_container(
 import_block = html.Div(
     [
         peptide_data_block,
-
+        dbc.Alert(
+            id="peptides_import_format_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
         dbc.Alert(
             id="taxonomy_db_format_alert",
             dismissable=True,
             is_open=False,
-            color="danger"
+            color="danger",
+            className="mt-3"
         ),
         dbc.Alert(
             id="functional_db_format_alert",
             dismissable=True,
             is_open=False,
-            color="danger"
+            color="danger",
+            className="mt-3"
         ),
         dbc.Alert(
             id="de_novo_format_alert",
             dismissable=True,
             is_open=False,
-            color="danger"
+            color="danger",
+            className="mt-3"
         ),
         dbc.Alert(
             id="db_search_format_alert",
             dismissable=True,
             is_open=False,
-            color="danger"
+            color="danger",
+            className="mt-3"
         ),
         dbc.Alert(
             id="annotation_error_alert",
             dismissable=True,
             is_open=False,
-            color="danger"
+            color="danger",
+            className="mt-3"
         ),
         db_search_options_modal,
         de_novo_options_modal,

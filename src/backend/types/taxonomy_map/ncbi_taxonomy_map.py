@@ -164,7 +164,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         # if tax names in column, convert to id
         if tax_name_to_id is True and taxonomy_obj is not None:
             print("Taxonomy name to id conversion\n\nFailed conversions:")  
-            prot_df.loc[:, "taxonomy_id"] = prot_df["taxonomy_id"]\
+            prot_df["taxonomy_id"] = prot_df["taxonomy_id"]\
                 .apply(taxonomy_obj.name_to_id, print_fails=True)\
                 .apply(pd.to_numeric)
         elif tax_name_to_id is True:

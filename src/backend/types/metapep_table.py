@@ -8,7 +8,7 @@ any input type.
 import io
 import pandas as pd
 import numpy as np
-from typing import Type, Literal, Sequence, Set, Self, TypeVar, Dict, Callable, Any, List
+from typing import Tuple, Sequence, Set, Self, TypeVar, Dict, Callable, Any, List
 from pathlib import Path
 from itertools import chain
 import json
@@ -110,9 +110,19 @@ class MetaPepTable(DataValidator):
     GLOBAL_LINEAGE_NAMES = [i + f' Name{GlobalConstants.global_annot_suffix}' for i in GlobalConstants.standard_lineage_ranks]
     GLOBAL_ANNOTATION_FIELDS = ['Global Taxonomy Id', 'Global Taxonomy Name'] + GLOBAL_LINEAGE_IDS + GLOBAL_LINEAGE_NAMES
 
-    METADATA_FIELDS = ['Taxonomy DB Name', 'Functional Annotation DB Name',
-                       'Global Taxonomy Annotation', 'De Novo Imported',
+    METADATA_FIELDS = ['Taxonomy DB Name', 
+                       'Functional Annotation DB Name',
+                       'Global Taxonomy Annotation', 
+                       'De Novo Imported',
                        'Sample Name']
+    
+    OBJ_ARGS = ['Taxonomy DB Format', 
+                'Functional DB Format', 
+                'DB Search Format', 
+                'DB Search Confidence Format', 
+                'De Novo Format', 
+                'De Novo Confidence Format', 
+                'Experiment Name']
     
     # TODO: Describe fields required for functional annotation of peptides
     # TODO: Manage both mandatory fields and optional fields
@@ -244,6 +254,42 @@ class MetaPepTable(DataValidator):
     @property
     def sample_names(self) -> List[str]:
         return self._sample_names
+    
+    @classmethod
+    def validate_json(cls, json_str: str) -> Tuple[bool, str]:
+        """Check if json data represents a valid MetaPepTable object.
+
+        Args:
+            json_str (str): json data.
+
+        Returns:
+            Tuple[bool, str]: True if data is valid
+        """
+        # Deserialize the JSON string
+        try:
+            json_dict = json.loads(json_str)
+        except Exception as err:
+            return (False, 
+                    "Failed to parse data as json.")
+
+        # Extract the DataFrame and custom variables
+        csv_str = decompress_string(json_dict['dataframe'])
+        try:
+            df = pd.read_csv(io.StringIO(csv_str), index_col=0, low_memory=False)
+        except Exception as err:
+            return (False,
+                    "Failed to read dataset as DataFrame.")
+        
+        valid, msg = cls.validate_input(df)
+        
+        if not valid:
+            return (False, f"Invalid data format: {msg}")
+        
+        metadata = json_dict['metadata']
+        valid_metadata = all([x in cls.OBJ_ARGS for x in metadata.keys()])
+
+        return (valid_metadata, None)
+
 
     @classmethod
     def read_json(cls, json_str: str) -> Self:

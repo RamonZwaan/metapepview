@@ -430,7 +430,10 @@ def validate_single_file(contents: str | None,
     if contents is not None and name is not None:
         # validate format if data given
         archive_format = determine_archive_format(name)
-        success, msg = content_validator(contents, archive_format)
+        try:
+            success, msg = content_validator(contents, archive_format)
+        except:
+            success, msg = False, f"failed to read '{name}'"
 
         # assign box colour based on success of failed
         if success:

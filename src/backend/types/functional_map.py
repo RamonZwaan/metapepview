@@ -66,6 +66,7 @@ class EggnogMapper(FunctionDbMapper, DataValidator):
     NUMERIC_FIELDS: List[str] = ['evalue']
     
     NANFILL = GlobalConstants.func_db_combine_nan_fill
+    FIELD_DELIM = "\t"
     LIST_DELIM = GlobalConstants.func_db_combine_delimiter
     
     def __init__(self,
@@ -80,9 +81,20 @@ class EggnogMapper(FunctionDbMapper, DataValidator):
     def read_file_buffer(cls,
                          file_buffer: IO[str],
                          max_evalue: float=1e-6) -> Self:
+        
+        # assert presence of metadata fields
+        while True:
+            line_txt = file_buffer.readline()
+            if not line_txt:
+                raise ValueError("No data stored; end of file reached...")
+            if not line_txt.startswith("##"):
+                header = line_txt.split(cls.FIELD_DELIM)
+                break
+
         # read data into dataframe format
         df = pd.read_csv(file_buffer,
-                        sep='\t', header=4)
+                         names=header, 
+                         sep=cls.FIELD_DELIM)
         
         # rename columns and set index to accession
         df.rename(columns={"#query": "query"}, inplace=True)

@@ -218,6 +218,8 @@ def show_taxonomy_db_name(contents,
 @app.callback(
     Output('peptides', 'data', allow_duplicate=True),
     Output('experiment_name_field', 'value'),
+    Output('peptides_import_format_alert', 'children'),
+    Output('peptides_import_format_alert', 'is_open'),
     Input('peptides_obj_upload', 'contents'),
     Input('peptides_obj_upload', 'filename'),
     prevent_initial_call=True
@@ -228,10 +230,14 @@ def process_peptides_data(peptide_data, file_name):
     archive_format = determine_archive_format(file_name)
     data_str = memory_to_str(peptide_data, archive_format)
 
+    valid, err_msg = MetaPepTable.validate_json(data_str)
+    if not valid:
+        return None, None, err_msg, True
+
     # experiment name taken from filename except last suffix
     file_name = "".join(file_name.split('.')[:-1])
 
-    return data_str, file_name
+    return data_str, file_name, None, False
 
 
 @app.callback(
@@ -622,7 +628,12 @@ def process_manual_annotation(n_clicks,
                 alert_open)
         
         
-    return new_peptides_dump, current_metadata, None, data_import_container
+    return (new_peptides_dump,
+            current_metadata,
+            None,
+            data_import_container,
+            None,
+            False)
 
 
 def global_taxonomy_annotation_only():
