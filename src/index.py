@@ -17,7 +17,7 @@ from MetaPepView.callbacks.taxonomy_callbacks import *
 from MetaPepView.callbacks.denovo_callbacks import *
 from MetaPepView.callbacks.func_annot_callbacks import *
 from MetaPepView.callbacks.denovo_callbacks import *
-from MetaPepView.callbacks.ms_callbacks import *
+from MetaPepView.callbacks.quality_control_callbacks import *
 from MetaPepView.callbacks.annotation_callbacks import *
 from MetaPepView.callbacks.sidebar_callbacks import *
 
@@ -27,6 +27,6 @@ pio.templates.default = GraphConstants.default_template
 app.layout = app_layout
 
 if __name__ == '__main__':
-    # app.run(host="0.0.0.0", debug=True)
-    serve(app.server, host="0.0.0.0", port=8050, threads=64) #type:ignore
+    app.run(host="0.0.0.0", debug=True)
+    # serve(app.server, host="0.0.0.0", port=8050, threads=64) #type:ignore
     

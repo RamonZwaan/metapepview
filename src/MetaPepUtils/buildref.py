@@ -5,6 +5,9 @@ from pathlib import Path
 import argparse
 from textwrap import dedent
 
+# add "src" directory to path
+sys.path.append(Path(__file__).parent.parent.as_posix())
+
 from backend.spectral_ref_builder import build_ref_data
 
 

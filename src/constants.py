@@ -250,11 +250,17 @@ class StyleConstants:
         "white-space": "nowrap"
     }
 
+    # element_box_style = {"margin": ".5rem", 
+    #                "padding": "1rem 1rem",
+    #                "background-color": plot_color
+    # }
+
     # import container style
     # regular import container regular colour
-    qa_import_box_style = {"margin": ".5rem", "padding": "1rem 1rem",
-        "background-color": plot_color,
-        "border-radius": "1rem"}
+    qa_import_box_style = {"margin": ".5rem", 
+                           "padding": "1rem 1rem",
+                           "background-color": plot_color,
+                           "border-radius": "1rem"}
 
     # regular import container success colour, if validation passed
     success_box_style = {"background-color": import_success_color}

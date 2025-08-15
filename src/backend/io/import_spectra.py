@@ -1,4 +1,3 @@
-
 import re
 import base64
 import zlib
@@ -201,7 +200,7 @@ def mzml_to_df(file: str | Path | IO[bytes],
         'peaks count': lambda x: _fetch_convert_data(x['spectrum dict'], 'defaultArrayLength', int),
         'polarity': lambda x: _get_scan_polarity(x['spectrum dict']),
         'retention time': lambda x: _fetch_convert_data(x['scan dict'], 'scan start time', float),
-        'collision energy': lambda x: _fetch_convert_data(x['precursor dict'], 'collision energy', int),
+        'collision energy': lambda x: _fetch_convert_data(x['precursor dict'], 'collision energy', float),
         'low m/z': lambda x: _fetch_convert_data(x['spectrum dict'], 'lowest observed m/z', float),
         'high m/z': lambda x: _fetch_convert_data(x['spectrum dict'], 'highest observed m/z', float),
         'base peak m/z': lambda x: _fetch_convert_data(x['spectrum dict'], 'base peak m/z', float),
@@ -284,6 +283,7 @@ def mzml_to_df(file: str | Path | IO[bytes],
     metadata['total retention time'] = scan_data.iloc[-1]['retention time']
     metadata['MS2 spectrum count'] = (scan_data['MS level'] == 2).sum()
     metadata['MS1 spectrum count'] = (scan_data['MS level'] == 1).sum()
+    metadata['combined MS1 tic'] = scan_data[scan_data['MS level'] == 1]['total ion current'].sum()
     
     return (scan_data, metadata)
 

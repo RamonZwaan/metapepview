@@ -510,3 +510,39 @@ def scan_intensity_percentiles(ms_df: pd.DataFrame,
     """
     int_array = ms_df.loc[:, scan_int_col].to_numpy()
     return array_to_percentiles(int_array, percentiles)
+
+
+def calculate_miscleavages(db_search: pd.DataFrame) -> Tuple[List[str], List[int]]:
+    """Group peptide matches by the number of miscleavages and calculate
+    the groupsize for each miscleavage. Returns two lists: the list of 
+    miscleavage groups, and the groups sizes.
+
+    Args:
+        db_search (pd.DataFrame): DB search dataset
+
+    Returns:
+        Tuple[List[str], List[int]]: Distribution of miscleavages. The first list are
+        miscleavage groups, the second list are group sizes
+    """
+    categories = ["0", "1", "2", "3", ">3"]
+
+    # count all occurences of cleave amino acids not at the end of the sequence
+    # by removing last character. Take into account potential empty strings or
+    # nan values
+    miscleave_series: pd.Series = db_search['Sequence']\
+        .apply(lambda x: x if x != x or x == "" else x[:-1])\
+        .str.count("[KR]")\
+        .value_counts()
+    
+    # convert categories to string
+    miscleave_series.index = [str(x) for x in miscleave_series.index]
+
+    # store all cleavage categories in counts array
+    counts = list()
+    for cat in categories[:-1]:
+        counts.append(miscleave_series.get(cat, 0))
+
+    # final counts are all values outside of defined categories
+    counts.append(miscleave_series.drop(categories[:-1]).sum())
+
+    return (categories, counts)

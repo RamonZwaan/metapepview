@@ -2,7 +2,7 @@ from dash import Output, Input, ctx
 from MetaPepView.server import app
 
 from MetaPepView.layout.annotation_page import import_block
-from MetaPepView.layout.validation_page import ms_performance
+from MetaPepView.layout.quality_control_page import ms_performance
 from MetaPepView.layout.taxonomy_page import taxonomy_sample_analysis, \
     taxonomy_de_novo_analysis
 from MetaPepView.layout.func_annot_page import functional_annotation_page

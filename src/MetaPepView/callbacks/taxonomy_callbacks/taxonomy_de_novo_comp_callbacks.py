@@ -6,7 +6,7 @@ from MetaPepView.server import app
 
 # import layout elements
 from MetaPepView.html_templates import *
-from MetaPepView.layout.validation_page import ms_performance
+from MetaPepView.layout.quality_control_page import ms_performance
 from MetaPepView.layout.taxonomy_page import taxonomy_sample_analysis
 from MetaPepView.layout.func_annot_page import *
 from MetaPepView.layout.data_page import data_visual

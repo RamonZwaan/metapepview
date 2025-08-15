@@ -455,6 +455,31 @@ def validate_single_file(contents: str | None,
             box_style)
 
 
+def qa_metric_value(
+        metric: str,
+        value: Any) -> dbc.Card:
+    """
+    Create a dashboard element displaying the value of a specific metric.
+
+    Args:
+        metric (str): Name of metric.
+        value (Any): Value of metric.
+
+    Returns:
+        dbc.Card: Element displaying metric.
+    """
+    return dbc.Card(
+        dbc.CardBody(
+            [
+                html.H5(metric, style={"color": "#696969"}),
+                html.H4(value, className="ms-1 mt-1 text-dark")
+            ], style={"margin": "0rem"}, className="px-3 py-2"
+        ),
+        color="light",
+        style={"width": "18rem", "margin": "0rem 1.5rem 0.5rem 0rem"}
+    )
+
+
 def hidden_graph_with_text(graph_id: str, text_overlay: str, div_encapsulate: bool=False) -> List[Any]:
     """Create block that contains hidden dash graph and a text overlay.
     Used to give information to the user if graph cannot be created yet

@@ -17,7 +17,7 @@ from MetaPepView.callbacks.taxonomy_callbacks import *
 from MetaPepView.callbacks.denovo_callbacks import *
 from MetaPepView.callbacks.func_annot_callbacks import *
 from MetaPepView.callbacks.denovo_callbacks import *
-from MetaPepView.callbacks.ms_callbacks import *
+from MetaPepView.callbacks.quality_control_callbacks import *
 from MetaPepView.callbacks.annotation_callbacks import *
 from MetaPepView.callbacks.sidebar_callbacks import *
 

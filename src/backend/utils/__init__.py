@@ -5,3 +5,4 @@ from .string_utils import *
 from .conversion_utils import *
 from .pd_utils import *
 from .class_utils import *
+from .numpy_utils import *

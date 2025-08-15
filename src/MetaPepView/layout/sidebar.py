@@ -155,14 +155,14 @@ sidebar_modules = [
     dbc.NavLink(
         [
             html.I(className="bi bi-gear me-2"),
-            "Data Imports"
+            "Data Import"
         ],
         id="sidebar_data_button", href="/", active=True, className="mb-2"),
     html.Div(
         dbc.NavLink(
             [
                 html.I(className="bi bi-speedometer2 me-2"),
-                "Quality Control"
+                "Experiment quality control"
             ],
             id="sidebar_validation_button", href="/", className="mb-2"),
         hidden= not gc.display_qa_page
@@ -170,15 +170,14 @@ sidebar_modules = [
     dbc.NavLink(
         [
             html.I(className="bi bi-graph-up me-2"),
-            "Taxonomies"
+            "Community composition"
         ],
         id="sidebar_taxonomy_button", href="/", className="mb-2"),
     html.Div(
         dbc.NavLink(
             [
                 html.I(className="bi bi-graph-up me-2"),
-                "Taxonomies DB search vs de novo"
-                # html.P("DB search vs De Novo", className="")
+                "Composition: local vs Unipept"
             ],
             id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
         hidden= not gc.display_db_search or not gc.display_de_novo
@@ -187,7 +186,7 @@ sidebar_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-graph-up me-2"),
-                "Functions"
+                "Community function"
             ],
             id="sidebar_functional_button",
             href="/",

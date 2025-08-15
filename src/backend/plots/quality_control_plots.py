@@ -4,7 +4,7 @@ from plotly.subplots import make_subplots
 # import dash_bio
 
 from typing import List
-
+from collections import defaultdict
 import json
 from math import log10
 import pandas as pd
@@ -23,8 +23,9 @@ from constants import *
 
 
 
-def tic_over_rt_plot(spectral_dataset: pd.DataFrame,
+def tic_over_rt_plot(mzml_df: pd.DataFrame,
                      mzml_peaks_dataset: str | None,
+                     features: pd.DataFrame | None,
                      peaks_compression: str,
                      peaks_precision: str,
                      ms_level: int, 
@@ -35,9 +36,9 @@ def tic_over_rt_plot(spectral_dataset: pd.DataFrame,
                      confidence_threshold: int | float | None = None,
                      peak_int_threshold: int | float | None = None):
     # Compute moving average of intensity over rt
-    spectral_dataset = spectral_dataset[spectral_dataset['MS level'] == ms_level]
-    spectral_dataset = spectral_dataset[['scan number', 'total ion current', 'retention time', 'peaks count']]
-    spectral_dataset['total ion current SMA'] = spectral_dataset['total ion current']\
+    spectral_dataset = mzml_df[mzml_df['MS level'] == ms_level]
+    # spectral_dataset = spectral_dataset[['scan number', 'total ion current', 'retention time', 'peaks count']]
+    spectral_dataset.loc[:, 'total ion current SMA'] = spectral_dataset['total ion current']\
         .rolling(sma_window, closed='both')\
         .mean()
     
@@ -111,7 +112,90 @@ def tic_over_rt_plot(spectral_dataset: pd.DataFrame,
         fig.update_yaxes(title="Peaks count",
                          secondary_y=True,
                          tickmode="sync")
-    
+    elif secondary_param == "Peak Width (FWHM)" and features is not None:
+        features['FWHM SMA'] = features['peak width']\
+            .rolling(sma_window, closed='both')\
+            .mean()
+        
+        # for features at identical retention times, calculate means
+        trace_data = features[['retention time', 'FWHM SMA']]\
+            .groupby('retention time')\
+            .mean()\
+            .reset_index()
+
+        fig.add_trace(go.Scatter(x=trace_data['retention time'], 
+                                 y=trace_data['FWHM SMA'], 
+                                 mode='lines', 
+                                 name="peak width (FWHM)",
+                                 line=dict(width=1, color="red")),
+                      secondary_y=True)
+        fig.update_yaxes(title="peak width (min)",
+                         secondary_y=True,
+                         tickmode="sync")
+    elif secondary_param == "Feature Quality" and features is not None:
+        features['quality SMA'] = features['quality']\
+            .rolling(sma_window, closed='both')\
+            .mean()
+        # for features at identical retention times, calculate means
+        trace_data = features[['retention time', 'quality SMA']]\
+            .groupby('retention time')\
+            .mean()\
+            .reset_index()
+        
+        fig.add_trace(go.Scatter(x=trace_data['retention time'], 
+                                 y=trace_data['quality SMA'], 
+                                 mode='lines', 
+                                 name="feature quality",
+                                 line=dict(width=1, color="red")),
+                      secondary_y=True)
+        fig.update_yaxes(title="feature quality",
+                         secondary_y=True,
+                         tickmode="sync")
+
+    elif secondary_param == "Ion injection time":
+        spectral_dataset['ion injection time SMA'] = spectral_dataset['ion injection time']\
+            .rolling(sma_window, closed='both')\
+            .mean()
+        fig.add_trace(go.Scatter(x=spectral_dataset['retention time'], 
+                                 y=spectral_dataset['ion injection time SMA'], 
+                                 mode='lines', 
+                                 name="ion injection time",
+                                 line=dict(width=1, color="red")),
+                      secondary_y=True)
+        fig.update_yaxes(title="Ion injection time (ms)",
+                         secondary_y=True,
+                         tickmode="sync")
+    elif secondary_param == "topN MS2":
+        ms1_rt = 0
+        counter = 0
+        # parse mzml dataset separately, counting MS2 after MS1
+        topn_list, rt_list = list(), list()
+        for idx, (rt, ms_level) in mzml_df[['retention time', 'MS level']].iterrows():
+            if ms_level == 1:
+                rt_list.append(ms1_rt)
+                topn_list.append(counter)
+                counter = 0
+                ms1_rt = rt
+            elif ms_level == 2:
+                counter += 1
+        rt_list.append(ms1_rt)
+        topn_list.append(counter)
+        
+        topn_df = pd.DataFrame({"retention time": rt_list, "topN MS2": topn_list})
+        topn_df = topn_df.iloc[::data_reduction_factor]
+        topn_df['topN MS2 SMA'] = topn_df['topN MS2']\
+            .rolling(sma_window, closed='both')\
+            .mean()
+        fig.add_trace(go.Scatter(x=topn_df['retention time'], 
+                                 y=topn_df['topN MS2 SMA'], 
+                                 mode='lines', 
+                                 name="topN MS2",
+                                 line=dict(width=1, color="red")),
+                      secondary_y=True)
+        fig.update_yaxes(title="topN",
+                         secondary_y=True,
+                         tickmode="sync")
+
     if secondary_param == "None":
         fig.update_layout(showlegend=False)
     
@@ -531,6 +615,126 @@ def confidence_dist_plot(db_search: MetaPepDbSearch | None,
     return fig
 
 
+def charge_dist_plot(features: pd.DataFrame,
+                     db_search: MetaPepDbSearch | None,
+                     de_novo: MetaPepDeNovo | None,
+                     de_novo_conf_cutoff: float = 80):
+    mz_cutoff = 0.005 # Da
+    rt_cutoff = 0.5 # minutes
+
+    # get correct columns and match to db search and de novo
+    dataset = features[['monoisotopic m/z', 'charge', 'retention time']].copy()
+    feature_mz_array = dataset['monoisotopic m/z'].to_numpy()
+    feature_rt_array = dataset['retention time'].to_numpy()
+    feature_charge_array = dataset['charge'].to_numpy()
+    charge_cats = np.sort(np.unique(feature_charge_array))
+
+    
+    if db_search is not None:
+        # initialize db search identification column as false
+        dataset.loc[:, 'db search identified'] = False
+
+        db_search_peptides = metapep_table_to_peptides(db_search)
+        db_search_mz_array = db_search_peptides['m/z'].to_numpy()
+        db_search_rt_array = db_search_peptides['RT'].to_numpy()
+        db_search_charge_array = db_search_peptides['Charge'].to_numpy()
+
+        matches = match_mz_rt_peaks(
+            db_search_mz_array,
+            feature_mz_array,
+            db_search_rt_array,
+            feature_rt_array,
+            db_search_charge_array,
+            feature_charge_array,
+            mz_cutoff,
+            rt_cutoff)
+        
+        # extract features with match, drop if feature assigned twice
+        feature_match_idx = np.unique([x[1] for x in matches])
+
+        # set all identified indices as true
+        dataset.loc[dataset.index[feature_match_idx], 'db search identified'] = True
+    else:
+        dataset.loc[:, 'db search identified'] = np.nan
+    
+    if de_novo is not None:
+        # initialize db search identification column as false
+        dataset.loc[:, 'de novo identified'] = False
+
+        de_novo_peptides = metapep_table_to_peptides(de_novo)
+        de_novo_peptides = de_novo_peptides[de_novo_peptides["Confidence"] > de_novo_conf_cutoff]
+
+        de_novo_mz_array = de_novo_peptides['m/z'].to_numpy()
+        de_novo_rt_array = de_novo_peptides['RT'].to_numpy()
+        de_novo_charge_array = de_novo_peptides['Charge'].to_numpy()
+
+        matches = match_mz_rt_peaks(
+            feature_mz_array,
+            de_novo_mz_array,
+            feature_rt_array,
+            de_novo_rt_array,
+            feature_charge_array,
+            de_novo_charge_array,
+            mz_cutoff,
+            rt_cutoff)
+        
+        # extract features with match, drop if feature assigned twice
+        feature_match_idx = np.unique([x[0] for x in matches])
+
+        # set all identified indices as true
+        de_novo_conf_format = de_novo.confidence_format
+        dataset.loc[dataset.index[feature_match_idx], 'de novo identified'] = True
+    else:
+        de_novo_conf_format = None
+        dataset.loc[:, 'de novo identified'] = np.nan
+    
+    # categorize scans by db search, de novo or no identification
+    def partition_ident(row):
+        if row["db search identified"] is True:
+            return "db search"
+        elif row["de novo identified"] is True:
+            return "de novo only (> {} {})".format(de_novo_conf_cutoff, de_novo_conf_format)
+        else:
+            return "unidentified"
+    dataset.loc[:, 'identification'] = dataset.apply(partition_ident, axis=1)
+
+    
+    if db_search is not None or de_novo is not None:
+        # create bar groups
+        dataset_groups = dataset.groupby(by=["charge", "identification"]).size()
+        dataset_groups.name = "Feature count"
+        dataset_groups = dataset_groups.reset_index()
+
+        fig = px.bar(dataset_groups, 
+                     x="charge", 
+                     y="Feature count",
+                     color="identification", 
+                     color_discrete_sequence=GraphConstants.color_palette,
+                     category_orders={"identification": ["db search", 
+                                                         "de novo only (> {} {})".format(de_novo_conf_cutoff, de_novo_conf_format),
+                                                         "unidentified"],
+                                      "charge": charge_cats})
+    else:
+        dataset_groups = dataset.groupby(by="charge").size()
+        dataset_groups.name = "Feature count"
+        dataset_groups = dataset_groups.reset_index()
+        fig = px.bar(dataset_groups, 
+                     x="charge",
+                     y="Feature count",
+                     color_discrete_sequence=[GraphConstants.primary_color])
+    
+    fig.update_layout(margin=dict(l=20, r=20, t=10, b=10),
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)')
+    fig.update_xaxes(title="Charge",
+                     type="category", 
+                     showline=True, 
+                     linecolor="Black")
+    fig.update_yaxes(gridcolor=GraphConstants.gridcolor, 
+                     gridwidth=GraphConstants.gridwidth)
+    return fig
+
+
 def ref_score_dist_plot(stat_dict: dict,
                         sample_db_search: MetaPepDbSearch | None,
                         sample_de_novo: MetaPepDeNovo | None,
@@ -808,12 +1012,12 @@ def ref_score_threshold_plot(stat_dict: dict,
 
     # specify y axis names, overwrite based on normalization settings
     alc_y_name = "de novo matches"
-    lgp_y_name = "db search matches"
+    lgp_y_name = "DB search matches"
     if normalize_rt is True:
         alc_y_name = "de novo matches / min"
-        lgp_y_name = "db search matches / min"
+        lgp_y_name = "DB search matches / min"
     if normalize_psm is True:
-        lgp_y_name = "fraction db search matches"
+        lgp_y_name = "fraction DB search matches"
 
 
     fig.update_layout(#title='Distribution of match scores at specific thresholds',
@@ -1060,6 +1264,136 @@ def ref_transmission_scatter_plot(stat_dict: dict,
     
     return fig
 
+
+def ref_miscleavage_dist_plot(stat_dict: dict,
+                              db_search: MetaPepDbSearch | None) -> go.Figure:
+    # fetch miscleavage data from reference dataset
+    x_data, y_data,= defaultdict(list), defaultdict(list)
+
+    # get displayed samples for figure formatting purposes
+    ref_sample_number = 0
+    ref_samples = list()
+
+    for sample, data in stat_dict['samples'].items():
+        miscleave_dist = data['miscleave dist']
+
+        # invert arrays to have least miscleavages at bottom
+        miscleave_cats = miscleave_dist['miscleavage']
+        counts = miscleave_dist['counts']
+
+        # calculate fractions
+        counts = np.array(counts) / np.sum(counts)
+
+        # check that categories and counts are same size
+        if len(miscleave_cats) != len(counts):
+            print(f"miscleavage processing error: skip sample '{sample}'")
+            continue
+        
+        if len(miscleave_cats) != 0:
+            ref_sample_number += 1
+            ref_samples.append(sample)
+
+        for i, category in enumerate(miscleave_cats):
+            x_data[category].append(sample)
+            y_data[category].append(counts[i])
+    
+
+    # create horizontal barplot with two cols sharing the y-axis
+    ncols = 1 if db_search is None else 2
+    fig = make_subplots(rows=1,
+                        cols=ncols,
+                        specs=[[{}]*ncols],
+                        horizontal_spacing=0.05,
+                        shared_yaxes=True)
+    color_generator = chain(GraphConstants.color_palette)
+    color_map = defaultdict(color_generator.__next__)
+    
+    for category in x_data.keys():
+        fig.add_trace(
+            go.Bar(
+                name=category,
+                x=x_data[category],
+                y=y_data[category],
+                legendgroup=f"{category}",
+                marker_color=color_map[category]
+            ),
+            row=1,
+            col=ncols
+        )
+
+    # calculate miscleavage data for sample dataset
+    if db_search is not None:
+        sample_groups, sample_counts = calculate_miscleavages(db_search.data)
+        sample_counts = np.array(sample_counts) / np.sum(sample_counts)
+        # sample = ["Sample"] * len(sample_counts)
+        for i, category in enumerate(sample_groups):
+            fig.add_trace(
+                go.Bar(
+                    name=category,
+                    x=["Sample"],
+                    y=[sample_counts[i]],
+                    legendgroup=f"{category}",
+                    showlegend=False,
+                    marker_color=color_map[category]
+                ),
+                row=1,
+                col=1
+            )
+        # configure sample figure subplot
+        fig.update_yaxes(gridcolor=GraphConstants.gridcolor, 
+                         gridwidth=GraphConstants.gridwidth, 
+                         zerolinecolor="Black", 
+                         row=1,
+                         col=1)
+        fig.update_xaxes(col=1, 
+                         row=1,
+                         showticklabels=True,
+                         side="top", 
+                         tickfont=dict(size=16))
+        fig.update_xaxes(col=2, 
+                         row=1,
+                         showticklabels=False)
+        
+        # set domain based on number of datapoints
+        sample_range = max(1 / (ref_sample_number + 1), 0.02)
+        
+        fig.update_xaxes(domain=[0, sample_range], col=1)
+        fig.update_xaxes(domain=[sample_range + 0.02, 1], col=2)
+    
+    fig.update_xaxes(gridcolor="rgba(0,0,0,0)",
+                     zerolinecolor="Black",
+                     col=ncols,
+                     row=1,
+                     showticklabels=False)
+
+    fig.update_yaxes(gridcolor=GraphConstants.gridcolor, 
+        gridwidth=GraphConstants.gridwidth, 
+        zerolinecolor="Black",
+        row=1,
+        col=ncols)
+    fig.update_yaxes(title="DB search fraction", 
+                     col=1,
+                     row=1)
+
+    # order samples from largest correclty cleaved fraction to smallest
+    sample_order = np.argsort(y_data['0'])[::-1]
+    samples_sorted = np.array(x_data['0'])[sample_order]
+    absent_samples = np.array([x for x in ref_samples if x not in samples_sorted])
+    samples_sorted = np.hstack([samples_sorted, absent_samples])
+
+    fig.update_xaxes(categoryorder='array',
+                     categoryarray=samples_sorted,
+                     row=1,
+                     col=ncols)
+
+    fig.update_layout(margin=dict(l=20, r=20, t=10, b=10),
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)',
+                      barmode="stack",
+                      legend_title="Miscleavages")
+
+    return fig
+
     
 def ref_score_threshold_barplot(stat_dict: dict,
                                 formats: List[str],
@@ -1240,7 +1574,7 @@ def ref_score_threshold_barplot(stat_dict: dict,
         row=2, 
         col=ncols)
     fig.update_yaxes(title="DB Search", row=1, col=1)
-    fig.update_yaxes(title="ALC", row=2, col=1)
+    fig.update_yaxes(title="de novo", row=2, col=1)
 
     if sample_order is not None:
         fig.update_xaxes(categoryorder='array',

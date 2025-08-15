@@ -164,6 +164,10 @@ def build_spectral_reference_data(
                             'charge': [1, 2, 3, 4],
                             'counts': [z1, z2, z3, z4]
                         },
+                        'miscleave dist': {
+                            'miscleavage': [0, 1, 2, 3],
+                            'counts': [m0, m1, m2, m3]
+                        },
                         'ms1 intensity': {
                             'percentiles': [d, e, f],
                             'values': [t1, t2, t3]
@@ -303,6 +307,10 @@ def build_spectral_reference_data(
                 'charge': [],
                 'counts': []
             },
+            'miscleave dist': {
+                'miscleavage': [],
+                'counts': []
+            },
             'ms1 intensity': {
                 'percentiles': [],
                 'values': []
@@ -327,13 +335,19 @@ def build_spectral_reference_data(
             db_search = load_metapep_db_search(data["db search"].open('r'), 
                                                name, 
                                                options.db_search_format)
+            # if file contains data from other source files, omit them
+            if len(db_search.source_files) > 1:
+                db_search = db_search.filter_spectral_name(name)
             db_search_data = db_search.data
+            
         if data["de novo"] is None:
             de_novo, de_novo_data = None, None
         else:
             de_novo = load_metapep_de_novo(data['de novo'].open('r'),
                                            name,
                                            options.de_novo_format)
+            if len(de_novo.source_files) > 1:
+                de_novo = de_novo.filter_spectral_name(name)
             de_novo_data = de_novo.data
         
         # wrangle datasets
@@ -350,6 +364,13 @@ def build_spectral_reference_data(
             sample_output['db search confidence dist'] = {
                 'thresholds': db_search_thres_names,
                 'counts': db_search_thres_counts
+            }
+
+            # add miscleavage distribution to sample
+            miscleave_groups, miscleave_counts = calculate_miscleavages(db_search_data)
+            sample_output['miscleave dist'] = {
+                'miscleavage': miscleave_groups,
+                'counts': list(miscleave_counts)
             }
 
         # fetch data from de novo

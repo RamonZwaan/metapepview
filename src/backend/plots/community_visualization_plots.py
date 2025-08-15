@@ -128,7 +128,7 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
                  x=xcol,
                  y=ycol,
                  color=rank_display_col,
-                 custom_data=rank_hidden_col,
+                 custom_data=[rank_hidden_col, rank_display_col],
                  color_discrete_sequence=color_scale)
     
     fig.update_layout(GraphConstants.default_layout)
@@ -138,6 +138,11 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     ytitle = 'Peptide spectrum matches' if abundance_metric == 'Match Count' else 'Area'
     if fractional_abundance is True:
         ytitle = "Fraction " + ytitle.lower()
+
+    # configure hovertemplate (Essential elements to be presented in clickdata)
+    fig.update_traces(
+        hovertemplate=f"{xcol}: %{{x}}<br>{ycol}: %{{y}}<br>{rank_display_col}: %{{customdata[1]}}<br>{rank_hidden_col}: %{{customdata[0]}}"
+    )
     
     fig.update_xaxes(showline=True, 
                      linecolor="Black", 

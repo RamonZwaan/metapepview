@@ -32,6 +32,7 @@ def custom_groupby(
             added as separate column. Defaults to True.
         group_size_name (str, optional): Name of column storing group size, if
             included. Defaults to 'group_size'.
+            
     Returns:
         pd.DataFrame: Grouped DataFrame
     """
