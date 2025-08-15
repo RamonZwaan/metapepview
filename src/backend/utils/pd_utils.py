@@ -4,16 +4,35 @@ Here, string processing is omitted as it is part of the string_utils
 
 from typing import List, Tuple, Dict, Any
 from pathlib import Path
+import json
+import io
 
 import pandas as pd
 import numpy as np
 
 from constants import *
 from .string_utils import digest_proteins, wrangle_peptides
+from .io_utils import decompress_string
 
 
 # return the modus of a pandas series, only the most occuring value
 mode_func = lambda x: pd.Series.mode(x).iat[0]
+
+
+def convert_deprecated_metapeptable_naming(input_df: pd.DataFrame) -> pd.DataFrame:
+    """Attempt to fix old metapeptable files where namings of columns have
+    changed in the meantime.
+
+    Args:
+        input_df (pd.DataFrame): Input MetaPepView dataset.
+
+    Returns:
+        pd.DataFrame: Converted dataset.
+    """
+    out_df = input_df.rename(columns={
+        "Superkingdom Id": "Domain Id", 
+        "Superkingdom Name": "Domain Name"}).copy()
+    return out_df
 
 
 def get_gene_options(ko_map_df: pd.DataFrame) -> List[Dict[str, str]]:

@@ -570,8 +570,14 @@ class GtdbTaxonomy(TaxonomyDatabase):
         archaea_file = Path(archaea_file)
         
         # import bacteria and archaea into dataframe and concatenate them
-        bac_df = pd.read_csv(bacteria_file, sep="\t", names=["genome", "lineage"])
-        arch_df = pd.read_csv(archaea_file, sep="\t", names=["genome", "lineage"])
+        bac_df = pd.read_csv(bacteria_file,
+                             sep="\t",
+                             engine="python", 
+                             names=["genome", "lineage"])
+        arch_df = pd.read_csv(archaea_file,
+                              sep="\t", 
+                              engine="python",
+                              names=["genome", "lineage"])
         
         taxonomy_df = pd.concat([bac_df, arch_df], axis=0).reset_index(drop=True)
         lineage_df = cls.__import_lineage_data(taxonomy_df)

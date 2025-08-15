@@ -36,7 +36,7 @@ def tic_over_rt_plot(mzml_df: pd.DataFrame,
                      confidence_threshold: int | float | None = None,
                      peak_int_threshold: int | float | None = None):
     # Compute moving average of intensity over rt
-    spectral_dataset = mzml_df[mzml_df['MS level'] == ms_level]
+    spectral_dataset = mzml_df[mzml_df['MS level'] == ms_level].copy()
     # spectral_dataset = spectral_dataset[['scan number', 'total ion current', 'retention time', 'peaks count']]
     spectral_dataset.loc[:, 'total ion current SMA'] = spectral_dataset['total ion current']\
         .rolling(sma_window, closed='both')\
@@ -44,6 +44,8 @@ def tic_over_rt_plot(mzml_df: pd.DataFrame,
     
     # cut out data from dataset in equally spaced parts for faster rendering
     spectral_dataset = spectral_dataset.iloc[::data_reduction_factor]
+    if features is not None:
+        features = features.iloc[::data_reduction_factor]
 
     # scattergl implementation
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -113,7 +115,7 @@ def tic_over_rt_plot(mzml_df: pd.DataFrame,
                          secondary_y=True,
                          tickmode="sync")
     elif secondary_param == "Peak Width (FWHM)" and features is not None:
-        features['FWHM SMA'] = features['peak width']\
+        features.loc[:, 'FWHM SMA'] = features['peak width']\
             .rolling(sma_window, closed='both')\
             .mean()
         

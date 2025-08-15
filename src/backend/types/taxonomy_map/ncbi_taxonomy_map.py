@@ -4,6 +4,7 @@ import pandas as pd
 from .base_class import AccessionTaxaMap
 from backend.types.definitions import TaxonomyElementFormat
 from backend.types.taxonomy_db import NcbiTaxonomy, GtdbGenomeToNcbi
+from backend.utils import wrangle_peptides
 
 
 class AccessionTaxaMapNcbi(AccessionTaxaMap):
@@ -25,7 +26,8 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
                            delimiter: str | None=",",
                            drop_duplicates: bool = True,
                            tax_name_to_id: bool = False,
-                           taxonomy_obj: NcbiTaxonomy | None = None) -> Self:
+                           taxonomy_obj: NcbiTaxonomy | None = None,
+                           wrangle_peptide_accessions: bool = False) -> Self:
         """Import protein accession to taxonomy mapping data from string buffer
         generated from file.
 
@@ -48,6 +50,9 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
             taxonomy_obj (NcbiTaxonomy | None, optional): NcbiTaxonomy
                 object for LCA processing of redundant protein accessions.
                 Defaults to None.
+            wrangle_peptide_accessions (bool, optional): If accession is peptide
+                sequence column, perform removal of non-amino acid elements and
+                equate Leucin and Isoleucin. Defaults to False.
 
         Returns:
             Self: AccessionTaxaMapNcbi instance.
@@ -57,7 +62,12 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         prot_df = pd.read_csv(str_file_obj,
                               usecols=[acc_col, tax_col], 
                               names=["accession", "taxonomy_id"],
-                              sep=delimiter)
+                              sep=delimiter,
+                              engine="python")
+        
+        if wrangle_peptide_accessions is True:
+            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+
         
         return cls.__from_dataframe(
             prot_df,
@@ -77,7 +87,8 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
                              delimiter: str | None = ",",
                              drop_duplicates: bool = True,
                              tax_name_to_id: bool = False,
-                             taxonomy_obj: NcbiTaxonomy | None = None) -> Self:
+                             taxonomy_obj: NcbiTaxonomy | None = None,
+                             wrangle_peptide_accessions: bool = False) -> Self:
         """Create AccessionTaxaMapNcbi object from GTDB genome mapping file. 
         It maps Genbank/Refseq genome id's to their corresponding NCBI taxonomy 
         id's.
@@ -108,6 +119,9 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
             taxonomy_obj (NcbiTaxonomy | None, optional): NcbiTaxonomy
                 object for LCA processing of redundant protein accessions.
                 Defaults to None.
+            wrangle_peptide_accessions (bool, optional): If accession is peptide
+                sequence column, perform removal of non-amino acid elements and
+                equate Leucin and Isoleucin. Defaults to False.
 
         Returns:
             Self: Instance of AccessionTaxaMapNcbi.
@@ -116,7 +130,12 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         prot_df = pd.read_csv(str_file_obj,
                               usecols=[acc_col, tax_col], 
                               names=["accession", "taxonomy_id"],
-                              sep=delimiter)
+                              sep=delimiter,
+                              engine="python")
+        
+        # if accessions are peptides, wrangle sequences into consistent format
+        if wrangle_peptide_accessions is True:
+            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
         
         prot_df["taxonomy_id"] = prot_df["taxonomy_id"].apply(
             genome_to_ncbi_map.genome_to_ncbi

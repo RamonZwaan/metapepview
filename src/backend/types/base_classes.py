@@ -58,7 +58,9 @@ class DataValidator(Protocol):
         # check if unexpected non-numeric columns encountered
         if len(not_numeric) > 0:
             # Convert ambiguous representation of missing values within numeric columns, such as '-' or ''
-            input_df.loc[:, not_numeric] = input_df.loc[:, not_numeric].replace(["", "-"], np.nan)
+            input_df.loc[:, not_numeric] = input_df.loc[:, not_numeric]\
+                .replace(["", "-"],
+                        np.nan)
             
             # try to convert columns to floats, this may fail if other ambiguous strings are present
             try:

@@ -4,6 +4,7 @@ import numpy as np
 
 from .base_class import AccessionTaxaMap
 from backend.types import GtdbTaxonomy, GtdbGenomeToNcbi
+from backend.utils import wrangle_peptides
 
 
 class AccessionTaxaMapGtdb(AccessionTaxaMap):
@@ -25,7 +26,8 @@ class AccessionTaxaMapGtdb(AccessionTaxaMap):
                            delimiter: str | None=",",
                            drop_duplicates: bool = True,
                            tax_name_to_id: bool = False,
-                           taxonomy_obj: GtdbTaxonomy | None = None) -> Self:
+                           taxonomy_obj: GtdbTaxonomy | None = None,
+                           wrangle_peptide_accessions: bool = False) -> Self:
         """Import protein accession to taxonomy mapping data from string buffer
         generated from file.
 
@@ -48,6 +50,9 @@ class AccessionTaxaMapGtdb(AccessionTaxaMap):
             taxonomy_obj (GtdbTaxonomy | None, optional): GtdbTaxonomy
                 object for LCA processing of redundant protein accessions.
                 Defaults to None.
+            wrangle_peptide_accessions (bool, optional): If accession is peptide
+                sequence column, perform removal of non-amino acid elements and
+                equate Leucin and Isoleucin. Defaults to False.
 
         Returns:
             Self: AccessionTaxaMapGtdb instance.
@@ -57,7 +62,13 @@ class AccessionTaxaMapGtdb(AccessionTaxaMap):
         prot_df = pd.read_csv(str_file_obj,
                               usecols=[acc_col, tax_col], 
                               names=["accession", "taxonomy_id"],
-                              sep=delimiter)
+                              sep=delimiter,
+                              engine="python")
+        
+        # if accessions are peptides, wrangle sequences into consistent format
+        if wrangle_peptide_accessions is True:
+            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+        
         
         # if genome id's given, convert to species id
         if tax_name_to_id is False and taxonomy_obj is not None:

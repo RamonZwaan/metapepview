@@ -79,7 +79,7 @@ def deduplicate_strings(input_string: str,
 
 
 
-def wrangle_peptides(sequence: str,
+def wrangle_peptides(sequence: str | float,
                      ptm_filter: bool=True,
                      li_swap: bool=True) -> str:
     """Process protein sequences by removing post-translational
@@ -95,6 +95,10 @@ def wrangle_peptides(sequence: str,
     Returns:
         str: Processed sequence string.
     """
+    # handle potential missing values
+    if sequence != sequence or sequence is None:
+        return sequence
+
     if ptm_filter is True:
         sequence = "".join(re.findall(GlobalConstants.sequence_regex, sequence))
     if li_swap is True:

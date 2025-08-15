@@ -213,7 +213,8 @@ def _validate_kegg_list_format(file: Path) -> Tuple[bool, str | None]:
     """
     try:
         file_data = pd.read_csv(file,
-                                sep="\t")
+                                sep="\t",
+                                engine="python")
         if file_data.shape[0] == 0 or file_data.shape[1] != 2:
             return False, "KEGG list dataset of invalid shape..."
         return True, None

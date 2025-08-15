@@ -390,6 +390,7 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     State('taxonomy_id_format_checkbox', 'value'),
     State('taxonomy_db_upload', 'filename'),
     State('acc_tax_map_delim', 'value'),
+    State('tax_accession_format_radio', 'value'),
     State('acc_tax_map_acc_idx', 'value'),
     State('acc_tax_map_acc_pattern', 'value'),
     State('acc_tax_tax_idx', 'value'),
@@ -423,6 +424,7 @@ def process_manual_annotation(n_clicks,
                               acc_tax_map_elem_format,
                               acc_tax_map_name,
                               acc_tax_map_delimiter,
+                              acc_tax_map_acc_format,
                               acc_tax_map_acc_idx,
                               acc_tax_map_acc_pattern,
                               acc_tax_map_tax_idx,
@@ -559,6 +561,7 @@ def process_manual_annotation(n_clicks,
         GlobalConstants.min_pept_len,
         acc_tax_map_delimiter,
         acc_tax_map_name,
+        acc_tax_map_acc_format,
         acc_tax_map_format,
         acc_tax_map_elem_format,
         gtdb_to_ncbi,
@@ -576,13 +579,13 @@ def process_manual_annotation(n_clicks,
     # perform taxonomy and functional annotation to psm data
     try:
         new_peptides = annotate_peptides(sample_name,
-                                        psm_list,
-                                        psm_names,
-                                        denovo_data, # type: ignore
-                                        acc_tax_map,
-                                        func_annot_db,
-                                        tax_db_loc,
-                                        options)
+                                         psm_list,
+                                         psm_names,
+                                         denovo_data, # type: ignore
+                                         acc_tax_map,
+                                         func_annot_db,
+                                         tax_db_loc,
+                                         options)
     except AnnotationError as err:
         alert_open = True
         return (current_peptides, 

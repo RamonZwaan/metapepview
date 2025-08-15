@@ -34,6 +34,7 @@ import pandas as pd
     Input('tax_barplot_clade_selection_rank', 'value'),
     Input('barplot_taxa_selector_radio', 'value'),
     Input('barplot_taxa_rank_items', 'value'),
+    Input('barplot_taxa_quantification_column', 'value'),
     Input('barplot_taxa_fraction_checkbox', 'value'),
     Input('barplot_taxa_unannotated_checkbox', 'value'),
     Input('global_annot_de_novo_only_checkbox', 'value')
@@ -47,6 +48,7 @@ def update_de_novo_taxa_graph(page_active,
                               clade_rank,
                               top_taxa,
                               tax_rank,
+                              quant_method,
                               fractional,
                               unannotated,
                               glob_annot_de_novo_only):
@@ -92,6 +94,7 @@ def update_de_novo_taxa_graph(page_active,
         peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
         comp_plot = plot_method(peptide_df, 
                                 rank=tax_rank,
+                                abundance_metric=quant_method,
                                 fractional_abundance=fractional)
         dif_plot = tax_differential_barplot(peptide_df,
                                             'De novo taxonomy (Unipept)',
@@ -106,12 +109,14 @@ def update_de_novo_taxa_graph(page_active,
         comp_plot = plot_method(peptide_df,
                                 topn=n_taxa,
                                 rank=tax_rank,
+                                abundance_metric=quant_method,
                                 fractional_abundance=fractional,
                                 include_undefined=unannotated)
         dif_plot = tax_differential_barplot(peptide_df,
                                             'De novo taxonomy (Unipept)',
                                             'DB search taxonomy',
                                             tax_rank,
+                                            abundance_metric=quant_method,
                                             topn=n_taxa,
                                             show_legend=False)
 

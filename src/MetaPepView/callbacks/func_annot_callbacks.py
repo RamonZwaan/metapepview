@@ -87,7 +87,10 @@ def store_kegg_ko_map(db_status, kegg_db_loc):
         __ko_mapping = Path(kegg_db_loc, GlobalConstants.kegg_map_file_name)
 
         if Path(__ko_mapping).exists():
-            ko_map_df = pd.read_csv(__ko_mapping, sep='\t', names=["KO", "Info"])
+            ko_map_df = pd.read_csv(__ko_mapping,
+                                    sep='\t',
+                                    engine="python", 
+                                    names=["KO", "Info"])
             ko_map_df = ko_map_df.set_index("KO", drop=True)
             ko_map_df["symbol"] = ko_map_df["Info"].apply(lambda x: x.split(";")[0])
             return ko_map_df.to_json()
@@ -229,6 +232,7 @@ def disable_module_dropdown(kegg_db, kegg_display_format):
     Input("custom_pathway_items", "value"),
     Input("barplot_pathway_fraction_checkbox", "value"),    
     Input("barplot_pathway_include_taxa_checkbox", "value"),
+    Input('barplot_func_quantification_column', 'value'),
     Input("pathway_normalize_sample", "value"),
     Input("func_annot_combine_duplicates", "value"),
     Input('tax_barplot_clade_selection_taxa', 'value'),
@@ -244,11 +248,19 @@ def update_pathway_barplot(peptide_json,
                            custom_prot,
                            fractional_abundance,
                            include_taxa,
+                           quant_method,
                            normalize_to_sample,
                            combine_annotations,
                            filter_clade,
                            clade_rank,
                            kegg_db):
+    # set y axis column based on quantification method
+    if quant_method == "Match Count":
+        ycol = "PSM Count"
+    else:
+        ycol = "Area"
+
+
     title = "functional abundance"
     if kegg_db is not None:
         kegg_db = KeggDatabase.read_json(kegg_db)
@@ -274,7 +286,7 @@ def update_pathway_barplot(peptide_json,
     if fractional_abundance is True:
         for sample in peptide_df["Sample Name"].unique():
             sample_idx = peptide_df[peptide_df["Sample Name"] == sample].index.to_list()
-            peptide_df.loc[sample_idx, "PSM Count"] /= peptide_df.loc[sample_idx, "PSM Count"].sum() # type:ignore
+            peptide_df.loc[sample_idx, ycol] /= peptide_df.loc[sample_idx, ycol].sum() # type:ignore
     
     # if taxa selection made on the taxonomy barplot, filter protein abundances by taxa
     # get taxonomy id from barplot selection point
@@ -285,13 +297,13 @@ def update_pathway_barplot(peptide_json,
        
     # define column lists required during processing when taxonomy is included and when not 
     if include_taxa is True:
-        cols_filter_df = ["PSM Count", "Sample Name", "Taxonomy Name", "KEGG_ko"]              # use to filter unrelevant columns
-        cols_group_peptides = ["Peptide Index", "PSM Count", "Taxonomy Name", "Sample Name"]   # use to merge protein names by peptide sequence
+        cols_filter_df = [ycol, "Sample Name", "Taxonomy Name", "KEGG_ko"]              # use to filter unrelevant columns
+        cols_group_peptides = ["Peptide Index", ycol, "Taxonomy Name", "Sample Name"]   # use to merge protein names by peptide sequence
         cols_group_names = ["Protein Name", "Taxonomy Name", "Sample Name"]                                   # use to group and count psm's by function and taxonomy
         tax_col = "Taxonomy Name"
     else:
-        cols_filter_df = ["PSM Count", "Sample Name", "KEGG_ko"]                             # use to filter unrelevant columns
-        cols_group_peptides = ["Peptide Index", "PSM Count", "Sample Name"]                  # use to merge protein names by peptide sequence
+        cols_filter_df = [ycol, "Sample Name", "KEGG_ko"]                             # use to filter unrelevant columns
+        cols_group_peptides = ["Peptide Index", ycol, "Sample Name"]                  # use to merge protein names by peptide sequence
         cols_group_names = ["Protein Name", "Sample Name"]                                                  # use to group and count psm's by function
         tax_col = None
         
@@ -358,11 +370,11 @@ def update_pathway_barplot(peptide_json,
         peptide_df = peptide_df.to_frame().reset_index(names=cols_group_peptides)
         
     # with combined protein name categories, group by these categories to obtain psm counts
-    peptide_df = peptide_df.groupby(by=cols_group_names)['PSM Count'].agg('sum')
+    peptide_df = peptide_df.groupby(by=cols_group_names)[ycol].agg('sum')
     peptide_df = peptide_df.to_frame().reset_index(names=cols_group_names)
 
     # keep only top n ko's based on largest contribution across samples
-    top_n_func = peptide_df.groupby(by="Protein Name")['PSM Count']\
+    top_n_func = peptide_df.groupby(by="Protein Name")[ycol]\
         .agg('sum')\
         .sort_values(ascending=False)\
     
@@ -379,12 +391,12 @@ def update_pathway_barplot(peptide_json,
                                              normalize_to_sample,
                                              'Sample Name',
                                              'Protein Name',
-                                             'PSM Count')
+                                             ycol)
         # drop all zero values
-        peptide_df = peptide_df[peptide_df["PSM Count"] > 0.0]
+        peptide_df = peptide_df[peptide_df[ycol] > 0.0]
     
     # configure y-axis title
-    ytitle = "Peptide spectrum matches"
+    ytitle = "Peptide spectrum matches" if ycol == "PSM Count" else "Signal area"
     if fractional_abundance is True:
         ytitle = "Fraction " + ytitle.lower()
     if normalize_to_sample is not None:
@@ -392,7 +404,7 @@ def update_pathway_barplot(peptide_json,
     
     plot = pathway_abundance_barplot(peptide_df,
                                     "Sample Name",
-                                    "PSM Count",
+                                    ycol,
                                     "Protein Name",
                                     tax_col=tax_col,
                                     custom_title=title,

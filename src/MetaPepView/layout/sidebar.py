@@ -151,22 +151,16 @@ fetch_db_modal = dbc.Modal(
 )
 
 
-sidebar_modules = [
+project_modules = [
     dbc.NavLink(
         [
             html.I(className="bi bi-gear me-2"),
-            "Data Import"
+            "Create project"
         ],
         id="sidebar_data_button", href="/", active=True, className="mb-2"),
-    html.Div(
-        dbc.NavLink(
-            [
-                html.I(className="bi bi-speedometer2 me-2"),
-                "Experiment quality control"
-            ],
-            id="sidebar_validation_button", href="/", className="mb-2"),
-        hidden= not gc.display_qa_page
-    ),
+]
+
+community_modules = [
     dbc.NavLink(
         [
             html.I(className="bi bi-graph-up me-2"),
@@ -177,22 +171,35 @@ sidebar_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-graph-up me-2"),
-                "Composition: local vs Unipept"
-            ],
-            id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
-        hidden= not gc.display_db_search or not gc.display_de_novo
-    ),
-    html.Div(
-        dbc.NavLink(
-            [
-                html.I(className="bi bi-graph-up me-2"),
-                "Community function"
+                "Community functions"
             ],
             id="sidebar_functional_button",
             href="/",
             className="mb-2"),
         hidden = not gc.display_db_search),
      ]
+
+
+evaluation_modules = [
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-speedometer2 me-2"),
+                "Experimental performance"
+            ],
+            id="sidebar_validation_button", href="/", className="mb-2"),
+        hidden= not gc.display_qa_page
+    ),
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-clipboard-data me-2"),
+                "Evaluate community composition"
+            ],
+            id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
+        hidden= not gc.display_db_search or not gc.display_de_novo
+    )
+    ]
 
 # filter out presented modules based on
 
@@ -202,8 +209,23 @@ new_sidebar = [
         [
             html.H4("Menu", className="display-4"),
             html.Hr(),
+            html.H3("Project management"),
             dbc.Nav(
-                sidebar_modules,
+                project_modules,
+                vertical=True,
+                pills=True,
+                className="mb-4"
+            ),
+            html.H3("Community analysis"),
+            dbc.Nav(
+                community_modules,
+                vertical=True,
+                pills=True,
+                className="mb-4"
+            ),
+            html.H3("Experiment validation"),
+            dbc.Nav(
+                evaluation_modules,
                 vertical=True,
                 pills=True,
             ),
@@ -211,7 +233,7 @@ new_sidebar = [
     ),
     html.Div(
         [
-            html.H2("Database loaded", className="m-2 mb-4"),
+            html.H2("Databases", className="m-2 mb-4"),
             html.Hr(),
             dcc.Store(
                 id="database_present_status",

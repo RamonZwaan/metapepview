@@ -30,7 +30,7 @@ sample_options_block = [
                 [
                     dbc.Spinner(html.Div(id="annotation_loading_spot", style={"width": "5rem"})),
                     html.Div(
-                        dbc.Button("Add Data", id="start_annotation_button",
+                        dbc.Button("Add sample", id="start_annotation_button",
                                 color="primary",
                                 className="px-3"),
                         id="start_annotation_button_wrapper",
@@ -56,7 +56,7 @@ peptide_data_block = html.Div(
     [
         html.Div(
             [
-                html.H3("Experiment"),
+                html.H3("Project status"),
                 html.Div(
                     [
                         html.H4("Name: ", className="align-self-center me-3"),
@@ -210,6 +210,22 @@ taxonomy_map_options_modal = dbc.Modal(
                 ),
                 html.Div(
                     [
+                        html.B("Accession type:", 
+                               className="align-self-center",
+                               style={"width": "16rem"}),
+                        dbc.RadioItems(options=[
+                            {"label": "Protein id", "value": "Accession"}, 
+                            {"label": "Peptide sequence", "value":"Sequence"}
+                            ],
+                            value="Accession",
+                            id="tax_accession_format_radio",
+                            inline=True,
+                        )
+                    ],
+                    className="d-flex justify-content-start align-items-center mb-3",
+                ),
+                html.Div(
+                    [
                         html.Div(
                             [
                                 html.B("Accession column index:", className="me-3 align-self-center"),
@@ -243,7 +259,8 @@ taxonomy_map_options_modal = dbc.Modal(
                     [
                         html.B("Taxonomy element format:",
                                id="taxonomy_id_format_text",
-                               className="me-5 align-self-center align-top text-decoration-underline"),
+                               className="align-self-center align-top text-decoration-underline",
+                               style={"width": "16rem"}),
                         dbc.RadioItems(options=[
                                        "taxonomy id",
                                        "taxonomy name"

@@ -49,8 +49,13 @@ class GtdbGenomeToNcbi:
             raise FileNotFoundError("GTDB metadata files not found in path location...")
         
         # import bacteria and archaea into dataframe and concatenate them
-        bac_df = pd.read_csv(bac_metadata, sep="\t")
-        arch_df = pd.read_csv(ar_metadata, sep="\t")
+        bac_df = pd.read_csv(bac_metadata,
+                             sep="\t",
+                             engine="python"
+                             )
+        arch_df = pd.read_csv(ar_metadata,
+                              sep="\t",
+                              engine="python")
         metadata_df = pd.concat([bac_df, arch_df], axis=0).reset_index(drop=True)
 
         # only the genome column and ncbi taxonomy id column are of interest

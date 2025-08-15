@@ -94,7 +94,8 @@ class EggnogMapper(FunctionDbMapper, DataValidator):
         # read data into dataframe format
         df = pd.read_csv(file_buffer,
                          names=header, 
-                         sep=cls.FIELD_DELIM)
+                         sep=cls.FIELD_DELIM,
+                         engine="python")
         
         # rename columns and set index to accession
         df.rename(columns={"#query": "query"}, inplace=True)
@@ -157,6 +158,7 @@ class KeggMapper(FunctionDbMapper, DataValidator):
                          **kwargs) -> Self:
         kegg_df = pd.read_csv(file_buffer,
                               sep='\t',
+                              engine="python",
                               names=["query", "KEGG_ko"])
         return cls.from_dataframe(kegg_df)
     

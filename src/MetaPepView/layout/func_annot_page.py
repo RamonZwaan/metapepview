@@ -152,6 +152,25 @@ custom_protein_selector = html.Div(
     hidden=True
 )
 
+abundance_counting_selector = dbc.Row(
+    [
+        dbc.Col(html.B("Quantification")),
+        dbc.Col(
+            dbc.RadioItems(
+                options=[
+                    {"label": "PSM count", "value": "Match Count"}, 
+                    {"label": "Combined signal intensity", "value":"Area"}
+                ],
+                value="Match Count",
+                id="barplot_func_quantification_column",
+                inline=False,
+                style={"width": "15rem"}
+            )
+        )
+    ],
+    style={"margin": "1.5rem 0rem", "display": "flex", "align-items": "center"}
+)
+
 normalize_samples = dbc.Row(
     [
         dbc.Col(html.B("Normalize sample:")),
@@ -256,6 +275,7 @@ pathway_filters = [
     module_selector,
     custom_protein_selector,
     html.Hr(),
+    abundance_counting_selector,
     normalize_samples,
     combine_annot_duplicates,
     include_taxonomies,

@@ -27,6 +27,6 @@ pio.templates.default = GraphConstants.default_template
 app.layout = app_layout
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
-    # serve(app.server, host="0.0.0.0", port=8050, threads=64) #type:ignore
+    # app.run(host="0.0.0.0", debug=True)
+    serve(app.server, host="0.0.0.0", port=8050, threads=64) #type:ignore
     

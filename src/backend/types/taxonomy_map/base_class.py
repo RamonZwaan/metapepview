@@ -26,7 +26,8 @@ class AccessionTaxaMap:
                            delimiter: str | None=",",
                            drop_duplicates: bool = True,
                            tax_name_to_id: bool = False,
-                           taxonomy_obj: TaxonomyDatabase | None = None) -> Self:
+                           taxonomy_obj: TaxonomyDatabase | None = None,
+                           wrangle_peptide_accessions: bool = False) -> Self:
         """Import protein accession to taxonomy mapping data from string buffer
         generated from file.
 
@@ -49,6 +50,9 @@ class AccessionTaxaMap:
             taxonomy_obj (TaxonomyDatabase | None, optional): TaxonomyDatabase
                 object for LCA processing of redundant protein accessions.
                 Defaults to None.
+            wrangle_peptide_accessions (bool, optional): If accession is peptide
+                sequence column, perform removal of non-amino acid elements and
+                equate Leucin and Isoleucin. Defaults to False.
 
         Returns:
             Self: AccessionTaxaMap instance.
@@ -59,7 +63,12 @@ class AccessionTaxaMap:
         prot_df = pd.read_csv(str_file_obj,
                               usecols=[acc_col, tax_col], 
                               names=["accession", "taxonomy_id"],
-                              sep=delimiter)
+                              sep=delimiter,
+                              engine="python")
+        
+        # if accessions are peptides, wrangle sequences into consistent format
+        if wrangle_peptide_accessions is True:
+            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
         
         # if tax names in column, convert to id
         if tax_name_to_id is True and taxonomy_obj is not None:
@@ -123,6 +132,7 @@ class AccessionTaxaMap:
         try:
             prot_df = pd.read_csv(str_file_obj,
                                   sep=delimiter,
+                                  engine='python',
                                   nrows=100)
         except:
             err_msg = "Failed to read input, should be delimited text file like '.csv'"

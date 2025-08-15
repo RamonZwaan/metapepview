@@ -468,7 +468,7 @@ ref_confidence_dist_scatter = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Confidence Thresholds Scatter"),
+                        html.H4("Peptide confidence scatterplot"),
                         html.Div(
                             [
                                 html.B("Normalize:", style={"margin-right": "1rem", "text-align": "center"}),

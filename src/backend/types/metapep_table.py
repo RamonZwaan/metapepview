@@ -14,7 +14,7 @@ from itertools import chain
 import json
 
 from .base_classes import DataValidator
-from backend.utils import mode_func, to_json, decompress_string
+from backend.utils import mode_func, to_json, decompress_string, convert_deprecated_metapeptable_naming
 from constants import GlobalConstants
 from .definitions import *
 
@@ -280,6 +280,7 @@ class MetaPepTable(DataValidator):
             return (False,
                     "Failed to read dataset as DataFrame.")
         
+        df = convert_deprecated_metapeptable_naming(df)
         valid, msg = cls.validate_input(df)
         
         if not valid:
@@ -299,6 +300,7 @@ class MetaPepTable(DataValidator):
         # Extract the DataFrame and custom variables
         csv_str = decompress_string(json_dict['dataframe'])
         df = pd.read_csv(io.StringIO(csv_str), index_col=0, low_memory=False)
+        df = convert_deprecated_metapeptable_naming(df)
         
         taxonomy_db_format = json_dict['metadata']['Taxonomy DB Format']
         functional_db_format = json_dict['metadata']['Functional DB Format']
@@ -860,6 +862,7 @@ def validate_spectral_redundancy(metapep_list: Sequence[MetaPepDeNovo | MetaPepD
     union_list = list(union_list)
     
     if len(set(union_list)) < len(union_list):
-        raise ValueError("Redundancy found in spectral source files, cannot concatenate.")
+        file_format = "DB search" if isinstance(metapep_list[0], MetaPepDbSearch) else "de novo"
+        raise ValueError(f"Redundancy found in {file_format} files, cannot concatenate.")
     
     return union_list

@@ -31,6 +31,7 @@ class AnnotationOptions():
     min_pept_length: int
     tax_db_delimiter: str
     tax_db_name: str | None
+    tax_db_accession_format: Literal["Sequence", "Accession"]
     tax_db_format: TaxonomyFormat | None
     tax_db_element_format: TaxonomyElementFormat | None
     gtdb_to_ncbi: bool
@@ -112,7 +113,8 @@ def annotate_peptides(sample_name: str,
                                         options.tax_db_format,
                                         options.tax_db_element_format,
                                         gtdb_to_ncbi_obj,
-                                        tax_db_archive_format)
+                                        tax_db_archive_format,
+                                        options.tax_db_accession_format == "Sequence")
         except Exception as err:
             raise AnnotationError(f"Failed to import taxonomy annotations: {err}")
         # Change taxonomy db format after conversion to NCBI
@@ -140,7 +142,8 @@ def annotate_peptides(sample_name: str,
                                         options.tax_db_format,
                                         options.tax_db_element_format, 
                                         None,
-                                        tax_db_archive_format)
+                                        tax_db_archive_format,
+                                        options.tax_db_accession_format == "Sequence")
         except Exception as err:
             raise AnnotationError(f"Failed to import taxonomy annotations: {err}")
     else:
@@ -236,12 +239,12 @@ def annotate_peptides(sample_name: str,
                 
                 try:
                     sample_metapep_table = build_metapep_table(psm_df,
-                                                            tax_df,
-                                                            func_annot_db,
-                                                            de_novo_dict,
-                                                            db_search_names[i],
-                                                            taxonomy_db,
-                                                            options)
+                                                               tax_df,
+                                                               func_annot_db,
+                                                               de_novo_dict,
+                                                               db_search_names[i],
+                                                               taxonomy_db,
+                                                               options)
                 except Exception as err:
                     raise AnnotationError(f"Failed to combine imports into new sample: {err}")
                 metapep_table_list.append(sample_metapep_table)
@@ -272,14 +275,15 @@ def annotate_peptides(sample_name: str,
 # process the db search psm dataset with taxonomic (and in the future functional) annotation
 def taxonomic_annotation(peptides: pd.DataFrame,
                          taxonomy_map: AccessionTaxaMap,
-                         taxonomy_db: TaxonomyDatabase) -> pd.DataFrame:
+                         taxonomy_db: TaxonomyDatabase,
+                         accession_column: str) -> pd.DataFrame:
     """Add taxonomic annotation to peptide dataset
     """
     
     print("annotate taxonomy id to peptides...")
     # perform taxonomic annotation on peptides dataset
     acc_delim = GlobalConstants.peptides_accession_delimiter
-    peptides["Taxonomy Id"] = peptides["Accession"].str.split(acc_delim) \
+    peptides["Taxonomy Id"] = peptides[accession_column].str.split(acc_delim) \
         .apply(taxonomy_map.accession_list_to_lca, taxonomy_db=taxonomy_db)
     
     print("get taxonomy names from id's...") 
@@ -358,6 +362,14 @@ def functional_annotation(peptides: pd.DataFrame,
         func_data = accession_list_to_function(acc_list,
                                                function_db,
                                                combine=combine)
+
+        # For first value, check if columns exist. If not, initialize them with correct dtype        
+        if i == 0:
+            for column in func_data.index:
+                if column not in peptides.columns and column == "evalue":
+                    peptides.loc[:, column] = pd.Series(dtype="float64")
+                elif column not in peptides.columns:
+                    peptides.loc[:, column] = pd.Series(dtype="object")
         
         # check if series is returned, then add to dataset
         if isinstance(func_data, pd.Series):
@@ -391,7 +403,9 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
             try:
                 peptides = taxonomic_annotation(peptides,
                                                 taxonomy_mapper,
-                                                taxonomy_db)
+                                                taxonomy_db,
+                                                options.tax_db_accession_format)
+
             except Exception as err:
                 raise AnnotationError("Failed taxonomy annotation of db search peptides.")
         else:
@@ -611,7 +625,7 @@ def merge_de_novo_db_search(db_search_peptides: pd.DataFrame,
     else:
         merge_df = pd.merge(db_search_peptides, de_novo_peptides, how="outer", on=["Sequence"])
         # if no db search, peptide field is empty, in that case, fill the values
-        merge_df["Peptide"].fillna(merge_df["De Novo Peptide"], inplace=True)
+        merge_df.loc[:, "Peptide"] = merge_df["Peptide"].fillna(merge_df["De Novo Peptide"])
     
     merge_df = merge_df.drop(columns='De Novo Peptide')
     return merge_df

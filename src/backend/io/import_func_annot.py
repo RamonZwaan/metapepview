@@ -17,7 +17,10 @@ def validate_eggnog_file(upload_contents: str,
     # read data into dataframe format, only first 100 rows
     try:
         df = pd.read_csv(file_buffer,
-                        sep='\t', header=4, nrows=100)
+                         sep='\t',
+                         engine="python", 
+                         header=4, 
+                         nrows=100)
     except:
         err_msg = "Failed to read input data, is it '*.emapper.annotation' file?"
         return (False, err_msg)

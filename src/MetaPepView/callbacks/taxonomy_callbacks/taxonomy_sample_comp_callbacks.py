@@ -27,6 +27,7 @@ from constants import GlobalConstants as gc
     Input('tax_barplot_clade_selection_rank', 'value'),
     Input('barplot_taxa_selector_radio', 'value'),
     Input('barplot_taxa_rank_items', 'value'),
+    Input('barplot_taxa_quantification_column', 'value'),
     Input('barplot_taxa_fraction_checkbox', 'value'),
     Input('barplot_taxa_unannotated_checkbox', 'value'),
     Input('barplot_taxa_allow_global_annot_checkbox', 'value')
@@ -39,6 +40,7 @@ def update_taxa_graph(page_active,
                       clade_rank,
                       top_n,
                       tax_rank,
+                      quant_method,
                       fractional,
                       unannotated,
                       global_annot_fallback):
@@ -79,14 +81,22 @@ def update_taxa_graph(page_active,
 
     if tax_ids != [] and top_n == 2:
         peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
-        plot = plot_method(peptide_df, rank=tax_rank, fractional_abundance=fractional)
+        plot = plot_method(peptide_df, 
+                           rank=tax_rank,
+                           abundance_metric=quant_method,
+                           fractional_abundance=fractional)
     elif top_n == 2:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select custom tax id's...")
         return block_element, dict(), 'Figure'
     else:
         n_taxa = 9 if top_n == 1 else 23
-        plot = plot_method(peptide_df, topn=n_taxa, rank=tax_rank, fractional_abundance=fractional, include_undefined=unannotated)
+        plot = plot_method(peptide_df, 
+                           topn=n_taxa, 
+                           rank=tax_rank,
+                           abundance_metric=quant_method,
+                           fractional_abundance=fractional,
+                           include_undefined=unannotated)
     # plot.update_layout(height=500)
 
     return dcc.Graph(figure=plot,
@@ -107,6 +117,7 @@ def update_taxa_graph(page_active,
     State('sidebar_taxonomy_button', 'active'),
     State('peptides', 'data'),
     State('barplot_taxa_rank_items', 'value'),
+    State('barplot_taxa_quantification_column', 'value'),
     Input('taxonomic_dropoff_normalize', 'value'),
     Input('taxonomy_cumulative_dropoff_rank', 'value'),
     State('barplot_taxa_allow_global_annot_checkbox', 'value'),
@@ -116,6 +127,7 @@ def update_taxonomy_dropoff_graph(clickData,
                                   page_active,
                                   peptide_json,
                                   tax_rank,
+                                  quant_method,
                                   normalize_bars,
                                   dropoff_root_rank,
                                   global_annot_fallback):
@@ -160,7 +172,10 @@ def update_taxonomy_dropoff_graph(clickData,
         peptide_df = substitute_lineage_with_global_lineage(peptide_df)
 
     # select column to sum, match count or total signal
-    quant_col = "PSM Count" # alternative: "Area"
+    if quant_method == "Match Count":
+        quant_col = "PSM Count"
+    else:
+        quant_col = "Area"
 
     # fetch lineage directly from peptide json
     rank_names = GlobalConstants.standard_lineage_ranks

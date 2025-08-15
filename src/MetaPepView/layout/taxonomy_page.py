@@ -94,6 +94,26 @@ taxonomy_rank_selector = dbc.Row(
 )
 
 
+abundance_counting_selector = dbc.Row(
+    [
+        dbc.Col(html.B("Quantification")),
+        dbc.Col(
+            dbc.RadioItems(
+                options=[
+                    {"label": "PSM count", "value": "Match Count"}, 
+                    {"label": "Combined signal intensity", "value":"Area"}
+                ],
+                value="Match Count",
+                id="barplot_taxa_quantification_column",
+                inline=False,
+                style={"width": "15rem"}
+            )
+        )
+    ],
+    style={"margin": "1.5rem 0rem", "display": "flex", "align-items": "center"}
+)
+
+
 normalize_abundance_selector = dbc.Row(
     [
         dbc.Col(html.B("Normalize abundances")),
@@ -161,6 +181,7 @@ tax_sample_comp_options = [
     taxa_dropdown_selector,
     taxa_group_display_selector,
     taxonomy_rank_selector,
+    abundance_counting_selector,
     normalize_abundance_selector,
     include_unannotated_selector,
     global_fallback_selector
@@ -176,6 +197,7 @@ tax_sample_de_novo_options = [
     taxa_group_display_selector,
     taxonomy_rank_selector,
     global_annot_de_novo_only_selector,
+    abundance_counting_selector,
     normalize_abundance_selector,
     include_unannotated_selector
 ]

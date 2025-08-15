@@ -647,7 +647,7 @@ def configure_metadata_format_container():
                 html.Div(className="vr"),
                 html.Div(
                     [
-                        html.H4("Taxonomy db format", className="text-secondary"),
+                        html.H4("Taxonomy DB format", className="text-secondary"),
                         html.H6("-", id="peptides_taxonomy_db_format", className="ps-4 mb-1")
                     ],
                     className="w-auto py-2 px-4",
@@ -661,7 +661,7 @@ def configure_metadata_format_container():
                 html.Div(className="vr"),
                 html.Div(
                     [
-                        html.H4("Function db format", className="text-secondary"),
+                        html.H4("Function DB format", className="text-secondary"),
                         html.H6("-", id="peptides_function_db_format", className="ps-4 mb-1")
                     ],
                     className="w-auto py-2 px-4",

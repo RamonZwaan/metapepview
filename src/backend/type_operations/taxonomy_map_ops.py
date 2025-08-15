@@ -21,7 +21,8 @@ def import_acc_tax_map(upload_contents: str | IO[str],
                        taxonomy_db_format: TaxonomyFormat,
                        taxonomy_element_format: TaxonomyElementFormat,
                        gtdb_to_ncbi_obj: GtdbGenomeToNcbi | None = None,
-                       archive_format: str | None = None) -> AccessionTaxaMap:
+                       archive_format: str | None = None,
+                       wrangle_peptide_accessions = False) -> AccessionTaxaMap:
     # if file buffer has not been extracted from raw string data, extract data into buffer
     if isinstance(upload_contents, str):
         str_file_obj = memory_to_stringio(upload_contents, archive_format)
@@ -44,7 +45,8 @@ def import_acc_tax_map(upload_contents: str | IO[str],
             delimiter,
             drop_duplicates=False,
             tax_name_to_id=name_to_id,
-            taxonomy_obj=taxonomy_db
+            taxonomy_obj=taxonomy_db,
+            wrangle_peptide_accessions=wrangle_peptide_accessions
             )
     elif tax_format is not None:
         return tax_format.from_string_buffer(
@@ -55,7 +57,8 @@ def import_acc_tax_map(upload_contents: str | IO[str],
             delimiter,
             drop_duplicates=False,
             tax_name_to_id=name_to_id,
-            taxonomy_obj=taxonomy_db
+            taxonomy_obj=taxonomy_db,
+            wrangle_peptide_accessions=wrangle_peptide_accessions
             )
     else:
         raise ValueError("Invalid taxonomy format")
