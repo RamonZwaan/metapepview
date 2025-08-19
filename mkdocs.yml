@@ -1,0 +1,43 @@
+site_name: MetaPepView Documentation
+site_url: https://RamonZwaan.github.io/metapepview/
+
+plugins:
+  - search
+  - roamlinks
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  
+theme:
+  name: material
+
+nav:
+  - Introduction: index.md
+  - Installation: installation.md
+  - Getting Started: getting-started.md
+  - Input Data Preparation: prepare-input-data.md
+  - User Guide:
+    - Data management: 
+      - Data Import: data-import.md
+      - Annotation: annotation.md
+      - Project Table: project-table.md
+    - Community Visualization:
+      - Overview: community-visualization.md
+      - Community Composition: taxonomy-visualization.md
+      - Community Function: function-visualization.md
+    - Experiment Validation:
+      - Overview: experiment-performances-biases.md
+      - Spectral Evaluation: experiment-evaluation.md
+      - Evaluate community composition: evaluate-taxonomy.md
+  - MetaPepView Backend:
+    - Annotation Pipeline: annotation-pipeline.md
+    - Spectral Processing: spectra-processing.md
+    - Quantification Taxa/Functions: quantification.md
+
