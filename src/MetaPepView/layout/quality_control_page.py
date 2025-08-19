@@ -106,8 +106,8 @@ tic_over_rt = dbc.Card(
                                         html.B("Secondary parameter:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dcc.Dropdown(
                                             ["None",
-                                             "DB Search Confidence",
-                                             "De Novo Confidence",
+                                             "DB Search Counts",
+                                             "De Novo Counts",
                                              "Peak Count",
                                              "Peak Width (FWHM)",
                                              "Feature Quality",

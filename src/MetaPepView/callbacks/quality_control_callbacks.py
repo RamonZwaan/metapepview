@@ -278,9 +278,9 @@ def store_features_dataset(content, filename, mzml_metadata):
 def hide_tic_over_rt_options(secondary_param):
     if secondary_param == "Peak Count":
         return (False, True)
-    elif secondary_param == "DB Search Confidence":
+    elif secondary_param == "DB Search Counts":
         return (True, False)
-    elif secondary_param == "De Novo Confidence":
+    elif secondary_param == "De Novo Counts":
         return (True, False)
     else:
         return (True, True)
@@ -423,11 +423,11 @@ def show_tic_over_rt(dataset,
     if secondary_param == "Peak Count" and peak_int_cutoff > 0:
         peaks = decompress_string(peaks)
     # only load metapep data if required
-    elif secondary_param == "DB Search Confidence" and db_search_psm is not None:
+    elif secondary_param == "DB Search Counts" and db_search_psm is not None:
         prot_data = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
             .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
-    elif secondary_param == "De Novo Confidence" and de_novo is not None:
+    elif secondary_param == "De Novo Counts" and de_novo is not None:
         prot_data = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
             .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
