@@ -2,7 +2,7 @@
 
 MetaPepView provides two modules for taxonomy visualization of microbial communities: *Community composition* and *[[evaluate-taxonomy|Evaluate community composition]]*. *Community composition* is the main module for taxonomy composition analysis. It allows visualization of taxonomy composition and comparison of compositions between all samples within the project.
 
-Additional parts of the *Community composition* module, as well as the *Evaluate community composition* module, focus on validation of taxonomy composition correctness and identification of potential quantification biases.
+Additional parts of the *Community composition* module, as well as the *Evaluate community composition* module, focus on evaluation of taxonomy composition correctness and identification of potential quantification biases.
 
 # *Community composition* module
 

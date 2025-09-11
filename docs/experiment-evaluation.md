@@ -19,7 +19,7 @@ A new benchmark dataset can be imported from the *import custom dataset* importe
     
     This format constraint is also present for the benchmark dataset. If a custom dataset is constructed, all DB search and de novo files should be in the same format across all experiments.
 
-An overview of the available validation graphs is shown below.
+An overview of the available evaluation graphs is shown below.
 
 ### Confidence thresholds barplot
 
