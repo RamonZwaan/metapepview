@@ -2,23 +2,24 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
+import pandas as pd
+
+from metapepview.server import app
 
 # import layout elements
-from MetaPepView.html_templates import *
-from MetaPepView.layout.quality_control_page import ms_performance
-from MetaPepView.layout.taxonomy_page import taxonomy_sample_analysis
-from MetaPepView.layout.func_annot_page import *
-from MetaPepView.layout.data_page import data_visual
-from MetaPepView.layout.header import content_header
+from metapepview.html_templates import *
+from metapepview.layout.quality_control_page import ms_performance
+from metapepview.layout.taxonomy_page import taxonomy_sample_analysis
+from metapepview.layout.func_annot_page import *
+from metapepview.layout.data_page import data_visual
+from metapepview.layout.header import content_header
 
-from backend import *
-from backend.plots import taxonomic_abundance_barplot,\
+from metapepview.backend import *
+from metapepview.backend.plots import taxonomic_abundance_barplot,\
     taxonomic_abundance_heatmap,\
     tax_differential_barplot
-from constants import *
+from metapepview.constants import *
 
-import pandas as pd
     
     
 @app.callback(
@@ -105,7 +106,7 @@ def update_de_novo_taxa_graph(page_active,
                                                "Select custom tax id's...")
         return block_element, dict(), 'Figure'
     else:
-        n_taxa = 9 if top_taxa == 1 else 23
+        n_taxa = 9 if top_taxa == 1 else 20
         comp_plot = plot_method(peptide_df,
                                 topn=n_taxa,
                                 rank=tax_rank,

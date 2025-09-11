@@ -3,16 +3,16 @@ from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
+from metapepview.server import app
 
 # import layout elements
-from MetaPepView.html_templates import hidden_graph_with_text
-from backend import *
-from backend.plots import \
+from metapepview.html_templates import hidden_graph_with_text
+from metapepview.backend import *
+from metapepview.backend.plots import \
     taxonomic_abundance_barplot, \
     taxonomic_abundance_heatmap, \
     taxonomy_dropoff_scatter
-from constants import GlobalConstants as gc
+from metapepview.constants import GlobalConstants as gc
 
 
 @app.callback(
@@ -90,7 +90,7 @@ def update_taxa_graph(page_active,
                                                "Select custom tax id's...")
         return block_element, dict(), 'Figure'
     else:
-        n_taxa = 9 if top_n == 1 else 23
+        n_taxa = 9 if top_n == 1 else 20
         plot = plot_method(peptide_df, 
                            topn=n_taxa, 
                            rank=tax_rank,

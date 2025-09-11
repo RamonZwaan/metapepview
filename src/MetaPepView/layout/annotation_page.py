@@ -1,30 +1,59 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from MetaPepView.html_templates import *
-from constants import GlobalConstants as gc
+from metapepview.html_templates import *
+from metapepview.constants import GlobalConstants as gc
 
 
 
 sample_options_block = [
     html.Div(
         [
-            html.H3("New sample"),
+            html.H3("Add sample"),
             html.Div(
                 [
-                    html.H4("Name: ", className="align-self-center me-4"),
-                    dbc.Input(id="sample_name_import", type="text"),
+                    html.H5("Sample name:", className="align-self-center me-4"),
+                    dbc.Input(id="sample_name_import", 
+                              type="text",
+                              style={"width": "20rem"}),
                 ],
                 className="d-flex justify-content-between align-items-center",
                 style={"width": "30rem"}
             ),
             html.Div(
                 [
-                    html.H4("merge DB search files",
+                    html.H5("Merge DB search files",
                         className="align-self-center me-4"),
                     dbc.Switch(id="merge_psm_switch", className="align-self-center", value=True),
                 ],
                 className="d-flex justify-content-start" if gc.show_advanced_settings is True else "d-none"
+            ),
+            html.Div(
+                [
+                    html.H5("Annotate to Unipept",
+                            id="global_taxonomy_annotation_text",
+                            className="ms-2 me-3 align-top",
+                            style={'text-decoration-line': "underline", 
+                                   'text-decoration-style': "dotted"}
+                    ),
+                    dbc.Switch(id="global_taxonomy_annotation_checkbox", 
+                               className="align-self-center", 
+                               value=False),
+                    dbc.Popover("""
+                        As an additional step to annotation of protein id's, match
+                        peptide sequences directly to the UniprotKB protein
+                        database through the Unipept api.
+                        """,
+                        id="global_taxonomy_annotation_info",
+                        target="global_taxonomy_annotation_text",
+                        trigger="hover",
+                        placement='top',
+                        className="p-2"
+                    )
+                ],
+                id="global_taxonomy_annotation_container",
+                className="d-flex justify-content-start align-items-center"\
+                    if gc.show_advanced_settings is True else "d-none",
             ),
             html.Div(
                 [
@@ -56,7 +85,7 @@ peptide_data_block = html.Div(
     [
         html.Div(
             [
-                html.H3("Project status"),
+                html.H3("Project"),
                 html.Div(
                     [
                         html.H4("Name: ", className="align-self-center me-3"),
@@ -112,18 +141,35 @@ db_search_options_modal = dbc.Modal(
         dbc.ModalHeader(dbc.ModalTitle("DB Search filter settings")),
         dbc.ModalBody(
             [
+                html.Div(accession_pattern_options(
+                    "db_search_acc_selection_text",
+                    "db_search_accession_parser_items",
+                    "db_search_accession_popover",
+                    "db_search_accession_pattern",
+                    "db_search_accession_pattern_container",
+                    """
+                    Specify what part of the accession (protein id) should be used
+                    as identifier to match accession id to DB taxonomy/function data.
+                    """
+                    )
+                ),
+
                 html.Div(
                     [
-                        html.B("Confidence threshold:", className="me-3 align-self-center"),
+                        html.B("Confidence threshold:", 
+                               className="align-self-center",
+                               style={"width": "18rem"}),
                         dbc.Input(value=30, min=0, id="db_search_psm_score_threshold", size="sm", type="number", style={"width": "4rem"}),
                     ],
-                    className="d-flex justify-content-between mb-3"
+                    className="d-flex justify-content-start mt-3 mb-3"
                 ),
                 html.Div(
                     [
                         dbc.Checkbox(label= html.B("filter cRAP",
                                                    id="db_search_filter_crap_text",
-                                                   className="ms-2 me-3 align-top text-decoration-underline"),
+                                                   className="ms-2 me-3 align-top",
+                                                   style={"text-decoration-line": "underline", 
+                                                          "text-decoration-style": "dotted"}),
                                      id="db_search_filter_crap",
                                      value=True),
                         dbc.Popover("""
@@ -135,7 +181,7 @@ db_search_options_modal = dbc.Modal(
                             target="db_search_filter_crap",
                             trigger="hover",
                             placement='top',
-                            className="px-3 py-1"
+                            className="p-2"
                         )
                     ],
                     className="d-flex mt-4 justify-content-start align-items-center"
@@ -145,6 +191,7 @@ db_search_options_modal = dbc.Modal(
             className="vstack p-5"
         )
     ],
+    size="lg",
     id="db_search_modal",
     scrollable=True,
     is_open=False,
@@ -158,16 +205,20 @@ de_novo_options_modal = dbc.Modal(
             [
                 html.Div(
                     [
-                        html.B("Confidence threshold:", className="me-3 align-self-center"),
+                        html.B("Confidence threshold:", 
+                               className="align-self-center",
+                               style={"width": "18rem"}),
                         dbc.Input(value=30, min=0, id="de_novo_score_threshold", size="sm", type="number", style={"width": "4rem"}),
                     ],
-                    className="d-flex justify-content-between mb-3"
+                    className="d-flex justify-content-start mb-3"
                 ),
                 html.Div(
                     [
                         dbc.Checkbox(label= html.B("filter cRAP",
                                                    id="De_novo_filter_crap_text",
-                                                   className="ms-2 me-3 align-top text-decoration-underline"),
+                                                   className="ms-2 me-3 align-top",
+                                                   style={"text-decoration-line": "underline", 
+                                                          "text-decoration-style": "dotted"}),
                                      id="de_novo_filter_crap",
                                      value=True),
                         dbc.Popover("""
@@ -179,7 +230,7 @@ de_novo_options_modal = dbc.Modal(
                             target="de_novo_filter_crap",
                             trigger="hover",
                             placement='top',
-                            className="px-3 py-1"
+                            className="p-2"
                         )
                     ],
                     className="d-flex mt-4 justify-content-start align-items-center"
@@ -202,17 +253,20 @@ taxonomy_map_options_modal = dbc.Modal(
             [
                 html.Div(
                     [
-                        html.B("Delimiter:", className="me-3 align-self-center"),
+                        html.B("Delimiter:", 
+                               className="align-self-center",
+                               style={"width": "18rem"}),
                         dbc.Input(value=r'\t', id="acc_tax_map_delim", size="sm", type="text", style={"width": "4rem"}),
                     ],
-                    className="d-flex justify-content-between mb-3",
-                    style={"width": "20rem"}
+                    id="tax_acc_map_delimiter_container",
+                    # className CONFIGURED IN CALLBACK
+                    #style={"width": "20rem"}
                 ),
                 html.Div(
                     [
                         html.B("Accession type:", 
                                className="align-self-center",
-                               style={"width": "16rem"}),
+                               style={"width": "18rem"}),
                         dbc.RadioItems(options=[
                             {"label": "Protein id", "value": "Accession"}, 
                             {"label": "Peptide sequence", "value":"Sequence"}
@@ -222,45 +276,62 @@ taxonomy_map_options_modal = dbc.Modal(
                             inline=True,
                         )
                     ],
-                    className="d-flex justify-content-start align-items-center mb-3",
+                    id="tax_acc_map_acc_type_container",
+                    # className CONFIGURED IN CALLBACK
+                ),
+                html.Div(accession_pattern_options(
+                            "accession_parser_text",
+                            "accession_parser_checkbox",
+                            "accession_parser_info",
+                            "acc_tax_map_acc_pattern", 
+                            "acc_tax_map_acc_pattern_container",
+                            """
+                                Specify what part of the accession should be used
+                                as identifier to match accession id to DB search data.
+                            """
+                )),
+                html.Div(
+                    [
+                        html.B("Accession column index:", 
+                               className="align-self-center",
+                               style={"width": "18rem"}),
+                        dbc.Input(value=0, 
+                                  min=0, 
+                                  id="acc_tax_map_acc_idx", 
+                                  size="sm", 
+                                  type="number", 
+                                  style={"width": "4rem"}),
+                        dbc.FormText("index starts at 0", className="ms-3 fst-italic align-self-center")
+                    ],
+                    id="tax_acc_map_acc_idx_container",
+                    # className CONFIGURED IN CALLBACK
+                    #style={"width": "20rem"}
                 ),
                 html.Div(
                     [
-                        html.Div(
-                            [
-                                html.B("Accession column index:", className="me-3 align-self-center"),
-                                dbc.Input(value=0, min=0, id="acc_tax_map_acc_idx", size="sm", type="number", style={"width": "4rem"}),
-                            ],
-                            className="d-flex justify-content-between",
-                            style={"width": "20rem"}
-                        ),
-                        html.Div(
-                            [
-                                html.B("Pattern match (regex): ", className="ms-5 me-3 align-self-center"),
-                                dbc.Input(id="acc_tax_map_acc_pattern", size="sm", type="text", style={"width": "10rem"}),
-                            ],
-                            hidden=not gc.show_advanced_settings,
-                            className="d-flex justify-content-between" if gc.show_advanced_settings is True else "d-none",
-                            style={"width": "25rem"}
-                        )
+                        html.B("Taxonomy column index:", 
+                               className="align-self-center",
+                               style={"width": "18rem"}),
+                        dbc.Input(value=1, 
+                                  min=0, 
+                                  id="acc_tax_tax_idx", 
+                                  size="sm", 
+                                  type="number", 
+                                  style={"width": "4rem"}),
+                        dbc.FormText("index starts at 0", className="ms-3 fst-italic align-self-center")
                     ],
-                    className="d-flex justify-content-between mb-3",
-                    style={"width": "45rem"} if gc.show_advanced_settings is True else None
-                ),
-                html.Div(
-                    [
-                        html.B("Taxonomy column index:", className="me-3 align-self-center"),
-                        dbc.Input(value=1, min=0, id="acc_tax_tax_idx", size="sm", type="number", style={"width": "4rem"}),
-                    ],
-                    className="d-flex justify-content-between",
-                    style={"width": "20rem"}
+                    id="tax_acc_map_tax_idx_container",
+                    # className CONFIGURED IN CALLBACK
+                   # style={"width": "20rem"}
                 ),
                 html.Div(
                     [
                         html.B("Taxonomy element format:",
                                id="taxonomy_id_format_text",
-                               className="align-self-center align-top text-decoration-underline",
-                               style={"width": "16rem"}),
+                               className="align-self-center align-top",
+                               style={"text-decoration-line": "underline", 
+                                      "text-decoration-style": "dotted",
+                                      "width": "18rem"}),
                         dbc.RadioItems(options=[
                                        "taxonomy id",
                                        "taxonomy name"
@@ -287,19 +358,21 @@ taxonomy_map_options_modal = dbc.Modal(
                             target="taxonomy_id_format_text",
                             trigger="hover",
                             placement='top',
-                            className="px-3 py-1" ,
+                            className="p-2" ,
                             style={"width": "100rem"}
                         )
                     ],
+                    id="tax_acc_map_tax_type_container",
                     hidden=not gc.show_advanced_settings,
-                    className="d-flex mt-4 justify-content-start align-items-center"\
-                        if gc.show_advanced_settings is True else "d-none"
+                    # className CONFIGURED IN CALLBACK
                 ),
                 html.Div(
                     [
                         dbc.Checkbox(label= html.B("To NCBI taxonomy id (genome id's only)",
                                         id="gtdb_genome_to_ncbi_text",
-                                        className="ms-2 me-3 align-top text-decoration-underline"
+                                        className="ms-2 me-3 align-top",
+                                        style={"text-decoration-line": "underline", 
+                                               "text-decoration-style": "dotted"}
                                         ),
                                         id="gtdb_genome_to_ncbi_checkbox",
                                         value=False),
@@ -312,41 +385,13 @@ taxonomy_map_options_modal = dbc.Modal(
                             target="gtdb_genome_to_ncbi_text",
                             trigger="hover",
                             placement='top',
-                            className="px-3 py-1"
+                            className="p-2"
                         )
                     ],
                     id="gtdb_genome_to_ncbi_container",
                     hidden=True,
-                    className="d-flex mt-4 justify-content-start align-items-center"\
-                        if gc.show_advanced_settings is True else "d-none",
-                ),
-                html.Div(
-                    [
-                        # html.B("Combine multiple annotations",
-                        #        id="func_annot_combine_text",
-                        #        className="me-3 align-top"),
-                        dbc.Checkbox(label= html.B("Annotate peptides to Unipept",
-                                        id="global_taxonomy_annotation_text",
-                                        className="ms-2 me-3 align-top text-decoration-underline"
-                                        ),
-                                        id="global_taxonomy_annotation_checkbox",
-                                        value=False),
-                        dbc.Popover("""
-                                    As an additional step to annotation of protein id's, match
-                                    peptide sequences directly to the UniprotKB protein
-                                    database through the Unipept api.
-                            """,
-                            id="global_taxonomy_annotation_info",
-                            target="global_taxonomy_annotation_text",
-                            trigger="hover",
-                            placement='top',
-                            className="px-3 py-1"
-                        )
-                    ],
-                    id="global_taxonomy_annotation_container",
-                    className="d-flex mt-4 justify-content-start align-items-center"\
-                        if gc.show_advanced_settings is True else "d-none",
-                ),
+                    # className CONFIGURED IN CALLBACK
+                )
             ],
             className="vstack p-5"
         )
@@ -363,6 +408,17 @@ function_map_options_modal = dbc.Modal(
         dbc.ModalHeader(dbc.ModalTitle("Function map filter settings")),
         dbc.ModalBody(
             [
+                html.Div(accession_pattern_options(
+                    "func_accession_parser_text",
+                    "func_accession_parser_checkbox",
+                    "func_accession_parser_info",
+                    "func_annot_acc_pattern", 
+                    "func_annot_acc_pattern_container",
+                    """
+                        Specify what part of the protein id string should be used
+                        as identifier to match id to DB search data.
+                    """
+                )),
                 html.Div(
                     [
                         # html.B("Combine multiple annotations",
@@ -370,7 +426,9 @@ function_map_options_modal = dbc.Modal(
                         #        className="me-3 align-top"),
                         dbc.Checkbox(label= html.B("Combine multiple annotations",
                                         id="func_annot_combine_text",
-                                        className="ms-2 me-3 align-top text-decoration-underline"
+                                        className="ms-2 me-3 align-top",
+                                        style={"text-decoration-line": "underline", 
+                                               "text-decoration-style": "dotted"}
                                         ),
                                         id="func_annot_combine",
                                         value=False),
@@ -384,10 +442,10 @@ function_map_options_modal = dbc.Modal(
                             target="func_annot_combine_text",
                             trigger="hover",
                             placement='top',
-                            className="px-3 py-1"
+                            className="p-2"
                         )
                     ],
-                    className="d-flex justify-content-start align-items-center"
+                    className="d-flex justify-content-start align-items-center mt-3"
                 )
             ],
             className="vstack p-5"
@@ -396,6 +454,7 @@ function_map_options_modal = dbc.Modal(
     id="function_map_modal",
     scrollable=True,
     is_open=False,
+    size="lg"
 )
 
 
@@ -480,7 +539,8 @@ taxonomy_map_import_block = [
             ),
             annotation_mini_importer_block(
                 "taxonomy_db_upload", "tax_map_import_txt", "taxonomy_db_valid",
-                format_options=[{'label': 'NCBI', 'value': 'NCBI'}] +
+                format_options=[{'label': 'gKOALA', 'value': 'gKOALA'},
+                                {'label': 'NCBI', 'value': 'NCBI'}] +
                     ([{'label': 'GTDB', 'value': 'GTDB'}] if gc.show_advanced_settings is True\
                     else []),
 
@@ -611,7 +671,7 @@ import_block = html.Div(
         ),
         html.Div(
             [
-                html.H3("Sample table", className="ps-3 pt-3"),
+                html.H3("Samples in project", className="ps-3 pt-3"),
                 html.Div(
                     [
                         dash_table.DataTable(

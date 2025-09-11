@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "metapepview"
+version = "0.1.0"
+description = "Web interface for visualization of microbial communities from metaproteomics data and evaluation of MS experiments."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [{name = "Ramon van der Zwaan", email = "r.vanderzwaan@tudelft.nl"},
+           {name = "Martin Pabst", email = "m.pabst@tudelft.nl"}]
+
+# dependencies needed by your utils and dashboard
+dependencies = [
+    "dash==3.1.1",
+    "dash-bootstrap-components==2.0.3",
+    "numpy==2.3.1",
+    "pandas==2.3.1",
+    "plotly==6.2.0", 
+    "requests==2.32.4",
+    "scipy==1.16.0",
+    "waitress==3.0.2",
+]
+
+[project.urls]
+Homepage = "https://github.com/RamonZwaan/metapepview"
+Documentation = "https://RamonZwaan.github.io/metapepview/"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+metapepview = ["data/share/**/*", "assets/*"]
+
+[project.scripts]
+# CLI utils
+mpv-buildref = "metapepview.buildref:main"
+
+# dashboard entrypoint
+metapepview = "metapepview.app:main"

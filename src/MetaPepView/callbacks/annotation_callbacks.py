@@ -2,24 +2,18 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
-
+from metapepview.server import app
 # import layout elements
-from MetaPepView.layout.annotation_page import *
+from metapepview.layout.annotation_page import *
 
-from backend.annotation import *
-from backend.exceptions import AnnotationError
-from backend.io import *
-from backend.types import *
-from backend.type_operations import *
-from backend.utils import *
-from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap
+from metapepview.backend.annotation import *
+from metapepview.backend.exceptions import AnnotationError
+from metapepview.backend.io import *
+from metapepview.backend.types import *
+from metapepview.backend.type_operations import *
+from metapepview.backend.utils import *
 
-from constants import GlobalConstants as gc
-
-import base64
-import io
-import pandas as pd
+from metapepview.constants import GlobalConstants as gc
 
 
 @app.callback(
@@ -344,22 +338,104 @@ def inactivate_annotation_button(psm_valid,
 
 
 @app.callback(
+    Output('tax_acc_map_delimiter_container', 'className'),
+    Output('tax_acc_map_acc_type_container', 'className'),
+    Output('tax_acc_map_acc_idx_container', 'className'),
+    Output('tax_acc_map_tax_idx_container', 'className'),
+    Output('tax_acc_map_tax_type_container', 'className'),
     Output('gtdb_genome_to_ncbi_container', 'className'),
     Output('global_taxonomy_annotation_checkbox', 'disabled'),
     Input('taxonomy_db_format', 'value'),
     Input('gtdb_genome_to_ncbi_checkbox', 'value')
 )
 def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
-    if tax_db_format == "NCBI":
-        return ("d-none", False)
-    elif tax_db_format == "GTDB" and gtdb_to_ncbi is True:
-        return ("d-flex mt-4 justify-content-start align-items-center",
-                False)
-    elif tax_db_format == "GTDB" and gtdb_to_ncbi is False:
-        return ("d-flex mt-4 justify-content-start align-items-center",
-                True)
-    else:
+    """Manage display and interactivity of taxonomy map settings depending on
+    input format and dashboard version. 
+    Accession pattern element is managed separately.
+    """
+    # Some elements will be disabled in "simple version"
+    advanced = gc.show_advanced_settings
+
+    # set style settings if items would be visible
+    delim_style = "d-flex justify-content-start mb-3"
+    acc_type_style = "d-flex justify-content-start align-items-center mb-3"
+    acc_idx_style = "d-flex justify-content-start mb-3"
+    tax_idx_style = "d-flex justify-content-start mb-3"
+    tax_type_style = "d-flex justify-content-start align-items-center"
+    gtbd_to_ncbi_style = "d-flex mt-4 justify-content-start align-items-center"
+    unipept_checkbox = False
+
+    # disable elements depending on formats and dashboard functionality
+    # if GTDB format, only disable Unipept annotation switch if no conversion to NCBI
+    if tax_db_format == "GTDB" and gtdb_to_ncbi is False:
+        unipept_checkbox = True
+    # For NCBI format, disable gtdb-ncbi conversion switch
+    elif tax_db_format == "NCBI":
+        gtbd_to_ncbi_style = "d-none"
+    # For gKOALA format: hide all options except accession pattern
+    elif tax_db_format == "gKOALA":
+        delim_style = "d-none"
+        acc_type_style = "d-none"
+        acc_idx_style = "d-none"
+        tax_idx_style = "d-none"
+        tax_type_style = "d-none"
+        gtbd_to_ncbi_style = "d-none"
+    elif tax_db_format != "GTDB":
         raise ValueError("Invalid db format given...")
+
+    return (
+        delim_style,
+        acc_type_style,
+        acc_idx_style,
+        tax_idx_style,
+        tax_type_style,
+        gtbd_to_ncbi_style,
+        unipept_checkbox
+    )
+
+@app.callback(
+    Output('acc_tax_map_acc_pattern_container', 'className'),
+    Output('acc_tax_map_acc_pattern', 'value'),
+    Input('accession_parser_checkbox', 'value'),
+    State('acc_tax_map_acc_pattern', 'value'),
+)
+def taxonomy_annotations_accession_parser(parser_option, current_value):
+    if parser_option == "Custom regex":
+        return ("d-flex justify-content-start mb-3", current_value)
+    elif parser_option == "Full string":
+        return ("d-none", None)
+    elif parser_option == "Up to first white-space":
+        return ("d-none", r"\S+")
+
+
+@app.callback(
+    Output('func_annot_acc_pattern_container', 'className'),
+    Output('func_annot_acc_pattern', 'value'),
+    Input('func_accession_parser_checkbox', 'value'),
+    State('func_annot_acc_pattern', 'value'),
+)
+def functional_annotations_accession_parser(parser_option, current_value):
+    if parser_option == "Custom regex":
+        return ("d-flex justify-content-start mb-3", current_value)
+    elif parser_option == "Full string":
+        return ("d-none", None)
+    elif parser_option == "Up to first white-space":
+        return ("d-none", r"\S+")
+
+
+@app.callback(
+    Output('db_search_accession_pattern_container', 'className'),
+    Output('db_search_accession_pattern', 'value'),
+    Input('db_search_accession_parser_items', 'value'),
+    State('db_search_accession_pattern', 'value'),
+)
+def db_search_accession_parser(parser_option, current_value):
+    if parser_option == "Custom regex":
+        return ("d-flex justify-content-start mb-3", current_value)
+    elif parser_option == "Full string":
+        return ("d-none", None)
+    elif parser_option == "Up to first white-space":
+        return ("d-none", r"\S+")
 
 
 #TODO: Wrap filter settings into metadata, store these in a dictionary dcc.Store object
@@ -378,6 +454,7 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     State('db_search_psm_upload', 'contents'),
     State('db_search_psm_upload', 'filename'),
     State('db_search_psm_format', 'value'),
+    State('db_search_accession_pattern', 'value'),
     State('db_search_psm_score_threshold', 'value'),
     State('db_search_filter_crap', 'value'),
     State('denovo_upload', 'contents'),
@@ -400,6 +477,7 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     State('func_annot_db_format', 'value'),
     State('func_annot_db_upload', 'filename'),
     State('func_annot_combine', 'value'),
+    State('func_annot_acc_pattern', 'value'),
     State('current_taxonomy_db_loc', 'data'),
     State('ncbi_taxonomy_db_loc', 'value'),
     prevent_initial_call=True
@@ -412,6 +490,7 @@ def process_manual_annotation(n_clicks,
                               psm_list,
                               psm_names,
                               psm_format,
+                              psm_acc_pattern,
                               psm_score_threshold,
                               psm_filter_crap,
                               denovo_data,
@@ -434,6 +513,7 @@ def process_manual_annotation(n_clicks,
                               func_annot_db_format,
                               func_annot_db_name,
                               func_annot_combine,
+                              func_annot_acc_pattern,
                               tax_db_loc,
                               ncbi_tax_db_loc):
     """Annotate and combine imported datasets into one peptide dataset
@@ -550,9 +630,13 @@ def process_manual_annotation(n_clicks,
     if acc_tax_map is None and global_tax_annot is False: acc_tax_map_format = None
     if func_annot_db is None: func_annot_db_format = None
 
+    # set variable for taxonomy database used (NCBI, GTDB)
+    tax_db_format = "GTDB" if acc_tax_map_format == "GTDB" else "NCBI"
+
     # construct options object containing all filter settings
     options = AnnotationOptions(
         psm_format,
+        psm_acc_pattern,
         psm_score_threshold,
         psm_filter_crap,
         denovo_format,
@@ -563,6 +647,7 @@ def process_manual_annotation(n_clicks,
         acc_tax_map_name,
         acc_tax_map_acc_format,
         acc_tax_map_format,
+        tax_db_format,
         acc_tax_map_elem_format,
         gtdb_to_ncbi,
         ncbi_tax_db_loc,
@@ -573,6 +658,7 @@ def process_manual_annotation(n_clicks,
         acc_tax_map_acc_idx,
         acc_tax_map_tax_idx,
         func_annot_combine,
+        func_annot_acc_pattern,
         merge_psms,
     )
 
@@ -702,9 +788,7 @@ def set_taxonomy_db_loc(ncbi_loc,
                         gtdb_loc,
                         taxonomy_format):
     match taxonomy_format:
-        case "NCBI":
-            return ncbi_loc
         case "GTDB":
             return gtdb_loc
         case _:
-            raise ValueError("Taxonomy format does not match to database location.")
+            return ncbi_loc

@@ -1,7 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from MetaPepView.layout.taxonomy_page import taxonomy_barplot, clade_filter
+from metapepview.layout.taxonomy_page import taxonomy_barplot, clade_filter
 
 
 
@@ -203,13 +203,28 @@ combine_annot_duplicates = dbc.Row(
 
 include_taxonomies = dbc.Row(
     [
-        dbc.Col(html.B("Include taxonomies")),
+        dbc.Col(html.B("Include taxonomies",
+                       id="func_annot_incl_tax_text",
+                       style={"text-decoration-line": "underline", 
+                              "text-decoration-style": "dotted"})),
         dbc.Col(
             dbc.Checkbox(
                 id="barplot_pathway_include_taxa_checkbox",
                 value=False,
                 style={"width": "5.5rem"}
             )
+        ),
+        dbc.Popover(
+            """
+                Show for each functional group which taxonomies express them.
+                Bars in the graph are partitioned by Taxonomy name. The taxonomy 
+                is shown by hovering over a bar element. 
+            """,
+            id="func_annot_incl_tax_popover",
+            target="func_annot_incl_tax_text",
+            trigger="hover",
+            placement='right',
+            className="p-2"
         )
     ],
     style={"margin": "1.5rem 0rem"}

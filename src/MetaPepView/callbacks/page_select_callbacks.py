@@ -1,12 +1,13 @@
 from dash import Output, Input, ctx
-from MetaPepView.server import app
 
-from MetaPepView.layout.annotation_page import import_block
-from MetaPepView.layout.quality_control_page import ms_performance
-from MetaPepView.layout.taxonomy_page import taxonomy_sample_analysis, \
+from metapepview.server import app
+
+from metapepview.layout.annotation_page import import_block
+from metapepview.layout.quality_control_page import ms_performance
+from metapepview.layout.taxonomy_page import taxonomy_sample_analysis, \
     taxonomy_de_novo_analysis
-from MetaPepView.layout.func_annot_page import functional_annotation_page
-from MetaPepView.layout.data_page import data_visual
+from metapepview.layout.func_annot_page import functional_annotation_page
+from metapepview.layout.data_page import data_visual
 
 
 

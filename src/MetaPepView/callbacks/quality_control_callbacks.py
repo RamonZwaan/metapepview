@@ -7,17 +7,17 @@ import json
 import numpy as np
 from io import StringIO
 
-from MetaPepView.server import app
+from metapepview.server import app
 
 # import layout elements
-from MetaPepView.html_templates import *
-from constants import StyleConstants
-from MetaPepView.layout.quality_control_page import *
-from MetaPepView.layout.func_annot_page import *
+from metapepview.html_templates import *
+from metapepview.constants import StyleConstants
+from metapepview.layout.quality_control_page import *
+from metapepview.layout.func_annot_page import *
 
-from backend import *
-from backend.type_operations import *
-from backend.plots import tic_over_rt_plot, \
+from metapepview.backend import *
+from metapepview.backend.type_operations import *
+from metapepview.backend.plots import tic_over_rt_plot, \
     ms2_from_signal_arrays, \
     mz_over_rt_plot, \
     scan_tic_dist_plot, \
@@ -327,8 +327,14 @@ def show_metric_values(mzml_df,
         ms2_count_str = "{} ({:.1f}x MS1)".format(ms2_count, ms2_count / ms1_count)
     else:
         ms2_count_str = ms2_count
+
+
     if isinstance(ms1_count, int):
-        ms1_count_str = "{}".format(ms1_count)
+        try:
+            ms1_per_sec = ms1_count / (float(retention_time) * 60)
+            ms1_count_str = "{} ({:.2f} scans/sec)".format(ms1_count, ms1_per_sec)
+        except:
+            ms1_count_str = "{}".format(ms1_count)
     else:
         ms1_count_str = ms1_count
 
@@ -361,13 +367,75 @@ def show_metric_values(mzml_df,
             de_novo_count_str = "{}".format(de_novo_count)
 
     return [
-        qa_metric_value("Total retention time (min)", retention_time),
-        qa_metric_value("MS1 scans", ms1_count_str),
-        qa_metric_value("MS2 scans", ms2_count_str),
-        qa_metric_value("Features", features_count),
-        qa_metric_value("Feature intensity (Frac. TIC)", features_int_fraction),
-        qa_metric_value("DB search matches", db_search_count_str),
-        qa_metric_value("De novo identifications", de_novo_count_str)
+        qa_metric_value("MS analysis time (min)", 
+                        retention_time,
+                        "Duration of MS analysis, given as time between first and last scan."),
+        qa_metric_value("MS1 scans", 
+                        ms1_count_str,
+                        """
+                            Number of MS1 scans during in experiment data.
+                            Too few scans may result in missed compounds that elute inbetween scans.
+                            For proteomics, >1 scan/sec is generally good.
+                        """),
+        qa_metric_value("MS2 scans", 
+                        ms2_count_str,
+                        """
+                            Number of MS2 scans in experiment data. In a regular 
+                            experiment, the number of MS2 should be a multiple 
+                            of MS1. Although the expected number of MS2 per MS1
+                            depends greatly on the acquisition speed of the MS
+                            instrument, generally >10 MS2/MS1 should be expected.
+                        """),
+        qa_metric_value("Features", 
+                        features_count,
+                        """
+                            Number of features observed in experiment. A feature 
+                            represents a peptide (or organic compound). The 
+                            number of features is dependent on the complexity of
+                            the sample, but it is expected to be at least >10000.
+                            Few observed features may be the result of absence of
+                            peptides or high spectral noise.
+                        """),
+        qa_metric_value("Feature intensity (Frac. TIC)",
+                        features_int_fraction,
+                        """
+                            Combined signal intensity of all features in experiment.
+                            A clean MS experiment should show the majority of total 
+                            signal (TIC) be part of a feature. Feature intensity
+                            as a low fraction of TIC implies presence of a large 
+                            noise fraction. Generally >0.5 Frac. TIC is good.
+
+                            (NOTE: Comparing feature intensity to TIC does not take
+                            ion injection time into account, while peak integration 
+                            may differ as well. Therefore, the shown fraction may
+                            not be completely accurate.)
+                        """),
+        qa_metric_value("DB search matches", 
+                        db_search_count_str,
+                        """
+                            Number of DB search matches (as fraction of MS2). A
+                            clean run and good protein database (covers sample well)
+                            should result in the majority of MS2 scans to provide
+                            a DB search match. A low fraction of DB search matches
+                            may be the result of low spectral quality, or a database
+                            that does not cover the analysed sample. Compare to 
+                            de novo quality to check if sequence DB is an issue.
+                        """),
+        qa_metric_value("De novo identifications", 
+                        de_novo_count_str,
+                        """
+                            Number of de novo peptide identifications (as fraction of MS2).
+                            A clean run should contain a significant fraction of MS2 scans 
+                            be a 'good' confidence peptide, although it is expected to
+                            be lower than DB search matches.
+
+                            (NOTE: While DB search peptides are generally filtered 
+                            by confidence using a FDR strategy, De novo tools often
+                            report all peptide candidates no matter the confidence.
+                            Therefore, the number of identifications may be strongly 
+                            inflated if not confidence filtering is performed.)
+                        """
+                        )
     ]
 
 
@@ -434,6 +502,12 @@ def show_tic_over_rt(dataset,
     if (secondary_param == "Peak Width (FWHM)" or secondary_param == "Feature Quality")\
         and features is None:
         secondary_param = "None"
+
+    # if Retention time is not reported (case for some formats), use scan number to
+    # get information from mzml
+    if prot_data is not None and\
+        prot_data.data["RT"].isnull().all():
+        prot_data = rt_from_spectral_data(prot_data, dataset)
 
     # Obtain TIC + RT for all MS1 spectra
     fig = tic_over_rt_plot(dataset,
@@ -542,6 +616,8 @@ def show_mz_over_rt(mzml_content,
     else:
         de_novo = None
     
+
+
     fig = mz_over_rt_plot(mzml_content, db_search_psm, de_novo, int_cutoff)
     fig.update_layout(autosize=True)
     graph = dcc.Graph(figure=fig, id="tic_over_rt_fig", style={'height': '100%'})

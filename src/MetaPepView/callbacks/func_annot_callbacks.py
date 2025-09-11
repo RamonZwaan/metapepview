@@ -2,16 +2,16 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
+from metapepview.server import app
 
 # import layout elements
-from MetaPepView.html_templates import hidden_graph_with_text, \
+from metapepview.html_templates import hidden_graph_with_text, \
     sample_color_table_block
 
-from backend import *
-from backend.utils import truncate_end
-from backend.plots import pathway_abundance_barplot
-from constants import GlobalConstants
+from metapepview.backend import *
+from metapepview.backend.utils import truncate_end
+from metapepview.backend.plots import pathway_abundance_barplot
+from metapepview.constants import GlobalConstants
 
 import numpy as np
 import pandas as pd
@@ -311,7 +311,7 @@ def update_pathway_barplot(peptide_json,
     peptide_df = peptide_df[cols_filter_df]
     
     # split cells with multiple kegg annotations into separate rows
-    peptide_df["KEGG_ko"] = peptide_df["KEGG_ko"].str.split(",") 
+    peptide_df.loc[:, "KEGG_ko"] = peptide_df["KEGG_ko"].str.split(",") 
 
     # ensure unique index prior to explode, so that duplicate id's correspond to same original row
     peptide_df = peptide_df.reset_index(drop=True) 

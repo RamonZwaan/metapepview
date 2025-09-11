@@ -8,8 +8,8 @@ import dash_bootstrap_components as dbc
 
 from typing import Any, Sequence, List, Optional, Tuple, Dict
 
-from backend.io import *
-from constants import GlobalConstants as gc, StyleConstants
+from metapepview.backend.io import *
+from metapepview.constants import GlobalConstants as gc, StyleConstants
 
 
 def importer_block(
@@ -176,6 +176,59 @@ def annotation_mini_importer_block(
         dcc.Store(id=valid_state_id, data=None)
     ],
     )
+
+
+def accession_pattern_options(
+        text_id: str,
+        selection_items_id: str,
+        popover_id: str,
+        pattern_id: str,
+        pattern_container_id: str,
+        popover_str: str
+):
+    return [
+        html.Div(
+            [
+                html.B("Accession parser:",
+                        id=text_id,
+                        className="align-self-center align-top",
+                        style={"width": "18rem",
+                               "text-decoration-line": "underline", 
+                               "text-decoration-style": "dotted"}),
+                dbc.RadioItems(options=[
+                                "Full string",
+                                "Up to first white-space",
+                                "Custom regex"
+                                ],
+                                id=selection_items_id,
+                                inline=False,
+                                value="Full string"),
+                dbc.Popover(
+                    popover_str,
+                    id=popover_id,
+                    target=text_id,
+                    trigger="hover",
+                    placement='top',
+                    className="p-2" ,
+                    style={"width": "100rem"}
+                )
+            ],
+            className="d-flex mb-3 justify-content-start align-items-center"
+        ),
+        html.Div(
+            [
+                html.B("Pattern match (regex): ", 
+                       className="align-self-center",
+                       style={"width": "18rem"}),
+                dbc.Input(id=pattern_id, 
+                          size="sm", 
+                          type="text", 
+                          style={"width": "10rem"}),
+            ],
+            id=pattern_container_id,
+            className="d-flex mb-3 justify-content-start" if gc.show_advanced_settings is True else "d-none"
+        )
+    ]
 
 
 def qa_importer_block(
@@ -457,7 +510,8 @@ def validate_single_file(contents: str | None,
 
 def qa_metric_value(
         metric: str,
-        value: Any) -> dbc.Card:
+        value: Any,
+        description: str) -> dbc.Card:
     """
     Create a dashboard element displaying the value of a specific metric.
 
@@ -471,8 +525,22 @@ def qa_metric_value(
     return dbc.Card(
         dbc.CardBody(
             [
-                html.H5(metric, style={"color": "#696969"}),
-                html.H4(value, className="ms-1 mt-1 text-dark")
+                html.H5(metric, 
+                        style={"color": "#696969", 
+                               'text-decoration-line': "underline", 
+                               'text-decoration-style': "dotted"},
+                        id=f"{metric}_text"
+                        ),
+                html.H4(value, className="ms-1 mt-1 text-dark"),
+                dbc.Popover(
+                    description,
+                    id=f"{metric}_popover",
+                    target=f"{metric}_text",
+                    trigger="hover",
+                    placement='right',
+                    className="p-2",
+                    style={"width": "100rem"}
+                )
             ], style={"margin": "0rem"}, className="px-3 py-2"
         ),
         color="light",
@@ -523,9 +591,6 @@ def sample_color_table_block(sample_color_map: Dict[str, str]) -> List[Any]:
         div_children.append(row_block(sample, color))
 
     return div_children
-
-
-# def configure
 
 
 def configure_import_container(

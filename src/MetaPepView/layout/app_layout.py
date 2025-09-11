@@ -1,10 +1,10 @@
 from dash import html, dcc
 
 # import layout elements
-from constants import StyleConstants
-from MetaPepView.layout.sidebar import new_sidebar
+from metapepview.constants import StyleConstants
+from metapepview.layout.sidebar import new_sidebar
 
-from backend import import_ref_statistics
+from metapepview.backend import import_ref_statistics
 
 
 app_layout = html.Div([html.Div(new_sidebar, style=StyleConstants.sidebar_style, id="sidebar"),

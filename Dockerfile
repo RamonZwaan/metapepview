@@ -2,11 +2,11 @@ FROM python:3
 
 WORKDIR /home
 
-COPY ./requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY ./data ./data
 COPY ./src ./src
+COPY ./pyproject.toml ./pyproject.toml
+
+ENV HOME="/home"
+RUN pip install .
 
 EXPOSE 8050
-CMD [ "python", "./src/index.py" ]
+CMD [ "metapepview" ]

@@ -1,7 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from constants import StyleConstants
+from metapepview.constants import StyleConstants
 
 
 # Data page

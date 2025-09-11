@@ -2,24 +2,24 @@ import webview
 from waitress import serve
 from threading import Thread
 
-from MetaPepView.server import app
+from metapepview.server import app
 import plotly.io as pio
 
-from constants import GraphConstants
+from metapepview.constants import GraphConstants
 
 # import layout elements
-from MetaPepView.layout.app_layout import app_layout
+from metapepview.layout.app_layout import app_layout
 
 # import callbacks
-from MetaPepView.callbacks.page_select_callbacks import *
-from MetaPepView.callbacks.data_callbacks import *
-from MetaPepView.callbacks.taxonomy_callbacks import *
-from MetaPepView.callbacks.denovo_callbacks import *
-from MetaPepView.callbacks.func_annot_callbacks import *
-from MetaPepView.callbacks.denovo_callbacks import *
-from MetaPepView.callbacks.quality_control_callbacks import *
-from MetaPepView.callbacks.annotation_callbacks import *
-from MetaPepView.callbacks.sidebar_callbacks import *
+from metapepview.callbacks.page_select_callbacks import *
+from metapepview.callbacks.data_callbacks import *
+from metapepview.callbacks.taxonomy_callbacks import *
+from metapepview.callbacks.denovo_callbacks import *
+from metapepview.callbacks.func_annot_callbacks import *
+from metapepview.callbacks.denovo_callbacks import *
+from metapepview.callbacks.quality_control_callbacks import *
+from metapepview.callbacks.annotation_callbacks import *
+from metapepview.callbacks.sidebar_callbacks import *
 
 
 # assign template theme for plotly figures

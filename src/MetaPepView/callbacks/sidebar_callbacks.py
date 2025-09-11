@@ -1,25 +1,18 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
-
 from pathlib import Path
 
-from MetaPepView.layout.sidebar import *
-from backend import \
+from metapepview.server import app
+
+from metapepview.layout.sidebar import *
+from metapepview.backend import \
     check_ncbi_taxonomy_present, \
     check_kegg_mapping_present, \
     check_gtdb_taxonomy_present, \
     download_ncbi_taxonomy, \
     download_kegg_ko_map, \
     download_gtdb_taxonomy
-
-
-import base64
-import io
-import pandas as pd
-from textwrap import dedent
-
 
 @app.callback(
     Output('database_present_status', 'data'),

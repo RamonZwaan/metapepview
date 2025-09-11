@@ -1,7 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from constants import GlobalConstants as gc
+from metapepview.constants import GlobalConstants as gc
 
 """
 Block elements for sidebar to display
@@ -185,7 +185,7 @@ evaluation_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-speedometer2 me-2"),
-                "Experimental performance"
+                "Experiment evaluation"
             ],
             id="sidebar_validation_button", href="/", className="mb-2"),
         hidden= not gc.display_qa_page
@@ -194,7 +194,7 @@ evaluation_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-clipboard-data me-2"),
-                "Evaluate community composition"
+                "Community composition evaluation"
             ],
             id="sidebar_taxonomy_de_novo_button", href="/", className="mb-2"),
         hidden= not gc.display_db_search or not gc.display_de_novo
@@ -223,7 +223,7 @@ new_sidebar = [
                 pills=True,
                 className="mb-4"
             ),
-            html.H3("Experiment validation"),
+            html.H3("Experiment evaluation"),
             dbc.Nav(
                 evaluation_modules,
                 vertical=True,

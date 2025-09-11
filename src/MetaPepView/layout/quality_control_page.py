@@ -1,9 +1,8 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from MetaPepView.html_templates import qa_importer_block, qa_metric_value
-
-from constants import GlobalConstants, StyleConstants
+from metapepview.html_templates import qa_importer_block
+from metapepview.constants import GlobalConstants, StyleConstants
 
 
 
@@ -75,7 +74,13 @@ tic_over_rt = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("SMA window:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("SMA window:", 
+                                               id="sma_window_text",
+                                               style={"text-align": "center", 
+                                                      "margin-right": "1rem",
+                                                      "margin-left": "1rem",
+                                                      "text-decoration-line": "underline", 
+                                                      "text-decoration-style": "dotted"}),
                                         dbc.Input(type="number",
                                                   min=1,
                                                   max=1000,
@@ -83,13 +88,28 @@ tic_over_rt = dbc.Card(
                                                   value=20,
                                                   id="tic_ms_sma_range",
                                                   debounce=True,
-                                                  style={'width': '6rem'}),       
+                                                  style={'width': '6rem'}),
+                                        dbc.Popover("""
+                                            Set window size for single moving average smoothing
+                                            """,
+                                            id="sma_window_popover",
+                                            target="sma_window_text",
+                                            trigger="hover",
+                                            placement='bottom',
+                                            className="p-2"
+                                        )       
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
                                 html.Div(
                                     [
-                                        html.B("Data reduction factor:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("Data reduction factor:", 
+                                               id="data_red_fact_text",
+                                               style={"text-align": "center", 
+                                                      "margin-right": "1rem", 
+                                                      "margin-left": "1rem",
+                                                      "text-decoration-line": "underline", 
+                                                      "text-decoration-style": "dotted"}),
                                         dbc.Input(type="number",
                                                   min=1,
                                                   max=10,
@@ -97,13 +117,22 @@ tic_over_rt = dbc.Card(
                                                   value=3,
                                                   id="tic_ms_red_fact",
                                                   debounce=True,
-                                                  style={'width': '4rem'}),       
+                                                  style={'width': '4rem'}),
+                                        dbc.Popover("""
+                                            For computational speedup, keep only every n'th data point, discarding the rest.
+                                            """,
+                                            id="data_red_factor_popover",
+                                            target="data_red_fact_text",
+                                            trigger="hover",
+                                            placement='bottom',
+                                            className="p-2"
+                                        )        
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
                                 html.Div(
                                     [
-                                        html.B("Secondary parameter:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("Right axis param:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dcc.Dropdown(
                                             ["None",
                                              "DB Search Counts",
@@ -121,14 +150,29 @@ tic_over_rt = dbc.Card(
                                 ),
                                 html.Div(
                                     [
-                                        html.B("int. cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
+                                        html.B("int. cutoff:", 
+                                               id="tic_over_rt_int_text",
+                                               style={"text-align": "center", 
+                                                      "margin-right": "1rem", 
+                                                      "margin-left": "1rem",
+                                                      "text-decoration-line": "underline", 
+                                                      "text-decoration-style": "dotted"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   step=1,
                                                   value=0,
                                                   id="tic_sec_param_int_cutoff",
                                                   debounce=True,
-                                                  style={'width': '8rem'}),       
+                                                  style={'width': '8rem'}),
+                                        dbc.Popover("""
+                                            Ignore peaks below intensity cutoff
+                                            """,
+                                            id="tic_over_rt_int_popover",
+                                            target="tic_over_rt_int_text",
+                                            trigger="hover",
+                                            placement='bottom',
+                                            className="p-2"
+                                        )             
                                     ],
                                     id="tic_sec_param_int_cutoff_container",
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"},
@@ -138,8 +182,8 @@ tic_over_rt = dbc.Card(
                                     [
                                         html.B("Confidence cutoff:", style={"text-align": "center", "margin-right": "1rem", "margin-left": "1rem"}),
                                         dbc.Input(type="number",
-                                                  min=1,
-                                                  step=1,
+                                                  min=0,
+                                                  step=0.01,
                                                   value=0,
                                                   id="tic_sec_param_conf_cutoff",
                                                   debounce=True,
@@ -176,7 +220,12 @@ feature_map = dbc.Card(
                             [
                                 html.Div(
                                     [
-                                        html.B("int. cutoff:", style={"margin-right": "1rem", "text-align": "center"}),
+                                        html.B("int. cutoff:", 
+                                               id="mz_over_rt_int_cutoff_text",
+                                               style={"margin-right": "1rem", 
+                                                      "text-align": "center",
+                                                      "text-decoration-line": "underline", 
+                                                      "text-decoration-style": "dotted"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=1e8, 
@@ -185,6 +234,15 @@ feature_map = dbc.Card(
                                                   id="mz_over_rt_int_cutoff", 
                                                   debounce=True,
                                                   style={'width': '8rem'}),
+                                        dbc.Popover("""
+                                            Ignore peaks below intensity cutoff
+                                            """,
+                                            id="mz_over_rt_int_popover",
+                                            target="mz_over_rt_int_cutoff_text",
+                                            trigger="hover",
+                                            placement='bottom',
+                                            className="p-2"
+                                        )             
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -218,14 +276,14 @@ intensity_hist = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Scan Intensities"),
+                        html.H4("Identification distribution"),
                         html.Div(
                             [
                                 html.Div(
                                     [
                                         html.B("MS level:", style={"margin-right": "1rem", "text-align": "center"}),
                                         dbc.Select(options=[{"label": "MS1", "value": 1}, {"label": "MS2", "value": 2}],
-                                                    value=1, id="scan_int_dist_ms_level", style={"width": "6rem"}),
+                                                    value=2, id="scan_int_dist_ms_level", style={"width": "6rem"}),
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -235,7 +293,7 @@ intensity_hist = dbc.Card(
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=100,
-                                                  step=1,
+                                                  step=0.01,
                                                   value=80,
                                                   disabled=True,
                                                   id="scan_int_dist_alc_cutoff",
@@ -323,7 +381,12 @@ transmission_scatter = dbc.Card(
                             [
                                 html.Div(
                                     [
-                                        html.B("min m/z:", style={"margin-right": "1rem", "text-align": "center"}),
+                                        html.B("min m/z:", 
+                                               id="ion_transm_min_mz_text",
+                                               style={"margin-right": "1rem", 
+                                                      "text-align": "center",
+                                                      "text-decoration-line": "underline", 
+                                                      "text-decoration-style": "dotted"}),
                                         dbc.Input(type="number",
                                                   min=0,
                                                   max=1400,
@@ -332,6 +395,15 @@ transmission_scatter = dbc.Card(
                                                   id="ms1_over_ms2_mz_cutoff",
                                                   debounce=True,
                                                   style={'width': '6rem'}),
+                                        dbc.Popover("""
+                                            Ignore signals below m/z threshold in MS2 intensity calculation
+                                            """,
+                                            id="ion transm_popover",
+                                            target="ion_transm_min_mz_text",
+                                            trigger="hover",
+                                            placement='bottom',
+                                            className="p-2"
+                                        )    ,
                                     ],
                                     style={'display': 'flex', "align-items": "center", "margin": "0rem 0.5rem"}
                                 ),
@@ -784,11 +856,11 @@ ms_performance = html.Div(
                     label="Benchmarking",
                     id="Reference Benchmark"
                 ),
-                dbc.Tab(
-                    peptide_identification,
-                    label="Identification performance",
-                    id="Peptide Identification"
-                ),
+                # dbc.Tab(
+                #     peptide_identification,
+                #     label="Identification performance",
+                #     id="Peptide Identification"
+                # ),
                 dbc.Tab(
                     ms_spectra_tab,
                     label="Experimental quality",
@@ -797,7 +869,7 @@ ms_performance = html.Div(
                 )
             ],
             id="ms_performance_tabs",
-            active_tab="MS Spectra",
+            # active_tab="Reference Benchmark"
         ),
     ],
     style={"margin-left": "0rem", "padding": "0rem 1rem"},

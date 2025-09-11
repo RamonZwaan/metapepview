@@ -1,7 +1,7 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from constants import GlobalConstants as gc
+from metapepview.constants import GlobalConstants as gc
 
 
 # buttongroup to select the type of graph to show
@@ -58,12 +58,12 @@ taxa_dropdown_selector = dbc.Row(
 
 taxa_group_display_selector = dbc.Row(
     [
-        dbc.Col(html.B("Taxa display type")),
+        dbc.Col(html.B("Display taxa")),
         dbc.Col(
             dbc.RadioItems(
                 options=[
-                    {"label": "Top 10", "value": 1},
-                    {"label": "Top 23", "value": 3},
+                    {"label": "Top 10 abundant", "value": 1},
+                    {"label": "Top 20 abundant", "value": 3},
                     {"label": "Custom taxa", "value": 2},
                 ],
                 value=1,
@@ -145,14 +145,30 @@ include_unannotated_selector = dbc.Row(
 
 global_fallback_selector = dbc.Row(
     [
-        dbc.Col(html.B("Allow global annotation")),
+        dbc.Col(html.B("Include Unipept annotation",
+                       id="tax_allow_glob_annot_text",
+                       style={'text-decoration-line': "underline", 
+                              'text-decoration-style': "dotted"}
+        )),
         dbc.Col(
             dbc.Checkbox(
                 id="barplot_taxa_allow_global_annot_checkbox",
                 value=False,
                 style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
             )
-        )
+        ),
+        dbc.Popover(
+            """
+                For peptides without taxonomy annotation (at displayed rank) from
+                local annotation file, use Unipept taxonomy annotation. Both DB 
+                search matched peptides and de novo identified peptides will be
+                included in the community composition.
+            """,
+            id="tax_glob_annot_popover",
+            target="tax_allow_glob_annot_text",
+            trigger="hover",
+            placement='right',
+            className="p-2")
     ],
     className="" if gc.show_advanced_settings is True else "d-none",
     style={"margin": "1.5rem 0rem"}
@@ -160,13 +176,32 @@ global_fallback_selector = dbc.Row(
 
 global_annot_de_novo_only_selector = dbc.Row(
     [
-        dbc.Col(html.B("De novo only global annotation")),
+        dbc.Col(html.B("Unipept composition de novo only",
+                       id="unipept_de_novo_only_text",
+                       style={"text-decoration-line": "underline", 
+                              "text-decoration-style": "dotted"})),
         dbc.Col(
             dbc.Checkbox(
                 id="global_annot_de_novo_only_checkbox",
                 value=False,
                 style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
             )
+        ),
+        dbc.Popover(
+            """
+                For the community composition from Unipept taxonomy, only use de novo
+                peptides. If unchecked, all DB search and de novo peptides with Unipept
+                annotation are included in the Unipept based community composition.
+                Setting this option eliminates quantification biases that arise due to 
+                over- or under-representation of species in the local database, which
+                are reflected in DB search results. However, filtering out DB search
+                peptides strongly reduces the number of confident peptide annotations.
+            """,
+            id="glob_annot_de_novo_popover",
+            target="unipept_de_novo_only_text",
+            trigger="hover",
+            placement='right',
+            className="p-2"
         )
     ],
     style={"margin": "1.5rem 0rem"}
@@ -246,7 +281,7 @@ clade_filter = [
 export_button = [
     dbc.Row(
         [
-            dbc.Button("Export taxonomy",
+            dbc.Button("Export compositions",
                         id="export_taxonomy_button",
                         className="")
         ],

@@ -3,12 +3,11 @@ import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 from copy import deepcopy
 
-from MetaPepView.server import app
+from metapepview.server import app
 
-from backend import *
-from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap
-from backend.utils import truncate_end
-from constants import GlobalConstants as gc
+from metapepview.backend import *
+from metapepview.backend.utils import truncate_end
+from metapepview.constants import GlobalConstants as gc
 
 
 @app.callback(

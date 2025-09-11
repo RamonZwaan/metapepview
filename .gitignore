@@ -130,3 +130,6 @@ dmypy.json
 # profiler system
 *.prof
 
+# any type of test file
+*test.py
+

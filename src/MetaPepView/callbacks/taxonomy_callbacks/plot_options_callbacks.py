@@ -2,13 +2,12 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
-
-from backend import *
-from constants import *
-
 import pandas as pd
 
+from metapepview.server import app
+
+from metapepview.backend import *
+from metapepview.constants import *
 
 @app.callback(
     Output("barplot_de_novo_sample_items", "options"),

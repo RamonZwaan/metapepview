@@ -1,10 +1,10 @@
 from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
 import dash_bootstrap_components as dbc
 
-from MetaPepView.server import app
+from metapepview.server import app
 
-from backend import *
-from backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap, de_novo_fraction_barplot
+from metapepview.backend import *
+from metapepview.backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap, de_novo_fraction_barplot
 
 import base64
 import io
