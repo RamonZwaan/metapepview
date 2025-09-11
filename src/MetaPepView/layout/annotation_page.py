@@ -178,7 +178,7 @@ db_search_options_modal = dbc.Modal(
                                     in the environment during sample preparation.
                                     """,
                             id="db_search_filter_crap_info",
-                            target="db_search_filter_crap",
+                            target="db_search_filter_crap_text",
                             trigger="hover",
                             placement='top',
                             className="p-2"
@@ -227,7 +227,7 @@ de_novo_options_modal = dbc.Modal(
                                     in the environment during sample preparation.
                                     """,
                             id="de_novo_filter_crap_info",
-                            target="de_novo_filter_crap",
+                            target="de_novo_filter_crap_text",
                             trigger="hover",
                             placement='top',
                             className="p-2"
