@@ -1,4 +1,0 @@
-from metapepview.backend.types.taxonomy_db.ncbi_taxonomy import NcbiTaxonomy
-from metapepview.backend.types.taxonomy_db.gtdb_taxonomy import GtdbTaxonomy
-from metapepview.backend.types.taxonomy_db.gtdb_genome_to_ncbi import GtdbGenomeToNcbi
-from metapepview.backend.types.taxonomy_db.taxonomy_database import TaxonomyDatabase
