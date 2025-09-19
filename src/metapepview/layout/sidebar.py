@@ -185,7 +185,7 @@ evaluation_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-speedometer2 me-2"),
-                "Experiment evaluation"
+                "Experiment performance evaluation"
             ],
             id="sidebar_validation_button", href="/", className="mb-2"),
         hidden= not gc.display_qa_page
@@ -200,6 +200,33 @@ evaluation_modules = [
         hidden= not gc.display_db_search or not gc.display_de_novo
     )
     ]
+
+
+resource_modules = [
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-github me-2"),
+                "GitHub"
+            ],
+            id="sidebar_github_button", 
+            href=gc.github_url, 
+            target="_blank", 
+            className="mb-2"),
+    ),
+    html.Div(
+        dbc.NavLink(
+            [
+                html.I(className="bi bi-book me-2"),
+                "Documentation"
+            ],
+            id="sidebar_documentation_button", 
+            href=gc.docs_url, 
+            target="_blank", 
+            className="mb-2"),
+    ),
+    ]
+
 
 # filter out presented modules based on
 
@@ -226,6 +253,12 @@ new_sidebar = [
             html.H3("Experiment evaluation"),
             dbc.Nav(
                 evaluation_modules,
+                vertical=True,
+                pills=True,
+            ),
+            html.H3("Resources"),
+            dbc.Nav(
+                resource_modules,
                 vertical=True,
                 pills=True,
             ),

@@ -72,6 +72,7 @@ sample_options_block = [
         ],
         className="d-flex justify-content-between"
     ),
+
     # proteomics_data,
     # de_novo_data,
     # taxonomic_annotation,
@@ -658,6 +659,10 @@ import_block = html.Div(
                     className="p-3",
                     #style={"height": "31rem"}
                 ),
+                html.Hr(className="m-0", style={"color": "#8a8a8a"}),
+                html.Div(html.A(html.I("Guide: how to prepare data for import", 
+                            style={"font-size": "0.9vw"},
+                            ), href=gc.docs_url, target="_blank"), className="ms-3 py-2"),
                 html.Hr(className="m-0"),
                 html.Div(
                     data_import_container,

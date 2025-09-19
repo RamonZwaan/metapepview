@@ -30,6 +30,10 @@ class GlobalConstants:
     # 3: Default mode, all functions present
     func_level = 3
 
+    # URL for documentation
+    docs_url = "https://github.com/RamonZwaan/metapepview/"
+    github_url = "https://github.com/RamonZwaan/metapepview/"
+
     # set display configuration depending on the func_level value
     display_db_search = False if func_level == 1 else True              # display ui elements related to db search data
     display_de_novo = False if func_level == 0 else True                # display ui elements related to de novo data
