@@ -1,4 +1,5 @@
 
+![meta-PepView logo](img/MPV_logo+name_white.png)
 # Description
 MetaPepView (Beta) is a metaproteomics dashboard designed for visualizing the taxonomic composition and expressed enzymatic or metabolic functions from microbial community data, and for evaluating the performance of metaproteomics experiments. This beta version features a user-friendly, web-based interface that can be run locally on desktop PCs. It enables users to compare results from database searches and de novo annotations while evaluating the quality and coverage of reference databases. Feedback and contributions are welcome as we continue to enhance MetaPepView. Please contact: r.vanderzwaan@tudelft.nl
 
@@ -89,7 +90,7 @@ To perform de novo taxonomy annotation of peptide sequences obtained from db sea
 Functional annotation data that link proteins to KEGG Orthologiess can be provided here. The dashboard supports two input formats:
 
 - EggNOG: annotation file generated from [EggNOG-mapper](http://eggnog-mapper.embl.de/). The file is usually named `xxx.emapper.annotations`.
-- gKOALA: tsv file generated from [GhostKOALA](https://www.kegg.jp/ghostkoala/) that maps protein id to KEGG KO. The file is usually named `user_ko.txt`
+- GhostKOALA: tsv file generated from [GhostKOALA](https://www.kegg.jp/ghostkoala/) that maps protein id to KEGG KO. The file is usually named `user_ko.txt`
 #### Other options:
 
 - *Export csv*: Export Metapepview table of all samples in csv file format for raw data analysis or manual processing. This dataset cannot be used to import data back into the dashboard. For this, use *Export json*
