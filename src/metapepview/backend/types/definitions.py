@@ -16,9 +16,9 @@ DeNovoConfFormat = Literal['ALC', 'Score']
 
 # annotation db format options
 TaxonomyDbFormat = Literal['NCBI', 'GTDB']
-TaxonomyMapFormat = Literal['NCBI', 'GTDB', 'gKOALA']
+TaxonomyMapFormat = Literal['NCBI', 'GTDB', 'GhostKOALA']
 TaxonomyElementFormat = Literal["taxonomy id", "taxonomy name"]
-FuncAnnotFormat= Literal['gKOALA', 'EggNOG']
+FuncAnnotFormat= Literal['GhostKOALA', 'EggNOG']
 
 
 

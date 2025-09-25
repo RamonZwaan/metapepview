@@ -7,7 +7,8 @@ from metapepview.constants import *
 from metapepview.backend.utils import request_to_file, request_kegg_link_dbs, contents_to_file
 
 
-def check_kegg_mapping_present() -> bool:
+def check_kegg_mapping_present(
+    dir_loc: str | Path=GlobalConstants.kegg_map_dir) -> bool:
     """Check if mapping between kegg ko and orthology info is present in
     specified location.
 
@@ -18,8 +19,7 @@ def check_kegg_mapping_present() -> bool:
     Returns:
         bool: True if file present, else False.
     """
-    dir_loc = Path(GlobalConstants.kegg_map_dir)
-    
+    dir_loc = Path(dir_loc)
     # check if directory exists
     if not dir_loc.is_dir():
         return False

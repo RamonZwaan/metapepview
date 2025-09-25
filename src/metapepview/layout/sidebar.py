@@ -207,7 +207,7 @@ resource_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-github me-2"),
-                "GitHub"
+                "GitHub page"
             ],
             id="sidebar_github_button", 
             href=gc.github_url, 
@@ -218,7 +218,7 @@ resource_modules = [
         dbc.NavLink(
             [
                 html.I(className="bi bi-book me-2"),
-                "Documentation"
+                "User guide"
             ],
             id="sidebar_documentation_button", 
             href=gc.docs_url, 
@@ -234,7 +234,8 @@ resource_modules = [
 new_sidebar = [
     html.Div(
         [
-            html.H4("Menu", className="display-4"),
+            #html.H4("Menu", className="display-4"),
+            html.Img(src="/assets/logo_with_name.png", style={"width": "100%"}),
             html.Hr(),
             html.H3("Project management"),
             dbc.Nav(
@@ -256,7 +257,7 @@ new_sidebar = [
                 vertical=True,
                 pills=True,
             ),
-            html.H3("Resources"),
+            html.H3("Online resources"),
             dbc.Nav(
                 resource_modules,
                 vertical=True,

@@ -100,12 +100,12 @@ peptide_data_block = html.Div(
                 ),
                 html.Div(
                     [
-                        dbc.Button('Clear data', id='clear_peptides_data', className="px-3 me-2"),
-                        dbc.Button('Export csv', id='export_peptides_csv', className="px-3 me-2"),
-                        dbc.Button('Export json', id='export_peptides_json', className="px-3 me-2"),
+                        dbc.Button('Clear project', id='clear_peptides_data', className="px-3 me-2"),
+                        dbc.Button('Export project dataset as csv', id='export_peptides_csv', className="px-3 me-2"),
+                        dbc.Button('Export project', id='export_peptides_json', className="px-3 me-2"),
                         dcc.Upload(
                             [
-                                dbc.Button('Import json', id='import_peptides',
+                                dbc.Button('Import project', id='import_peptides',
                                            outline=True,
                                            color="primary",
                                            className="px-3 me-1 my-0",
@@ -540,7 +540,7 @@ taxonomy_map_import_block = [
             ),
             annotation_mini_importer_block(
                 "taxonomy_db_upload", "tax_map_import_txt", "taxonomy_db_valid",
-                format_options=[{'label': 'gKOALA', 'value': 'gKOALA'},
+                format_options=[{'label': 'GhostKOALA', 'value': 'GhostKOALA'},
                                 {'label': 'NCBI', 'value': 'NCBI'}] +
                     ([{'label': 'GTDB', 'value': 'GTDB'}] if gc.show_advanced_settings is True\
                     else []),
@@ -578,7 +578,7 @@ function_map_import_block = [
             annotation_mini_importer_block(
                 "func_annot_db_upload", "func_map_import_txt", "func_annot_db_valid",
                 format_options=[{'label': 'EggNOG', 'value': 'EggNOG'},
-                                {'label': 'gKOALA', 'value': 'gKOALA'}],
+                                {'label': 'GhostKOALA', 'value': 'GhostKOALA'}],
                 format_id="func_annot_db_format"
             )
         ],

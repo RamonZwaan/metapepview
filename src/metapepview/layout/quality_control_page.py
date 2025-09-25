@@ -307,7 +307,7 @@ intensity_hist = dbc.Card(
                                         html.B("normalize bars:", style={"margin-right": "1rem", "text-align": "center"}),
                                         dbc.Checkbox(
                                             id="int_dist_fig_norm_bars",
-                                            disabled=True,
+                                            disabled=False,
                                             value=False,
                                             #style={"width": "15rem"}
                                         ),

@@ -76,7 +76,7 @@ def update_de_novo_taxa_graph(page_active,
     peptide_df = peptide_df[peptide_df['Sample Name'] == sample_name]
     
     # reshape data: change sample name to metagenome annotation or unipept annotation
-    peptide_df = reshape_taxonomy_df_to_denovo(peptide_df, glob_annot_de_novo_only)
+    peptide_df, unipept_col = reshape_taxonomy_df_to_denovo(peptide_df, glob_annot_de_novo_only)
     
     if filter_clade and clade_rank and clade_rank != 'Root':
         # filter the dataset based on taxa at corresponding rank
@@ -98,7 +98,7 @@ def update_de_novo_taxa_graph(page_active,
                                 abundance_metric=quant_method,
                                 fractional_abundance=fractional)
         dif_plot = tax_differential_barplot(peptide_df,
-                                            'De novo taxonomy (Unipept)',
+                                            unipept_col,
                                             'DB search taxonomy',
                                             tax_rank)
     elif top_taxa == 2:
@@ -114,7 +114,7 @@ def update_de_novo_taxa_graph(page_active,
                                 fractional_abundance=fractional,
                                 include_undefined=unannotated)
         dif_plot = tax_differential_barplot(peptide_df,
-                                            'De novo taxonomy (Unipept)',
+                                            unipept_col,
                                             'DB search taxonomy',
                                             tax_rank,
                                             abundance_metric=quant_method,

@@ -49,7 +49,7 @@ def import_acc_tax_map(upload_contents: str | IO[str],
             taxonomy_obj=taxonomy_db,
             wrangle_peptide_accessions=wrangle_peptide_accessions
             )
-    elif taxonomy_db_format == "gKOALA":
+    elif taxonomy_db_format == "GhostKOALA":
         return tax_format.read_file_buffer(
             str_file_obj,
             acc_regex

@@ -297,9 +297,15 @@ def reshape_taxonomy_df_to_denovo(input_df: pd.DataFrame,
                                     lin_ids + lin_names)}
     global_annot = global_annot.rename(columns=renamer)
     metagenome_annot.loc[:, 'Sample Name'] = 'DB search taxonomy'
-    global_annot.loc[:, 'Sample Name'] = 'De novo taxonomy (Unipept)'
+
+    if global_annot_de_novo_only is False:
+        unipept_col = 'Unipept taxonomy (DB search + de novo)'
+    else:
+        unipept_col = 'Unipept taxonomy (de novo)'
+
+    global_annot.loc[:, 'Sample Name'] = unipept_col
     
-    return pd.concat([metagenome_annot, global_annot])
+    return pd.concat([metagenome_annot, global_annot]), unipept_col
 
 
 def peptide_allocation_across_lineage(peptide_df: pd.DataFrame,

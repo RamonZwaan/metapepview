@@ -372,8 +372,8 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     # For NCBI format, disable gtdb-ncbi conversion switch
     elif tax_db_format == "NCBI":
         gtbd_to_ncbi_style = "d-none"
-    # For gKOALA format: hide all options except accession pattern
-    elif tax_db_format == "gKOALA":
+    # For GhostKOALA format: hide all options except accession pattern
+    elif tax_db_format == "GhostKOALA":
         delim_style = "d-none"
         acc_type_style = "d-none"
         acc_idx_style = "d-none"

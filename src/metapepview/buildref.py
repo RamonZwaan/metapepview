@@ -16,7 +16,7 @@ def main():
 
     # set CLI arguments
     parser = argparse.ArgumentParser(
-        prog='buildref',
+        prog='mpv-buildref',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         description=dedent(
             """Create benchmark dataset of metaproteomics experiments from set

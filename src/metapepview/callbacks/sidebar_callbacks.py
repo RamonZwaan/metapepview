@@ -27,11 +27,13 @@ from metapepview.backend import \
     Input('data_imported_trigger', 'data'),
     Input('ncbi_taxonomy_db_loc', 'value'),
     Input('gtdb_taxonomy_db_loc', 'value'),
+    Input('kegg_map_loc', 'value'),
 )
 def validate_db_presence(n,
                          import_finish_trigger,
                          ncbi_path_change,
-                         gtdb_path_change):
+                         gtdb_path_change,
+                         kegg_path_change):
     db_status_dict = {
         "ncbi_taxonomy": False,
         "gtdb_taxonomy": False,
@@ -60,7 +62,7 @@ def validate_db_presence(n,
         gtdb_status = [failed_icon, html.P("GTDB Taxonomy", className="fs-5")]
         gtdb_path_valid = False
     
-    if check_kegg_mapping_present() is True:
+    if check_kegg_mapping_present(kegg_path_change) is True:
         kegg_status = [success_icon, html.P("KEGG Dataset", className="fs-5")]
         kegg_path_valid = True
         db_status_dict["kegg_map"] = True

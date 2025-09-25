@@ -6,7 +6,7 @@ from metapepview.backend.types import *
 taxonomy_db_formats: Dict[str, Type[AccessionTaxaMap | GhostkoalaMapper]] = {
     'NCBI': AccessionTaxaMapNcbi,
     'GTDB': AccessionTaxaMapGtdb,
-    "gKOALA": GhostkoalaMapper
+    "GhostKOALA": GhostkoalaMapper
 }
 
 taxonomy_db_importers = {
@@ -16,7 +16,7 @@ taxonomy_db_importers = {
 
 functional_db_importers: Dict[str, Type[FunctionDbMapper]] = {
     'EggNOG': EggnogMapper,
-    'gKOALA': GhostkoalaMapper
+    'GhostKOALA': GhostkoalaMapper
 }
 
 
