@@ -1,0 +1,1257 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://RamonZwaan.github.io/metapepview/data-import/">
+      
+      
+        <link rel="prev" href="../prepare-input-data/">
+      
+      
+        <link rel="next" href="../annotation/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Data import - MetaPepView Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sample-data-import" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MetaPepView Documentation" class="md-header__button md-logo" aria-label="MetaPepView Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MetaPepView Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Data import
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MetaPepView Documentation" class="md-nav__button md-logo" aria-label="MetaPepView Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MetaPepView Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prepare-input-data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prepare input data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            User guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Data management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            Data management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Data import
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data import
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#important-consider-the-input-format-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMPORTANT: Consider the input format constraints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#input-data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Input data components
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-multiple-db-searchde-novo-files-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import multiple DB search/de novo files at once
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allowed-combinations-of-input-data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allowed combinations of input data components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Allowed combinations of input data components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import-sample-with-db-search-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import sample with DB search input
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-sample-without-db-search-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import sample without DB search input
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-multiple-samples-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import multiple samples at once
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Import components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#db-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      DB search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#de-novo" class="md-nav__link">
+    <span class="md-ellipsis">
+      De novo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taxonomy-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Taxonomy annotation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functional-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functional annotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Annotation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../project-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project table
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Community visualization
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Community visualization
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../community-visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../taxonomy-visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Community composition
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../function-visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Community function
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Experiment evaluation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
+            <span class="md-nav__icon md-icon"></span>
+            Experiment evaluation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment-performances-biases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../experiment-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Spectral evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build-reference-dataset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Build reference dataset
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluate-taxonomy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evaluate community composition
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    MetaPepView backend
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            MetaPepView backend
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../annotation-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Annotation pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#important-consider-the-input-format-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      IMPORTANT: Consider the input format constraints
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#input-data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Input data components
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-multiple-db-searchde-novo-files-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import multiple DB search/de novo files at once
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#allowed-combinations-of-input-data-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Allowed combinations of input data components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Allowed combinations of input data components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#import-sample-with-db-search-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import sample with DB search input
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-sample-without-db-search-input" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import sample without DB search input
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#import-multiple-samples-at-once" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import multiple samples at once
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#import-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      Import components
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Import components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#db-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      DB search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#de-novo" class="md-nav__link">
+    <span class="md-ellipsis">
+      De novo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#taxonomy-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Taxonomy annotation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functional-annotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functional annotation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sample-data-import">Sample data import</h1>
+<p>A <em>project</em> consists of a dataset of samples, where each sample contains metaproteomics data (peptide sequences from DB search and <em>de novo</em> identification), as well as taxonomy and functional information for each peptide. Generally, a "sample" relates to the input sample (metaproteome) used for MS analysis and it may contain peptide data from multiple MS runs (in case of replicates or fractions).</p>
+<p>To extend an existing project or start a new one, new samples can be imported into the MetaPepView dashboard. This is done in the <a href="../getting-started/#getting-started">Create project</a> page. Here, new samples are added from the importer module:</p>
+<p><img alt="Importer_module.PNG" src="../images/Importer_module.PNG" /></p>
+<p>For each data component, MetaPepView supports input formats from various sources. The <a href="../prepare-input-data/">Prepare input data</a> section contains a detailed overview of the input formats that is expected by MetaPepView.</p>
+<h2 id="important-consider-the-input-format-constraints"><img alt="⚠" class="twemoji yellow" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> IMPORTANT: Consider the input format constraints</h2>
+<p>When combining multiple samples into a single sample table, MetaPepView is strict in managing import formats that is allowed. When data is imported into an existing project, MetaPepView performs the following checks if a sample is compatible for import:</p>
+<ul>
+<li>All samples should be compatible in taxonomy and function characterization. Thus, a project can only contain samples with either NCBI or GTDB format taxonomies, not both.</li>
+<li>For each data component, all samples in a project must come from the same data format (e.g. Sage, Novor, GhostKOALA). The output of a sample may differ significantly based on the used input source, to ensure consistency across samples, MetaPepView allows no mixing of input sources. The input formats that the project follows and allows for new data can be seen on the top bar of the <em>Create project</em> page.</li>
+</ul>
+<h2 id="input-data-components">Input data components</h2>
+<p>A sample consists of the following import components:</p>
+<ul>
+<li>DB Search metaproteomics datasets</li>
+<li><em>De novo</em> metaproteomics datasets</li>
+<li>A taxonomy annotation dataset (and/or taxonomy annotation by sequence matching in Unipept)</li>
+<li>A functional annotation dataset</li>
+</ul>
+<h2 id="import-multiple-db-searchde-novo-files-at-once">Import multiple DB search/<em>de novo</em> files at once</h2>
+<p>For DB search and <em>de novo</em> metaproteomics input data, multiple files may be selected for import. However, only one taxonomy annotation and functional annotation file may be imported per sample. When multiple DB search or <em>de novo</em> metaproteomics files are selected, MetaPepView will either merge the datasets into a single sample, or generate a separate sample for each DB search file. This option is specified in the <em>merge DB search files</em> toggle. Merging multiple DB search and <em>de novo</em> files allows for easily combining fractions or replicates from a single experimental sample.</p>
+<h2 id="allowed-combinations-of-input-data-components">Allowed combinations of input data components</h2>
+<p>MetaPepView allows flexible inclusion or omission of input data, it will process all data supplied by the user and ignore processing tasks if a required data source is absent. However, a new sample should contain at least two import components:</p>
+<ul>
+<li>One metaproteomics dataset (peptides from DB search or <em>de novo</em> identification).</li>
+<li>One annotation source (taxonomy annotation or functional annotation).</li>
+</ul>
+<p>Some import components may be omitted if no data is present. However, this may limit the visualization tools that are available for the sample. In general, the input data configuration depends on the presence or absence of DB search input data.</p>
+<h3 id="import-sample-with-db-search-input">Import sample with DB search input</h3>
+<p>When one (or multiple) DB search input datasets are provided, a sample may be imported if at least one of the taxonomy annotation or functional annotation source is provided. The taxonomy annotation source may be a local accession to taxonomy dataset, annotation of peptide sequences by Unipept, or both. One or multiple <em>de novo</em> datasets may be supplemented to the sample.</p>
+<h3 id="import-sample-without-db-search-input">Import sample without DB search input</h3>
+<p>With only <em>de novo</em> metaproteomics input data in a sample, MetaPepView can still perform taxonomy analysis on the sample. To import a sample with only <em>de novo</em> data, simply check the checkbox <em>Annotate peptides to Unipept</em>. MetaPepView can currently only perform taxonomy annotation of peptides by sequence matching in Unipept. No local taxonomy annotation file or functional annotation dataset can be added.</p>
+<h3 id="import-multiple-samples-at-once">Import multiple samples at once</h3>
+<p>MetaPepView allows import of a collection of metaproteomics experiments at once. This is done by loading multiple DB search datasets into the <em>DB search</em> field and unchecking the <em>merge DB search files</em> toggle. Note that this requires all DB search files to be compatible with the same taxonomy and functional database. In addition, sample names are automatically named after the DB search file names. Thus, these should be named accordingly. This option may be useful for time series analysis or separate import of replicates.</p>
+<p>When <em>de novo</em> metaproteomics data is included together with DB search data. MetaPepView will internally match each <em>de novo</em> dataset with the corresponding DB search dataset through their common spectral raw file names. This ensures that they belong to the same mass spectrometry analysis. <em>De novo</em> files that do not match to any DB search dataset are ignored.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Matching <em>de novo</em> metaproteomics data to DB search data can get complicated when single DB search data files or <em>de novo</em> data files contain multiple raw source files (multiple MS runs merged into one file). Currently, MetaPepView will merge all <em>de novo</em> files that share at least one raw source file with the DB search file. Though, this may result in redundancy where one <em>de novo</em> peptide identification may be added to multiple samples.</p>
+</div>
+<h2 id="import-components">Import components</h2>
+<h3 id="db-search">DB search</h3>
+<p>Metaproteomics data from DB search matching of mass spectrometry data is imported in the <em>DB search</em> field. This field expects a dataset of peptide sequence identified scans (one row corresponds to a single spectrum match). MetaPepView supports several DB search output formats:</p>
+<ul>
+<li><a href="https://www.bioinfor.com/peaks-11/">Peaks Studio 10/11</a></li>
+<li><a href="https://www.maxquant.org/">MaxQuant</a></li>
+<li><a href="https://sage-docs.vercel.app/">Sage</a></li>
+</ul>
+<p>More information about the expected input format can be found <a href="../prepare-input-data/#import-db-search-matching-data">here</a>.</p>
+<p>Either a single DB search file may be uploaded, or multiple files may be supplied. If <em>merge DB search files</em> is toggled on, all files are merged and processed as a single sample. If it is toggled off, each DB search file will be processed as a separate sample. </p>
+<p>In the <em>Options</em> menu, a match confidence cutoff may be specified (format depends on DB search format). In addition, a protein ID pattern may be specified to extract from the protein ID fields and make it compatible with Protein ID report formats from other sources. Finally, a pre-filtering of peptide sequences may be performed based on presence in the <a href="https://www.thegpm.org/crap/">cRAP</a> database. </p>
+<h3 id="de-novo">De novo</h3>
+<p>Metaproteomics data from <em>de novo</em> peptide identification of DDA mass spectometry data is imported in the <em>De novo</em> field. Similarly to DB search import, this field expects a dataset of peptide sequence identified scans (one row corresponds to a single spectrum identification). MetaPepView supports several <em>de novo</em> output formats:</p>
+<ul>
+<li><a href="https://www.bioinfor.com/peaks-11/">Peaks Studio 10/11</a></li>
+<li><a href="https://compomics.github.io/projects/searchgui">Novor (SearchGUI)</a></li>
+<li><a href="https://casanovo.readthedocs.io/en/latest/">Casanovo</a></li>
+</ul>
+<p>More information about the expected input format can be found <a href="../prepare-input-data/#import-de-novo-identification-data">here</a>.</p>
+<p>Either a single <em>de novo</em> file may be uploaded, or multiple files may be supplied. If <em>merge DB search files</em> is toggled on, all <em>de novo</em> files will be used to supplement the sample dataset together with all DB search data. They will be merged and processed as a single sample. If <em>merge DB search files</em> is toggled off, then each <em>de novo</em> file will be matched to a DB search file, based on shared raw file names (originating from the same MS run), and processed separately with the DB search data to form a separate sample for each DB search file. <em>De novo</em> files that do not match to any DB search dataset are not processed. </p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>In most input formats, a single DB search or <em>de novo</em> file may contain multiple raw file sources. For example, the database search engine used for spectrum matching may combine multiple sample fractions in a single DB search file. The same is true for <em>de novo</em> data. In MetaPepView, if DB search files are not merged (each file is a separate sample), supplementing <em>de novo</em> data to each DB search file sample is done by matching raw file sources with loose criteria. This means that when one shared raw file source is found between a DB search file and a <em>de novo</em> file, they are matched. As a result, one DB search file may be matched to multiple <em>de novo</em> files if it contains multiple raw file sources.</p>
+</div>
+<p>In the <em>Options</em> menu, a identification confidence cutoff may be specified (format depends on <em>de novo</em> format). Also, a pre-filtering of peptide sequences may be performed based on presence in the <a href="https://www.thegpm.org/crap/">cRAP</a> database. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Setting an appropriate confidence cutoff is essential for <em>de novo</em> identification data, but not trivial. One challenge is that there is no reliable strategy for false discovery rate estimation. Also, only a small fraction of mass spectrometry scans contain the full information to identify a full peptide sequence. However, most <em>de novo</em> identification engines will attempt to resolve a peptide sequence from incomplete spectral profiles, resulting in a large fraction of incorrect sequences.</p>
+</div>
+<h3 id="taxonomy-annotation">Taxonomy annotation</h3>
+<p>The <em>Taxonomy annotation</em> field is used for supplementing taxonomic information to the peptides provided in the metaproteomics import data. The main source for taxonomic annotation is from a user supplied accession-taxonomy mapping file (often referred to as <em>local annotation</em>). MetaPepView supports import of <a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a> format output data (for expected format, see <a href="../prepare-input-data/#taxonomy-annotation-from-ghostkoala">here</a>), or a user generated accession-taxonomy map file. </p>
+<p>For user generated taxonomy files, they should contain an <em>accession</em> column, which may be <em>protein IDs</em> linked to peptide sequences from the DB search dataset or <em>peptide sequences</em> directly. These accessions are mapped with a taxonomy ID, which should be stored in a separate column. MetaPepView supports annotation of NCBI or GTDB format taxonomies. Since the dataset matches protein IDs to taxonomy, this source will only annotate DB search data. More information about the expected format of the protein-taxonomy map is found <a href="../prepare-input-data/#import-taxonomy-annotation-data">here</a>.</p>
+<p>MetaPepView provides an extensive menu with options how it should parse the accession-taxonomy map dataset:
+<img alt="Tax_annot_options.PNG" src="../images/Tax_annot_options.PNG" /></p>
+<ul>
+<li><strong>Delimiter</strong>: The user may set the expected delimiter for the tabular data format.</li>
+<li><strong>Accession type</strong>: Specify if accessions are protein IDs, or peptide sequence. (MetaPepView will automatically parse the correct data from the DB search dataasets.)</li>
+<li><strong>Accession parser</strong>: Specify how the accession values, either as complete string or by extracting a substring. It should only be used for protein ID accessions. This can be used to match the accession (protein ID) format to those reported in DB search data.</li>
+<li><strong>Pattern match (regex)</strong>: Set a <em>regex pattern</em> to match a pattern group of the accession column (Only if <strong>Accession parser</strong> is set to "Custom regex").</li>
+<li><strong>Accession/Taxonomy column index</strong>: Set column indices (starting at 0) for accession and taxonomy values. </li>
+<li><strong>Taxonomy element format</strong>: Specify if the taxonomy column contains <em>taxonomy IDs</em> or <em>taxonomy names</em>.</li>
+<li><strong>To NCBI taxonomy ID (genome IDs only)</strong>: (GTDB ONLY) For a dataset of genome IDs present in the GTDB database, convert genomes to a NCBI taxonomy ID, then process data with NCBI taxonomy format.</li>
+</ul>
+<p>MetaPepView can collect taxonomy information by querying the peptide sequences directly to <a href="https://unipept.ugent.be/">Unipept</a> (is enabled by the <em>Annotate peptides to Unipept</em> switch at the top of the sample import box). This allows taxonomy annotation of both DB search data and <em>de novo</em> data, and does not require any additional dataset to be imported. In Unipept, peptide sequences are matched against the UniprotKB protein database, and taxonomy information is collected from matching proteins. MetaPepView requests the <em>Last Common Ancestor</em> for each peptide sequence. </p>
+<p>The taxonomy information fetched from Unipept is stored separately from the <em>local</em> annotated taxonomy information. Therefore, both strategies may be performed simultaneously for a single sample. This is useful when the local taxonomy map is validated in the <em>Evaluate community composition</em> module. It may also be used to supplement the local taxonomy annotation data in the <em>Community composition</em> module.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Unipept only supports taxonomy annotation in NCBI format, it cannot be used as an extra taxonomy annotation strategy for GTDB format taxonomy.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is not recommended to convert GTDB taxonomy to NCBI format. The conversion may result in a loss of taxonomy information, may decrease the resolution of the taxonomy annotation, and in the worst case, cause inaccurate taxonomy classifications. Use this only if the sample needs to be in NCBI format and there is no other way to obtain NCBI format taxonomy annotations.</p>
+</div>
+<h3 id="functional-annotation">Functional annotation</h3>
+<p>The <em>Functional annotation</em> field is used for supplementing protein functional information to the peptides provided in the metaproteomics input data (only DB search). MetaPepView supports processing and visualization of functional information in <a href="https://www.kegg.jp/">KEGG orthology</a> format. MetaPepView supports import of functional annotation data from two sources:</p>
+<ul>
+<li><a href="http://eggnog5.embl.de/#/app/home">EggNOG</a></li>
+<li><a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a></li>
+</ul>
+<p>More information about expected format of functional annotation data can be found <a href="../prepare-input-data/#functional-annotation">here</a>.</p>
+<p>Both tools perform functional annotation of proteins based on a protein sequence database provided as fasta. Therefore, functional information is mapped to protein IDs, which have to be matched to the protein IDs linked to the peptide sequences inside the DB search files. At the moment, functional annotation is only possible for DB search matched peptide data.</p>
+<p>For both datasets, only the <em>KEGG Orthology</em> (KO) identifier is of interest for the MetaPepView dashboard. However, EggNOG provides annotations for proteins from several databases (Pfam, COG, gene ontology, <em>etc.</em>). These are preserved when exporting the project table in CSV format and can thus be analyzed manually.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>GhostKOALA and EggNOG both use their own databases to functionally annotate proteins. As a result, proteins might be differently annotated depending on what tool is being used. If a particularly complex sample is being analyzed, it might be worthwhile to experiment with both tools to observe the effect on the output.</p>
+</div>
+<p>Options for configuration of functional annotation data is limited. Similarly to DB search and taxonomy import, a protein ID pattern may be specified to extract from the protein ID fields in the functional annotation dataset to make it compatible with Protein ID report formats from DB search data. </p>
+<p>In addition, there is the option, <em>Combine multiple annotations</em>, that may be checked. When this option is checked, it will combine functional annotations for peptides that have multiple protein matches: For each field it will get all variants and concatenate them into a new value. When unchecked, it will discard functional annotations of peptides if a conflict is found.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
