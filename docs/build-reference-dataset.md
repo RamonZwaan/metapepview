@@ -1,16 +1,16 @@
-MetaPepView provides a few pre-built reference datasets to [[experiment-evaluation#Benchmarking|benchmark]] experiments against. However, it is recommended to create an in-house reference database consisting of comparable metaproteomics experiments. Namely, experiments from similar types of proteome samples, as well as consistent analytical instruments. MetaPepView provides a command line utility *buildref*, that allows construction of custom reference datasets for import into the dashboard. This utility extracts metrics from the spectral and (meta)proteomics datasets to provide a consise dataset for the complete range of experiments.
+MetaPepView provides a few pre-built reference datasets to [[experiment-evaluation#Benchmarking|benchmark]] experiments against. However, it is recommended to create an in-house reference database consisting of comparable metaproteomics experiments i.e., samples obtained from similar types of biomaterial, as well as consistent analytical instruments. MetaPepView provides a command line utility *mpv-buildref*, that allows construction of custom reference datasets for import into the dashboard. This utility extracts metrics from the spectral and (meta)proteomics datasets to provide a consise dataset for the complete range of experiments.
 
-*buildref* only requires a single root directory location from the user, as well as a few options to manage formatting. *buildref* will parse all files inside the provided root directory, collect all relevant datasets, and combine all datasets into their respective experiments.
+*mpv-buildref* only requires a single root directory location from the user, as well as a few options to manage formatting. *mpv-buildref* will parse all files inside the provided root directory, collect all relevant datasets, and combine all datasets into their respective experiments.
 
-## Running *buildref*
+## Running *mpv-buildref*
 
-The *buildref* tool is available both in the [[installation#Run in Docker|Docker]] version, as well as when installed with [[installation#Install with `pipx` (or `pip`)|`pip`/`pipx`]]. For ease of use, it is recommended to run it from a `pipx` installation, as it will be available directly to the command line:
+The *mpv-buildref* tool is available both in the [[installation#Run MetaPepView inside a Docker container|Docker]] version, as well as when installed with [[installation#Install MetaPepView with `pipx` (or `pip`)|`pip`/`pipx`]]. For ease of use, it is recommended to run it from a `pipx` installation, as it will be available directly to the command line:
 
 ```Bash
 $ mpv-buildref -d peaks11 -n peaks11 -o output.json *root_dir*
 ```
 
-When running inside Docker, the root directory containing the experiments needs to be mounted to the container file system. Then, the container mount point can be called as the root container when calling *buildref*. In addition, the output location should be inside a directory (in the container), that is mounted to a host direcory. This may be a separate mount point, or the output location may be inside the root container provided as input:
+When running inside Docker, the root directory containing the experiments needs to be mounted to the container file system. Then, the container mount point can be called as the root container when calling *mpv-buildref*. In addition, the output location should be inside a directory (in the container), that is mounted to a host direcory. This may be a separate mount point, or the output location may be inside the root container provided as input:
 
 *After [[installation#Run in Docker|Creating the image]]*:
 ```Bash
@@ -62,11 +62,11 @@ options:
 
 For correct parsing of proteomics datasets, it is recommended to take the following into account:
 
-- To build a complete dataset, provide for all experiments a spectral file (`mzML`), featuremap (`featureXML`), as well as db search and de novo results.
+- To build a complete dataset, provide for all experiments a spectral file (`mzML`), featuremap (`featureXML`), as well as DB search and *de novo* results.
 
-- When converting raw file names to *mzML* format. **Do not change the name of the mzML file**, and ensure that the *mzML* file name is identical to the raw file name (minus the file type suffix). For each experiment, all data files are automatically linked to each other based on the name of the source file. Depending on the software used for db search/de novo analysis, this will either be the raw spectral data, or the name of the *mzML*. In this case, MetaPepView will assume that the name of the raw file and *mzML* file is the same.
+- When converting raw file names to *mzML* format. **Do not change the name of the mzML file**, and ensure that the *mzML* file name is identical to the raw file name (minus the file type suffix). For each experiment, all data files are automatically linked to each other based on the name of the source file. Depending on the software used for DB search/*de novo* analysis, this will either be the raw spectral data, or the name of the *mzML*. In this case, MetaPepView will assume that the name of the raw file and *mzML* file is the same.
 
-- Ensure that all db search and de novo datasets can be recognized as such from the file names (for example, adding a fixed prefix / suffix to each file). If all experiment results were exported using default filenames provided by the analysis software, the tool should be able to automatically recognize all files inside the supplied root directory. However, if custom file names were assigned, regular expression patterns may need to be supplied for the tool to recognize the datasets (db search: `-r`, de novo: `-x`). If no patterns are supplied, it will search db search and de novo datasets using the following patterns:
+- Ensure that all DB search and *de novo* datasets can be recognized as such from the file names (for example, adding a fixed prefix / suffix to each file). If all experiment results were exported using default filenames provided by the analysis software, the tool should be able to automatically recognize all files inside the supplied root directory. However, if custom file names were assigned, regular expression patterns may need to be supplied for the tool to recognize the datasets (DB search: `-r`, *de novo*: `-x`). If no patterns are supplied, it will search DB search and *de novo* datasets using the following patterns:
     
     **DB search:**
 
@@ -82,4 +82,4 @@ For correct parsing of proteomics datasets, it is recommended to take the follow
     - novor:      *"\*.novor.csv"*
     - casanovo:   *"\*.mztab"*
 
-- It is recommended to set reasonable confidence thresholds for the used db search (option: `-D`) and de novo (option: `-N`) output format. If no thresholds are given, it will default to the following values: db search: "30 50 80", de novo: "50 80 90". While many proteomics tools score identifications in a 0 - 100 range, some use a different range. For example, Casanovo scores matches between -1 - 1. For such cases, custom threshold values should be provided to partition peptides in confidence groups.
+- It is recommended to set reasonable confidence thresholds for the used DB search (option: `-D`) and *de novo* (option: `-N`) output format. If no thresholds are given, it will default to the following values: DB search: "30 50 80", *de novo*: "50 80 90". While many proteomics tools score identifications in a 0 - 100 range, some use a different range. For example, Casanovo scores matches between -1 - 1. For such cases, custom threshold values should be provided to partition peptides in confidence groups.

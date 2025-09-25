@@ -3,7 +3,7 @@
 MetaPepView provides a number of tools to perform evaluation and benchmarking of metaproteomics experiments. Two modules are dedicated to evaluation of metaproteomics experiments:
 
 - The *Experimental performance* module: Visualization and benchmarking of experimental performance parameters from spectral data (*mzML*) + proteomics data.
-- The *Evaluate community composition* module: Validate database quality used in DB search matching by comparing taxonomy composition from db search matching + local db annotation against taxonomy composition from peptides (DB search and de novo) annotated by [Unipept](https://unipept.ugent.be/).
+- The *Evaluate community composition* module: Validate database quality used in DB search matching by comparing taxonomy composition from DB search matching + local db annotation against taxonomy composition from peptides (DB search and *de novo*) annotated by [Unipept](https://unipept.ugent.be/).
 
 ![[Evaluation_modules.PNG]]
 *Experiment evaluation modules highlighted in the sidebar*

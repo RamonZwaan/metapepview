@@ -45,6 +45,6 @@ nav:
       - Evaluate community composition: evaluate-taxonomy.md
   - MetaPepView backend:
     - Annotation pipeline: annotation-pipeline.md
-    - Spectral processing: spectra-processing.md
-    - Quantification taxa/functions: quantification.md
+#    - Spectral processing: spectra-processing.md
+#    - Quantification taxa/functions: quantification.md
 

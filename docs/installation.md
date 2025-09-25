@@ -1,59 +1,45 @@
 # Installation
 
-Before installation, look into the [[index#PC requirements|PC requirements]] if the system is suitable for running the dashboard tool.
-## Set up the server
-MetaPepView runs on top of the dash framework in python. To run the dashboard, the server needs to be started locally on the PC. The simplest approach is to start a [Docker](https://www.docker.com/) container from the DockerFile provided in the Github repository. For this, Docker (or another OCI compliant manager) has to be installed on the system. Alternatively, MetaPepView can be installed with `pipx`.
+MetaPepView runs on top of the [Dash](https://dash.plotly.com/) framework in python. It is installed as a web server that is run locally on the PC and accessed inside the web browser. Before installation, check with the [[index#PC requirements|PC requirements]] if the system is suitable for running the dashboard tool.
 
-### Run in Docker.
+MetaPepView can be installed from `pip`/`pipx` or by starting a [Docker](https://www.docker.com/) container. 
 
-First, a [Docker image](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/) needs to be built:
+### Install MetaPepView with `pipx` (or `pip`)
 
-!!! note
-    Make sure the Docker daemon is running during the command execution (start Docker desktop if installed).
-
-```Bash
-$ docker build -t Metapepview . # directory of Dockerfile
-```
-
-Once the image is successfully built, start a container by running the following command:
-
-```Bash
-$ docker run -p 8050:8050 Metapepview
-```
-
-the options`-p` publishes port 8050 from the container to port 8050 in the host pc. This allows us to reach the dashboard in the container. We can access the dashboard in the web browser at  `http://localhost:8050`. Note that the dashboard is only accessible from the host PC as long as the port is closed in the firewall.
-
-### Install with `pipx` (or `pip`)
-
-The full MetaPepView application can be installed on any PC system with `pip`. This installation provides the MetaPepView dashboard, as well as a command line utility for construction of [[experiment-evaluation|experimental reference datasets]]. It is highly recommended to install the application with [pipx](https://pipx.pypa.io/stable/). This provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line.
-
-To install MetaPepView, first, install [python](https://www.python.org/).
-Once installed, [install pipx](https://pipx.pypa.io/stable/installation/).
+The full MetaPepView application (including the *mpv-buildref* command line utility) can be installed on any PC system with `pip`. This installation provides the MetaPepView dashboard, as well as a command line utility for construction of [[build-reference-dataset|experimental reference datasets]]. It is recommended to install the application with [pipx](https://pipx.pypa.io/stable/). It works similar to `pip`, but is designed for installation of applications as opposed to libraries. When installing a package, `pipx` provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line. When using `pip`, it is recommended to install MetaPepView in a separate environment ([virtual environment](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html))
 
 #### Installation with `pipx`
 
-In Ubuntu:
-```Bash
-sudo apt install pipx
-pipx ensurepath
-```
+First, make sure [python](https://www.python.org/) (3.11 or higher) is installed.
+Once python is installed, install [pipx](https://pipx.pypa.io/stable/installation/) on the command line/terminal.
 
-In Fedora:
-```Bash
-sudo dnf install pipx
-pipx ensurepath
-```
+In Windows 10/11, `pipx` can be installed via `pip`:
 
-In windows, `pipx` can be installed via `pip`:
 ```Powershell
 # If you installed python using Microsoft Store, replace `py` with `python3` in the next line.
 py -m pip install --user pipx
 python -m pipx ensurepath
 ```
 
+In Linux, `pipx` is often provided by a distro's built-in package manager:
+
+Ubuntu:
+```Bash
+sudo apt install pipx
+pipx ensurepath
+```
+
+Fedora:
+```Bash
+sudo dnf install pipx
+pipx ensurepath
+```
+
+You may need to restart the terminal before you can run `pipx`.
+
 Once pipx is installed, MetaPepView can be installed:
 ```Bash
-pipx install metapepview
+pipx install git+https://github.com/RamonZwaan/metapepview.git
 ```
 
 Once installed, the MetaPepView server can be started by running the application in the command line:
@@ -61,24 +47,24 @@ Once installed, the MetaPepView server can be started by running the application
 metapepview
 ```
 
-The dashboard can be accessed in the web browser.
+The dashboard can be accessed in the web browser (URL: `http://localhost:8050`).
 
 To uninstall MetaPepView:
 ```Bash
 pipx uninstall metapepview
 ```
 
-#### Installation with `pip` (Not recommended)
+#### Installation with `pip`
 
-When python is installed, MetaPepView may be installed directly with `pip`. Installing this way
-will add MetaPepView as package to the global python environment. In addition, it is not certain
+When python (3.11 or higher) is installed, MetaPepView may be installed directly with `pip`. Installation via `pip`
+will add MetaPepView as package to the global python environment and it is not certain
 that the application executables are exposed on the command line. To provide some isolation, it 
 is recommended to install MetaPepView in a [virtual environment](https://docs.python.org/3/library/venv.html)
-or in a [conda environment](https://docs.conda.io/en/latest/)
+or in a [conda environment](https://docs.conda.io/en/latest/).
 
 To install MetaPepView with pip:
 ```Bash
-pip install metapepview
+pip install git+https://github.com/RamonZwaan/metapepview.git
 ```
 
 If the python environment is exposed to the operating system PATH, the MetaPepView server can be started by running the application in the command line:
@@ -90,3 +76,27 @@ To uninstall metapepview:
 ```Bash
 pip uninstall metapepview
 ```
+
+### Run MetaPepView inside a Docker container.
+
+To run the dashboard inside a container, make sure Docker (or another OCI compliant manager) is installed on the system.
+
+First, build a [Docker image](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/) using the Dockerfile template from the MetaPepView GitHub:
+
+!!! note
+    Make sure the Docker daemon is running during the command execution (start Docker desktop if installed).
+
+```Bash
+$ docker build -t metapepview https://github.com/RamonZwaan/metapepview.git#main
+```
+
+Now a Docker image named "metapepview" is created on the host system. The image can be found in Docker desktop, under *Images*.
+
+Once the image is successfully built, start a container by running the following command:
+
+```Bash
+$ docker run -p 8050:8050 metapepview
+```
+
+Here, we start a container from the image "metapepview". The options`-p` publishes port 8050 from the container to port 8050 in the host pc, which allows us to reach the dashboard in the container. The dashboard can be accessed in the web browser at  `http://localhost:8050`. Note that the dashboard is only accessible from the host PC as long as the port is closed in the firewall.
+
