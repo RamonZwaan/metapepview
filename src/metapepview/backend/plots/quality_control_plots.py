@@ -289,6 +289,7 @@ def mz_over_rt_plot(dataset: pd.DataFrame,
             # fig.add_trace(go.Histogram2dContour(
             #     x=cat_df["precursor m/z"], y=cat_df["retention time"], opacity=0.4, colorscale=scales[i]),
             #               row=1, col=2)
+
             fig.add_trace(go.Scattergl(x=cat_df["precursor m/z"], y=cat_df["retention time"],
                                        mode='markers',
                                        name=str(category),
@@ -314,16 +315,19 @@ def mz_over_rt_plot(dataset: pd.DataFrame,
 
         fig.update_layout(legend= {'title': 'de novo identified','itemsizing': 'constant'})
         
-    else:
-        # fig = px.scatter(dataset, x="precursor m/z", y="retention time")
-        # fig.add_trace(go.Histogram2dContour(
-        #     x=dataset["precursor m/z"], y=dataset["retention time"], colorscale='Blues', showlegend=False),
-        #               row=1, col=2)
-        
-        
-        fig.add_trace(go.Scattergl(x=dataset["precursor m/z"], y=dataset["retention time"], mode='markers',
-                                 showlegend=False),
+    else:   
+        fig.add_trace(go.Scattergl(x=dataset["precursor m/z"], 
+                                   y=dataset["retention time"], 
+                                   mode='markers',
+                                   showlegend=False),
                       row=1, col=2)
+
+        # fig.add_trace(go.Histogram2dContour(
+        #     x=dataset["precursor m/z"], 
+        #     y=dataset["retention time"], 
+        #     colorscale='Blues'),
+        #     row=1, col=2)
+
         fig.update_traces(marker=dict(size=2,
                                       color=GraphConstants.primary_color),
                           row=1,

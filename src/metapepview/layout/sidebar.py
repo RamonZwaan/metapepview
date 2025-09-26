@@ -174,7 +174,7 @@ community_modules = [
                 "Community functions"
             ],
             id="sidebar_functional_button",
-            href="/",
+            href="/function",
             className="mb-2"),
         hidden = not gc.display_db_search),
      ]
@@ -237,27 +237,28 @@ new_sidebar = [
             #html.H4("Menu", className="display-4"),
             html.Img(src="/assets/logo_with_name.png", style={"width": "100%"}),
             html.Hr(),
-            html.H3("Project management"),
+            html.H5("Project management"),
             dbc.Nav(
                 project_modules,
                 vertical=True,
                 pills=True,
                 className="mb-4"
             ),
-            html.H3("Community analysis"),
+            html.H5("Community analysis"),
             dbc.Nav(
                 community_modules,
                 vertical=True,
                 pills=True,
                 className="mb-4"
             ),
-            html.H3("Experiment evaluation"),
+            html.H5("Experiment evaluation"),
             dbc.Nav(
                 evaluation_modules,
                 vertical=True,
                 pills=True,
+                className="mb-4"
             ),
-            html.H3("Online resources"),
+            html.H5("Online resources"),
             dbc.Nav(
                 resource_modules,
                 vertical=True,
@@ -267,7 +268,7 @@ new_sidebar = [
     ),
     html.Div(
         [
-            html.H2("Databases", className="m-2 mb-4"),
+            html.H3("Databases", className="m-2 mb-3"),
             html.Hr(),
             dcc.Store(
                 id="database_present_status",
@@ -277,7 +278,7 @@ new_sidebar = [
                 [
                     # html.I(className="bi bi-check-circle-fill me-3 mt-1 fs-6 text-success"),
                     html.I(className="bi bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
-                    html.P("NCBI Taxonomy", className="fs-5")
+                    html.P("NCBI Taxonomy", className="fs-6")
                 ],
                 className="d-inline-flex align-items-start w-100",
                 id="ncbi_db_presence_check"
@@ -286,7 +287,7 @@ new_sidebar = [
                 [
                     # html.I(className="bi bi-check-circle-fill me-3 mt-1 fs-6 text-success"),
                     html.I(className="bi bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
-                    html.P("GTDB Taxonomy", className="fs-5")
+                    html.P("GTDB Taxonomy", className="fs-6")
                 ],
                 className="d-inline-flex align-items-start w-100"\
                     if gc.show_advanced_settings is True else "d-none",
@@ -295,7 +296,7 @@ new_sidebar = [
             html.Div(
                 [
                     html.I(className="bi bi-check-circle-fill me-3 ms-3 fs-5 text-success"),
-                    html.P("KEGG KO Map", className="fs-5")
+                    html.P("KEGG KO Map", className="fs-6")
                 ],
                 className="d-inline-flex align-items-start w-100"\
                     if gc.display_db_search is True else "d-none",
@@ -304,7 +305,7 @@ new_sidebar = [
             html.Div(
                 [
                     html.B("Fetch source:", className="mb-0 fs-5"),
-                    dbc.Button("Open", id="fetch_db_modal_open"),
+                    dbc.Button("Open", id="fetch_db_modal_open", className="px-4"),
                 ],
                 className="d-flex align-items-center justify-content-between m-2"
             ),

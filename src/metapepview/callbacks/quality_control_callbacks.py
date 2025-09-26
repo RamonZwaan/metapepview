@@ -669,7 +669,7 @@ def update_bar_norm_scan_int(ms_level,
                              db_search_valid,
                              de_novo_valid):
     # normalization only if MS2 and pept ident dataset present
-    if ms_level == "2" and any([db_search_valid, de_novo_valid]):
+    if ms_level == 2 and any([db_search_valid, de_novo_valid]):
         return False
     else:
         return True
