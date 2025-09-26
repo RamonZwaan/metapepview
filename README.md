@@ -1,5 +1,10 @@
 
-![meta-PepView logo](img/MPV_logo+name_white.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="img/MPV_logo+name_white.png">
+  <source media="(prefers-color-scheme: light)" srcset="img/MPV_logo+name.png">
+  <img alt="Logo" src="img/MPV_logo+name.png">
+</picture>
+
 # Description
 MetaPepView (Beta) is a metaproteomics dashboard designed for visualizing the taxonomic composition and expressed enzymatic or metabolic functions from microbial community data, and for evaluating the performance of metaproteomics experiments. This beta version features a user-friendly, web-based interface that can be run locally on desktop PCs. It enables users to compare results from database searches and *de novo* annotations while evaluating the quality and coverage of reference databases. Feedback and contributions are welcome as we continue to enhance MetaPepView. Please contact: r.vanderzwaan@tudelft.nl
 
