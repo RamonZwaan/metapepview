@@ -1,5 +1,7 @@
 # Introduction
 
+![[logo_with_name.PNG]]
+
 MetaPepView is a metaproteomics dashboard interface designed for analysis of microbial communities and evaluation of metaproteomics experiments. It provides modules to visualize the taxonomic composition and expressed protein functions from microbial community data, as well as modules for evaluating metaproteomics experiment performance. It features a user-friendly, web-based interface that can be run locally on desktop PCs. MetaPepView enables users to perform large scale cross-sample quantitative analysis of community composition and protein functions, compare results from database searches and *de novo* annotations within samples, and evaluate the quality and coverage of metaproteomics experiments and reference databases. It is designed to be compatible with a variety of metaproteomics software tools.
 
 Main features of MetaPepView include:
