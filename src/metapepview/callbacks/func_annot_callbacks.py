@@ -460,16 +460,37 @@ def construct_pathway_url(peptide_json,
                           filter_clade,
                           clade_rank,
                           kegg_db):
+    if kegg_db is None:
+        table_block = [html.P(
+            "Import KEGG dataset (see sidebar)",
+            className="fst-italic ms-5")]
+        return None, True, table_block, None
+
+    if peptide_json is None:
+        table_block = [html.P(
+            "Import or create project with functional annotation data",
+            className="fst-italic ms-5")]
+        return None, True, table_block, None
+
     if predifined_pathway is None or\
-        kegg_group_method != "Pathway" or\
-        kegg_db is None or\
-        peptide_json is None or\
-        selected_samples is None:
-        return None, True, None, None
+        kegg_group_method != "Pathway":
+        table_block = [html.P(
+            "Select KEGG pathway map...",
+            className="fst-italic ms-5")]
+        return None, True, table_block, None
+    
+    if selected_samples is None or len(selected_samples) == 0:
+        table_block = [html.P(
+            "Select sample in dropdown menu...",
+            className="fst-italic ms-5")]
+        return None, True, table_block, None
     
     # do not allow query construction if more than 4 samples are selected
-    if len(selected_samples) > 4:
-        return None, True, None, None
+    if len(selected_samples) > 4 :
+        table_block = [html.P(
+            "Too many samples selected...",
+            className="fst-italic ms-5")]
+        return None, True, table_block, None
 
     kegg_db = KeggDatabase.read_json(kegg_db)
     
@@ -516,9 +537,16 @@ def construct_pathway_url(peptide_json,
         kegg_url += str(idx) + space + colors + new_line
         
     # remove trailing new_line
-    kegg_url = kegg_url[:-len(new_line)]
-    
+    kegg_url = kegg_url.rstrip(new_line)
+
     # configure table that shows color for each sample
     table_block = sample_color_table_block(sample_color_map)
+    # check length of URL, it should not cross the element limit
+    if len(kegg_url.split(new_line)) > GlobalConstants.kegg_url_max_elems:
+        table_block = [html.P(
+            "Too many KO elements to export to KEGG",
+            className="fst-italic ms-5")]
+        return None, True, table_block, None
+
     return kegg_url, False, table_block, {"margin": "2rem 0rem"}
     

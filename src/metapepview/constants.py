@@ -31,7 +31,8 @@ class GlobalConstants:
     func_level = 3
 
     # URL for documentation
-    docs_url = "https://github.com/RamonZwaan/metapepview/"
+    docs_url = "https://ramonzwaan.github.io/metapepview/"
+    docs_data_prep_url = "https://ramonzwaan.github.io/metapepview/prepare-input-data/"
     github_url = "https://github.com/RamonZwaan/metapepview/"
 
     # set display configuration depending on the func_level value
@@ -97,6 +98,7 @@ class GlobalConstants:
         'enzyme': ['ec:']
     }
     kegg_map_color_base_url: str = "https://www.kegg.jp/kegg-bin/show_pathway?"
+    kegg_url_max_elems: int = 90
 
 
     # Input datasets formats

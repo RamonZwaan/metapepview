@@ -662,7 +662,7 @@ import_block = html.Div(
                 html.Hr(className="m-0", style={"color": "#8a8a8a"}),
                 html.Div(html.A(html.I("Guide: how to prepare data for import", 
                             style={"font-size": "0.9vw"},
-                            ), href=gc.docs_url, target="_blank"), className="ms-3 py-2"),
+                            ), href=gc.docs_data_prep_url, target="_blank"), className="ms-3 py-2"),
                 html.Hr(className="m-0"),
                 html.Div(
                     data_import_container,
