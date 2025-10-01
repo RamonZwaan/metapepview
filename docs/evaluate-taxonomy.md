@@ -27,4 +27,4 @@ Similarly to the *Community composition* module, there are several options to mo
 - **Quantification**: Quantify taxonomy groups as summed PSM counts or as summed signal intensities.
 - **Normalize abundances**: Check to display taxonomies as fraction of total composition per sample.
 - **Include unannotated**: Add peptides without annotation (at specified taxonomy rank) as separate "Undefined" category in the composition.
-- **Filter by Clade**: Select a specific taxonomy group to visualize; Specify a *Root taxonomy* group belonging to the selected *Clade rank* level, and only "offspring" taxonomy groups belonging to the root taxonomy will be visualized. Note: *Display rank* should be at a lower level than the *Clade rank*.
+- **Filter by clade**: Select a specific taxonomy group to visualize; Specify a *Root taxonomy* group belonging to the selected *Clade rank* level, and only "offspring" taxonomy groups belonging to the root taxonomy will be visualized. Note: *Display rank* should be at a lower level than the *Clade rank*.

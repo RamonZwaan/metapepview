@@ -21,5 +21,5 @@ The quantification of KEGG terms between samples is visualized in a grouped barp
 
 - **Include taxonomies**: Supplement functional annotation chart with taxonomy information. This shows which taxa contribute to the functional term expression. Taxonomy names can be displayed by hovering over the bars in the chart.
 - **Fractional abundances**: Quantify functional terms as fraction of the total expressed functional terms.
-- **Filter by Clade**: Filter expressed functional terms to only those from a specified taxonomy group; Specify a *Root taxonomy* group belonging to the selected *Clade rank* level, and only terms from that taxonomy are displayed.
+- **Filter by clade**: Filter expressed functional terms to only those from a specified taxonomy group; Specify a *Root taxonomy* group belonging to the selected *Clade rank* level, and only terms from that taxonomy are displayed.
 - **Visualize pathway map**: Export KEGG KO terms to a pathway map provided by KEGG. Select samples to visualize in the map in *Select Samples* and export the data to the map with the *Show pathway map* button. This directs you to the KEGG website. Thus, an internet connection is required.

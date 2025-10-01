@@ -3,6 +3,11 @@ import dash_bootstrap_components as dbc
 
 from metapepview.constants import GlobalConstants as gc
 
+from metapepview.html_templates import abundance_counting_selector,\
+    normalize_abundance_selector,\
+    include_unannotated_selector,\
+    global_fallback_selector
+
 
 # buttongroup to select the type of graph to show
 graph_type_selection = dbc.Row(
@@ -94,86 +99,6 @@ taxonomy_rank_selector = dbc.Row(
 )
 
 
-abundance_counting_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Quantification")),
-        dbc.Col(
-            dbc.RadioItems(
-                options=[
-                    {"label": "PSM count", "value": "Match Count"}, 
-                    {"label": "Combined signal intensity", "value":"Area"}
-                ],
-                value="Match Count",
-                id="barplot_taxa_quantification_column",
-                inline=False,
-                style={"width": "15rem"}
-            )
-        )
-    ],
-    style={"margin": "1.5rem 0rem", "display": "flex", "align-items": "center"}
-)
-
-
-normalize_abundance_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Normalize abundances")),
-        dbc.Col(
-            dbc.Checkbox(
-                id="barplot_taxa_fraction_checkbox",
-                value=False,
-                style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
-            )
-        )
-    ],
-    style={"margin": "1.5rem 0rem"}
-)
-
-
-include_unannotated_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Include unannotated")),
-        dbc.Col(
-            dbc.Checkbox(
-                id="barplot_taxa_unannotated_checkbox",
-                value=False,
-                style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
-            )
-        )
-    ],
-    style={"margin": "1.5rem 0rem"}
-)
-
-global_fallback_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Include Unipept annotation",
-                       id="tax_allow_glob_annot_text",
-                       style={'text-decoration-line': "underline", 
-                              'text-decoration-style': "dotted"}
-        )),
-        dbc.Col(
-            dbc.Checkbox(
-                id="barplot_taxa_allow_global_annot_checkbox",
-                value=False,
-                style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
-            )
-        ),
-        dbc.Popover(
-            """
-                For peptides without taxonomy annotation (at displayed rank) from
-                local annotation file, use Unipept taxonomy annotation. Both DB 
-                search matched peptides and de novo identified peptides will be
-                included in the community composition.
-            """,
-            id="tax_glob_annot_popover",
-            target="tax_allow_glob_annot_text",
-            trigger="hover",
-            placement='right',
-            className="p-2")
-    ],
-    className="" if gc.show_advanced_settings is True else "d-none",
-    style={"margin": "1.5rem 0rem"}
-)
-
 global_annot_de_novo_only_selector = dbc.Row(
     [
         dbc.Col(html.B("Unipept composition de novo only",
@@ -208,6 +133,40 @@ global_annot_de_novo_only_selector = dbc.Row(
 )
 
 
+facet_plot_switch = dbc.Row(
+    [
+        dbc.Col(html.B("Enable side-by-side plot")),
+        dbc.Col(
+            dbc.Switch(id="activate_taxonomy_facet", 
+                       value=False,
+                       className="align-self-center",
+                       style={"width": "15rem"})
+        )
+    ],
+    style={"margin": "1.5rem 0rem"}
+)
+
+
+tax_sample_facet_collapse = [
+    facet_plot_switch,
+    dbc.Collapse(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H5("Facet plot options"),
+                    abundance_counting_selector(True),
+                    normalize_abundance_selector(True),
+                    include_unannotated_selector(True),
+                    global_fallback_selector(True)
+                ]
+            )
+        ),
+        id="tax_comp_facet_options",
+        is_open=False
+    )
+]
+
+
 # modal body of barplot
 tax_sample_comp_options = [
     html.H3("Plot options"),
@@ -216,10 +175,10 @@ tax_sample_comp_options = [
     taxa_dropdown_selector,
     taxa_group_display_selector,
     taxonomy_rank_selector,
-    abundance_counting_selector,
-    normalize_abundance_selector,
-    include_unannotated_selector,
-    global_fallback_selector
+    abundance_counting_selector(),
+    normalize_abundance_selector(),
+    include_unannotated_selector(),
+    global_fallback_selector()
 ]
 
 
@@ -239,7 +198,7 @@ tax_sample_de_novo_options = [
 
 
 clade_filter = [
-    html.H5("Filter by Clade", style={"margin-top": "2.5rem"}),
+    html.H5("Filter by clade", style={"margin-top": "2.5rem"}),
     html.Hr(),
     dbc.Row(
         [
@@ -408,7 +367,7 @@ def taxonomy_page_constructor(
 
 # Taxonomy annotation page
 taxonomy_sample_analysis = taxonomy_page_constructor(
-    tax_sample_comp_options + clade_filter + export_button,
+    tax_sample_comp_options + tax_sample_facet_collapse + clade_filter + export_button,
     taxonomy_barplot,
     [
         html.P("...")

@@ -19,7 +19,7 @@ A range of options are provided to modify the visualization:
 - **Normalize abundances**: Check to display taxonomies as fraction of total composition per sample.
 - **Include unannotated**: Add peptides without annotation (at specified taxonomy rank) as separate "Undefined" category in the composition.
 - **Allow global annotation**: Supplement peptide sequences without taxonomy annotation from the user supplied taxonomy map, with potential Unipept matched taxonomy annotation. Requires the *Annotate peptides to Unipept* option to be checked for some samples in the *Taxonomy annotation* settings from the import module.
-- **Filter by Clade**: Select a specific taxonomy group to visualize; Specify a *Root taxonomy* group belonging to the selected *Clade rank* level, and only "offspring" taxonomy groups belonging to the root taxonomy will be visualized. Note: *Display rank* should be at a lower level than the *Clade rank*.
+- **Filter by clade**: Select a specific taxonomy group to visualize; Specify a *Root taxonomy* group belonging to the selected *Clade rank* level, and only "offspring" taxonomy groups belonging to the root taxonomy will be visualized. Note: *Display rank* should be at a lower level than the *Clade rank*.
 - **Export taxonomy**: Download a CSV file of taxonomy abundances at every rank (level) from all samples for manual processing. Abundance format depends on selected options. 
 
 !!! info
