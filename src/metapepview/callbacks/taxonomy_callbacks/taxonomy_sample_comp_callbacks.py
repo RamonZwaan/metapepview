@@ -16,6 +16,14 @@ from metapepview.constants import GlobalConstants as gc
 
 
 @app.callback(
+    Output("tax_comp_facet_options", "is_open"),
+    Input("activate_taxonomy_facet", "value"),
+)
+def toggle_tax_facet_collapse(switch_value):
+    return switch_value
+
+
+@app.callback(
     Output('taxa_barplot_graph', 'children'),
     Output('taxa_barplot_graph', 'style'),
     Output('taxonomy_figure_title', 'children'),
@@ -64,7 +72,6 @@ def update_taxa_graph(page_active,
     if global_annot_fallback is True and \
         all(i in peptide_df.columns for i in glob_tax_fields):
         peptide_df = substitute_lineage_with_global_lineage(peptide_df)
-
 
     if filter_clade and clade_rank and clade_rank != 'Root':
         # filter the dataset based on taxa at corresponding rank

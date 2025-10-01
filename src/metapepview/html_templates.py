@@ -735,5 +735,89 @@ def configure_metadata_format_container():
             className=function_class_name,
             style={"width": "50%"}
         )
-,
     ]
+
+
+
+# taxonomy plot options with variable id's
+
+def abundance_counting_selector(facet: bool = False):
+    component_id = "barplot_taxa_quantification_column" if facet is False\
+        else "facet_barplot_taxa_quantification_column"
+    
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Quantification")),
+            dbc.Col(
+                dbc.RadioItems(
+                    options=[
+                        {"label": "PSM count", "value": "Match Count"}, 
+                        {"label": "Combined signal intensity", "value":"Area"}
+                    ],
+                    value="Match Count",
+                    id=component_id,
+                    inline=False,
+                    style={"width": "15rem"}
+                )
+            )
+        ],
+        style={"margin": "1.5rem 0rem", "display": "flex", "align-items": "center"}
+    )
+
+
+def normalize_abundance_selector(facet: bool = False):
+    component_id = "barplot_taxa_fraction_checkbox" if facet is False\
+        else "facet_barplot_taxa_fraction_checkbox"
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Normalize abundances")),
+            dbc.Col(
+                dbc.Checkbox(
+                    id=component_id,
+                    value=False,
+                    style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
+                )
+            )
+        ],
+        style={"margin": "1.5rem 0rem"}
+    )
+
+
+def include_unannotated_selector(facet: bool = False):
+    component_id = "barplot_taxa_unannotated_checkbox" if facet is False\
+        else "facet_barplot_taxa_unannotated_checkbox"
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Include unannotated")),
+            dbc.Col(
+                dbc.Checkbox(
+                    id=component_id,
+                    value=False,
+                    style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
+                )
+            )
+        ],
+        style={"margin": "1.5rem 0rem"}
+    )
+
+
+def global_fallback_selector(facet: bool = False):
+    component_id = "barplot_taxa_allow_global_annot_checkbox" if facet is False\
+        else "facet_barplot_taxa_allow_global_annot_checkbox"
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Include Unipept annotation",
+                        style={'text-decoration-line': "underline", 
+                                'text-decoration-style': "dotted"}
+            )),
+            dbc.Col(
+                dbc.Checkbox(
+                    id=component_id,
+                    value=False,
+                    style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
+                )
+            ),
+        ],
+        className="" if gc.show_advanced_settings is True else "d-none",
+        style={"margin": "1.5rem 0rem"}
+    )
