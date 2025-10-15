@@ -16,6 +16,10 @@ from metapepview.backend.utils.pd_utils import *
 from metapepview.backend.io.import_spectra import *
 from metapepview.constants import *
 
+
+from metapepview.backend.utils.taxonomy_plot_utils import *
+
+
 # assign template theme for plotly figures
 pio.templates.default = GraphConstants.default_template
 
@@ -39,15 +43,6 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     rank_display_col = rank + display_suffix    
     rank_hidden_col = rank + hidden_suffix
     
-    # generate lookup table to match display format (id/name) to its corresponding hidden format
-    rank_cols = [rank + sfx for sfx in (display_suffix, hidden_suffix)]
-    id_name_match = {displ_name: hidden_name for displ_name, hidden_name \
-        in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
-
-    # set correct discrete color scale depending on number of taxa
-    color_scale = deepcopy(GraphConstants.wide_color_palette) if topn > 10 \
-        else deepcopy(GraphConstants.color_palette)
-    
     # Set replacement values for specific cases
     # value of undefined depends on dtype of column (id number or name string)
     if pd.api.types.is_string_dtype(peptide_dataset[rank_display_col].dtype):
@@ -55,6 +50,15 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     else:
         undefined_val = 0
     other_val = 'Other'
+
+    # generate lookup table to match display format (id/name) to its corresponding hidden format
+    rank_cols = [rank + sfx for sfx in (display_suffix, hidden_suffix)]
+    id_name_match = {displ_name: hidden_name for displ_name, hidden_name \
+        in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
+
+    # set correct discrete color scale depending on number of taxa
+    color_scale = deepcopy(GraphConstants.wide_color_palette) if topn > 10 \
+        else deepcopy(GraphConstants.color_palette) 
 
     # convert dataset to rank name and their aggregated sum
     comp_df = peptide_dataset[[ycol, rank_display_col, xcol]]
@@ -153,6 +157,122 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
     return fig
 
 
+
+def facet_taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
+                                      facet_dataset: pd.DataFrame | None,
+                                      rank: RankType='Phylum',
+                                      abundance_metric: AbundanceMetricType='Match Count',
+                                      fetch_names: bool=True,
+                                      include_undefined: bool=False,
+                                      denovo_threshold: float=90,
+                                      fractional_abundance: bool=False,
+                                      facet_abundance_metric: AbundanceMetricType='Match Count',
+                                      facet_include_undefined: bool=False,
+                                      facet_fractional_abundance: bool=False,
+                                      topn: int=0):
+    # Set column names to process for the figure
+    xcol = 'Sample Name'
+    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
+
+    # configure taxonomy columns to process based on rank and selected display format
+    (display_suffix, hidden_suffix) = (' Name', ' Id') if fetch_names is True \
+        else (' Id', ' Name')
+    rank_display_col = rank + display_suffix    
+    rank_hidden_col = rank + hidden_suffix
+
+    # generate lookup table to match display format (id/name) to its corresponding hidden format
+    rank_cols = [rank + sfx for sfx in (display_suffix, hidden_suffix)]
+    id_name_match = {displ_name: hidden_name for displ_name, hidden_name \
+        in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
+
+    # Set replacement values for specific cases
+    # value of undefined depends on dtype of column (id number or name string)
+    if pd.api.types.is_string_dtype(peptide_dataset[rank_display_col].dtype):
+        undefined_val = "Undefined"
+    else:
+        undefined_val = 0
+    
+    # facet dataset may be already provided (because Unipept suppl. was performed)
+    if facet_dataset is None:
+        facet_dataset = deepcopy(peptide_dataset)
+
+    comp_df, ycol = process_tax_abundance(
+        peptide_dataset,
+        abundance_metric,
+        rank_display_col,
+        include_undefined,
+        undefined_val,
+        fractional_abundance
+    )
+    facet_comp_df, facet_ycol = process_tax_abundance(
+        facet_dataset,
+        facet_abundance_metric,
+        rank_display_col,
+        facet_include_undefined,
+        undefined_val,
+        facet_fractional_abundance
+    )
+    
+    # only keep the most abundant taxa over both samples, optionally, max is taken instead of sum
+    if topn > 0:
+        top_taxa = determine_top_taxa(comp_df,
+                                      facet_comp_df,
+                                      topn,
+                                      rank_display_col,
+                                      ycol,
+                                      facet_ycol,
+                                      undefined_val,
+                                      any([include_undefined, facet_include_undefined]))
+        comp_df = add_other_group(
+            comp_df, rank_display_col, xcol, ycol, top_taxa, undefined_val
+        ) 
+        facet_comp_df = add_other_group(
+            facet_comp_df, rank_display_col, xcol, facet_ycol, top_taxa, undefined_val
+        ) 
+        
+    # whether taxonomy id or name is displayed, include the other as hidden data
+    comp_df = add_hidden_data_col(comp_df, rank_display_col, rank_hidden_col, id_name_match)
+    facet_comp_df = add_hidden_data_col(facet_comp_df, rank_display_col, rank_hidden_col, id_name_match)
+    
+    # ensure both dataframes have all categories (taxa and samples), even if they are 0
+    comp_df, facet_comp_df = add_missing_cats(
+        comp_df, facet_comp_df, rank_display_col, rank_hidden_col
+    )
+
+    # order categories to have 'Other' and 'Undefined' at the end
+    comp_df = order_comp_categories(comp_df, rank_display_col, undefined_val)
+    facet_comp_df = order_comp_categories(facet_comp_df, rank_display_col, undefined_val)
+    
+
+    # configure colorscale to use
+    ncats = max(len(comp_df[rank_display_col].unique()),
+                len(facet_comp_df[rank_display_col].unique()))
+    has_undefined = ('Undefined' in comp_df[rank_display_col].values or 
+                     'Undefined' in facet_comp_df[rank_display_col].values)
+    color_scale = set_color_scale(topn, ncats, has_undefined)
+
+    fig = create_facet_barplot(
+        comp_df=comp_df,
+        facet_comp_df=facet_comp_df,
+        rank=rank,
+        rank_displ_col=rank_display_col,
+        rank_hid_col=rank_hidden_col,
+        xcol=xcol,
+        ycol=ycol,
+        color_scale=color_scale,
+        abundance_metric=abundance_metric,
+        facet_ycol=facet_ycol,
+        fractional_abundance=fractional_abundance,
+        facet_abundance_metric=facet_abundance_metric,
+        facet_fractional_abundance=facet_fractional_abundance
+    )
+    
+    # fig.update_layout(width=900, height=500)
+    return fig
+
+
+
+
 # taxonomy abundance composition
 def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
                                 rank: RankType="Phylum",
@@ -164,8 +284,8 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
                                 fractional_abundance: bool=False,
                                 topn: int=0):
     # column name for abundances
-    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
     xcol = 'Sample Name'
+    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
     # get correct suffix from lineage columns
     suffix = ' Name' if fetch_names is True else ' Id'
     rank_col = rank + suffix            
