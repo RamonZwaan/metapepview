@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 
 from metapepview.constants import GraphConstants
+from metapepview.backend.utils.string_utils import truncate_end
 
 
 
@@ -183,7 +184,7 @@ def create_facet_barplot(
     share_y = (abundance_metric == facet_abundance_metric and 
                fractional_abundance == facet_fractional_abundance)
     
-    spacing = 0.02 if share_y is True else 0.1
+    spacing = 0.02 if share_y is True else 0.15
 
     # Create figure with two subplots, if y scaling is same, share axis
     fig = make_subplots(rows=1, cols=2, subplot_titles=["", "Facet plot"],
@@ -193,15 +194,18 @@ def create_facet_barplot(
     for i, df in enumerate([comp_df, facet_comp_df]):
         show_legend = True if i == 0 else False
         sub_ycol = ycol if i == 0 else facet_ycol
+        # add column to show if it is a facet df for customdata
+        df["Is facet"] = False if i == 0 else True
 
         for j, tax_value in enumerate(df[rank_displ_col].unique()):
             cat_df = df[df[rank_displ_col] == tax_value]
+            legend_name = truncate_end(tax_value, 30)
             fig.add_trace(
                 go.Bar(
                     x=cat_df[xcol],
                     y=cat_df[sub_ycol],
-                    name=tax_value,
-                    customdata=cat_df[[rank_hid_col, rank_displ_col]],
+                    name=legend_name,
+                    customdata=cat_df[[rank_hid_col, rank_displ_col, 'Is facet']],
                     marker_color=color_scale[j],
                     showlegend=show_legend,
                     legendgroup=f"{tax_value}",
@@ -222,7 +226,6 @@ def create_facet_barplot(
         barmode='stack', 
         #legend_groupclick='toggleitem',
         #legend_itemsizing='trace',
-        legend_itemwidth=30,
         legend_tracegroupgap=0,
         legend_title_text=rank_displ_col)
     
@@ -247,6 +250,7 @@ def create_facet_barplot(
         if facet_fractional_abundance is True:
             facet_ytitle = "Fraction " + facet_ytitle.lower()
         fig.update_yaxes(title=facet_ytitle,
+                         title_standoff=5,
                          col=2)
 
     return fig

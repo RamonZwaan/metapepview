@@ -185,9 +185,11 @@ def update_taxa_graph(page_active,
     State('peptides', 'data'),
     State('barplot_taxa_rank_items', 'value'),
     State('barplot_taxa_quantification_column', 'value'),
+    State('barplot_taxa_allow_global_annot_checkbox', 'value'),
+    State('facet_barplot_taxa_quantification_column', 'value'),
+    State('facet_barplot_taxa_allow_global_annot_checkbox', 'value'),
     Input('taxonomic_dropoff_normalize', 'value'),
     Input('taxonomy_cumulative_dropoff_rank', 'value'),
-    State('barplot_taxa_allow_global_annot_checkbox', 'value'),
     prevent_initial_call=True
 )
 def update_taxonomy_dropoff_graph(clickData,
@@ -195,9 +197,12 @@ def update_taxonomy_dropoff_graph(clickData,
                                   peptide_json,
                                   tax_rank,
                                   quant_method,
+                                  global_annot_fallback,
+                                  facet_quant_method,
+                                  facet_global_annot_fallback,
                                   normalize_bars,
                                   dropoff_root_rank,
-                                  global_annot_fallback):
+                                  ):
     if page_active is False \
         or clickData is None \
         or tax_rank is None \
@@ -217,6 +222,11 @@ def update_taxonomy_dropoff_graph(clickData,
     datapoint = clickData['points'][0]
     sample_name = datapoint['x']
     tax_id = datapoint['customdata'][0]
+
+    # set facet settings if clickdata from facet element
+    if len(datapoint['customdata']) > 2 and datapoint['customdata'][2] is True:
+        quant_method = facet_quant_method
+        global_annot_fallback = facet_global_annot_fallback
 
     # can only construct figure from valid tax id's.
     if tax_id is None:
@@ -312,12 +322,12 @@ def update_taxonomy_dropoff_graph(clickData,
     else:
         lin_loss_text, glob_loss_text = "-", "-"
 
-
+    ytitle = 'Peptide spectrum matches' if quant_method == 'Match Count' else 'Area'
     fig = taxonomy_dropoff_scatter(
-        peptide_df,
         lineage_counts,
         pept_allocation,
-        normalize_bars)
+        normalize_bars,
+        ytitle)
 
     title = "Taxonomic dropoff: {} from {}".format(tax_name, sample_name)
 
