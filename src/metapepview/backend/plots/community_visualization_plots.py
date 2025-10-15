@@ -364,8 +364,7 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
     return fig
 
 
-def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
-                             lineage_counts: List[Tuple[str, int | float]],
+def taxonomy_dropoff_scatter(lineage_counts: List[Tuple[str, int | float]],
                              lineage_dropoff: List[Tuple[str, 
                                                          Tuple[float,
                                                                float,
@@ -373,7 +372,8 @@ def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
                                                                float,
                                                                Dict[str, 
                                                                     float]]]],
-                             normalize_bars: bool = False):
+                             normalize_bars: bool = False,
+                             ytitle: str = "Peptide spectrum matches"):
     
     # fetch allocation categories into separate arrays
     lin_names = [x[0] for x in lineage_dropoff]
@@ -476,7 +476,10 @@ def taxonomy_dropoff_scatter(peptide_df: pd.DataFrame,
                          gridcolor=GraphConstants.gridcolor,
                          gridwidth=GraphConstants.gridwidth,
                          nticks=6)
-    fig.update_yaxes(title="Peptide spectrum matches",
+    
+    
+
+    fig.update_yaxes(title=ytitle,
                      secondary_y=secondary_y,
                      gridcolor=GraphConstants.gridcolor,
                      gridwidth=GraphConstants.gridwidth,
