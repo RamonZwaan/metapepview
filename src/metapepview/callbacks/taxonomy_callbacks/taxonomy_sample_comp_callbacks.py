@@ -2,6 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
+from copy import deepcopy
 
 from metapepview.server import app
 
@@ -10,6 +11,7 @@ from metapepview.html_templates import hidden_graph_with_text
 from metapepview.backend import *
 from metapepview.backend.plots import \
     taxonomic_abundance_barplot, \
+    facet_taxonomic_abundance_barplot, \
     taxonomic_abundance_heatmap, \
     taxonomy_dropoff_scatter
 from metapepview.constants import GlobalConstants as gc
@@ -38,7 +40,12 @@ def toggle_tax_facet_collapse(switch_value):
     Input('barplot_taxa_quantification_column', 'value'),
     Input('barplot_taxa_fraction_checkbox', 'value'),
     Input('barplot_taxa_unannotated_checkbox', 'value'),
-    Input('barplot_taxa_allow_global_annot_checkbox', 'value')
+    Input('barplot_taxa_allow_global_annot_checkbox', 'value'),
+    Input('activate_taxonomy_facet', 'value'),
+    Input('facet_barplot_taxa_quantification_column', 'value'),
+    Input('facet_barplot_taxa_fraction_checkbox', 'value'),
+    Input('facet_barplot_taxa_unannotated_checkbox', 'value'),
+    Input('facet_barplot_taxa_allow_global_annot_checkbox', 'value')
 )
 def update_taxa_graph(page_active,
                       peptide_json,
@@ -51,7 +58,13 @@ def update_taxa_graph(page_active,
                       quant_method,
                       fractional,
                       unannotated,
-                      global_annot_fallback):
+                      global_annot_fallback,
+                      enable_facet,
+                      facet_quant_method,
+                      facet_fractional,
+                      facet_unannotated,
+                      facet_global_annot_fallback):
+    # check that plot can be made
     if page_active is False:
         raise PreventUpdate
 
@@ -65,50 +78,97 @@ def update_taxa_graph(page_active,
                                                "Select taxonomy rank in dropdown menu...")
         return block_element, dict(), 'Figure'
 
+
+    # load peptides dataset, keep only taxonomy related columns
     peptide_df = MetaPepTable.read_json(peptide_json).data
+    peptide_df = peptide_df[gc.metapep_table_taxonomy_fields + \
+                            gc.metapep_table_global_taxonomy_fields +\
+                            ["Area", "PSM Count", "De Novo Match Count", "Sample Name"]]
+
 
     # substitute missing taxonomy annotation with global annotation if specified
-    glob_tax_fields = GlobalConstants.metapep_table_global_taxonomy_lineage
-    if global_annot_fallback is True and \
-        all(i in peptide_df.columns for i in glob_tax_fields):
+    glob_tax_fields = gc.metapep_table_global_taxonomy_lineage
+    glob_data_in_df = all(i in peptide_df.columns for i in glob_tax_fields)
+    glob_annot_diff = global_annot_fallback != facet_global_annot_fallback
+    
+    # Duplicate peptide dataset for facet if global annotation differs
+    facet_peptide_df = None
+    if all(x is True for x in [enable_facet, glob_data_in_df, glob_annot_diff]):
+        facet_peptide_df = deepcopy(peptide_df)
+        if facet_global_annot_fallback is True:
+            facet_peptide_df = substitute_lineage_with_global_lineage(facet_peptide_df)
+
+    if global_annot_fallback is True and glob_data_in_df:
         peptide_df = substitute_lineage_with_global_lineage(peptide_df)
 
+
+    if tax_ids == [] and top_n == 2:
+        block_element = hidden_graph_with_text("taxonomy_barplot_figure",
+                                               "Select custom tax id's...")
+        return block_element, dict(), 'Figure'
+
+    # filter the dataset based on taxa at corresponding rank
     if filter_clade and clade_rank and clade_rank != 'Root':
-        # filter the dataset based on taxa at corresponding rank
-        peptide_df = peptide_df[peptide_df[clade_rank + " Name"] == filter_clade]
+        peptide_df = filter_taxonomy_clade(peptide_df, filter_clade, clade_rank, 'Name')
+        if facet_peptide_df is not None:
+            facet_peptide_df = filter_taxonomy_clade(facet_peptide_df, filter_clade, clade_rank, 'Name')
+
         plot_title = f"Taxonomic abundances from {filter_clade} clade, {tax_rank} rank"
     else:
         plot_title = f"Taxonomic abundances, {tax_rank} rank"
 
-    if bar_graph is True:
-        plot_method = taxonomic_abundance_barplot
-    else:
-        plot_method = taxonomic_abundance_heatmap
+    if bar_graph is True and enable_facet is True:
+        if top_n == 2:
+            peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
+            if facet_peptide_df is not None:
+                facet_peptide_df = facet_peptide_df[facet_peptide_df[tax_rank + ' Name'].isin(tax_ids)]
+            
+            plot = facet_taxonomic_abundance_barplot(
+                peptide_dataset=peptide_df,
+                facet_dataset=facet_peptide_df,
+                rank=tax_rank,
+                abundance_metric=quant_method,
+                fractional_abundance=fractional,
+                facet_abundance_metric=facet_quant_method,
+                facet_fractional_abundance=facet_fractional)
 
-
-    if tax_ids != [] and top_n == 2:
-        peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
-        plot = plot_method(peptide_df, 
-                           rank=tax_rank,
-                           abundance_metric=quant_method,
-                           fractional_abundance=fractional)
-    elif top_n == 2:
-        block_element = hidden_graph_with_text("taxonomy_barplot_figure",
-                                               "Select custom tax id's...")
-        return block_element, dict(), 'Figure'
+        else:
+            n_taxa = 9 if top_n == 1 else 20
+            plot = facet_taxonomic_abundance_barplot(
+                peptide_dataset=peptide_df, 
+                facet_dataset=facet_peptide_df,
+                topn=n_taxa, 
+                rank=tax_rank,
+                abundance_metric=quant_method,
+                fractional_abundance=fractional,
+                include_undefined=unannotated,
+                facet_abundance_metric=facet_quant_method,
+                facet_fractional_abundance=facet_fractional,
+                facet_include_undefined=facet_unannotated)
     else:
-        n_taxa = 9 if top_n == 1 else 20
-        plot = plot_method(peptide_df, 
-                           topn=n_taxa, 
-                           rank=tax_rank,
-                           abundance_metric=quant_method,
-                           fractional_abundance=fractional,
-                           include_undefined=unannotated)
-    # plot.update_layout(height=500)
+        if bar_graph is True:
+            plot_method = taxonomic_abundance_barplot
+        else:
+            plot_method = taxonomic_abundance_heatmap
+
+        if top_n == 2:
+            peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
+            plot = plot_method(peptide_df, 
+                               rank=tax_rank,
+                               abundance_metric=quant_method,
+                               fractional_abundance=fractional)
+        else:
+            n_taxa = 9 if top_n == 1 else 20
+            plot = plot_method(peptide_df, 
+                               topn=n_taxa, 
+                               rank=tax_rank,
+                               abundance_metric=quant_method,
+                               fractional_abundance=fractional,
+                               include_undefined=unannotated)
 
     return dcc.Graph(figure=plot,
-                     id="taxonomy_barplot_figure",
-                     style={'height': "45rem"}), dict(), plot_title
+                    id="taxonomy_barplot_figure",
+                    style={'height': "45rem"}), dict(), plot_title
 
 
 @app.callback(
