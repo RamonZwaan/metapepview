@@ -47,7 +47,7 @@ def determine_top_taxa(
         topn: int,
         tax_col: str,
         ycol: str,
-        facet_ycol: str,
+        facet_ycol: str | None,
         undefined_val: Any,
         include_undefined: bool) -> List[str]:
     taxa_counts = comp_df[comp_df[tax_col] != undefined_val]\
@@ -104,21 +104,28 @@ def add_other_group(
 def add_missing_cats(comp_df: pd.DataFrame, 
                      facet_comp_df: pd.DataFrame,
                      rank_display_col: str,
-                     rank_hidden_col: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+                     rank_hidden_col: str | None = None,
+                     fill_value: Any = 0) -> Tuple[pd.DataFrame, 
+                                                   pd.DataFrame]:
+    if rank_hidden_col is None:
+        cols = ["Sample Name", rank_display_col]
+    else:
+        cols = ["Sample Name", rank_display_col, rank_hidden_col]
+
     # ensure both dataframes have all categories (taxa and samples), even if they are 0
     cats = pd.MultiIndex.from_frame(
-        pd.concat([comp_df[["Sample Name", rank_display_col, rank_hidden_col]], 
-                   facet_comp_df[["Sample Name", rank_display_col, rank_hidden_col]]])
+        pd.concat([comp_df[cols], 
+                   facet_comp_df[cols]])
         .drop_duplicates()
     )
     comp_df = (comp_df
-        .set_index(["Sample Name", rank_display_col, rank_hidden_col])
-        .reindex(cats, fill_value=0)
+        .set_index(cols)
+        .reindex(cats, fill_value=fill_value)
         .reset_index()
     )
     facet_comp_df = (facet_comp_df
-        .set_index(["Sample Name", rank_display_col, rank_hidden_col])
-        .reindex(cats, fill_value=0)
+        .set_index(cols)
+        .reindex(cats, fill_value=fill_value)
         .reset_index()
     )
     return (comp_df, facet_comp_df)
@@ -252,5 +259,78 @@ def create_facet_barplot(
         fig.update_yaxes(title=facet_ytitle,
                          title_standoff=5,
                          col=2)
+
+    return fig
+
+
+def create_facet_heatmap(
+    comp_df: pd.DataFrame,
+    facet_comp_df: pd.DataFrame,
+    rank_col: str,
+    color_scale: List[str],
+    abundance_metric: str,
+    fractional_abundance: bool,
+    facet_abundance_metric: str,
+    facet_fractional_abundance: bool):
+    share_colorbar = (abundance_metric == facet_abundance_metric and 
+                      fractional_abundance == facet_fractional_abundance)
+    
+    legend_name = "PSM" if abundance_metric == "Match Count" else "Int."
+    facet_legend_name = "PSM" if facet_abundance_metric == "Match Count" else "Int."
+
+    # Create figure with two subplots, if y scaling is same, share axis
+    fig = make_subplots(
+        rows=2, cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.04)
+
+    global_min, global_max = None, None
+    if share_colorbar is True:
+        global_min = np.min([comp_df, facet_comp_df])
+        global_max = np.max([comp_df, facet_comp_df])
+
+    # build the barplot traces for both facets, the facet plot is on the second column.
+    for i, df in enumerate([comp_df, facet_comp_df]):
+        if share_colorbar is True:
+            show_scale = True if i == 0 else False
+            scale_len, scale_y = 1, 0.5
+            min, max = global_min, global_max
+        else:
+            show_scale = True
+            scale_len = 0.45
+            scale_y = 0.75 - i*0.5
+            min, max = np.min(df), np.max(df)
+
+        # add column to show if it is a facet df for customdata
+        fig.add_trace(
+            go.Heatmap(
+                z=df.values,
+                x=df.columns.to_numpy(),
+                y=df.index.to_numpy(),
+                zmin=min,
+                zmax=max,
+                showscale=show_scale,
+                colorscale=color_scale,
+                colorbar=dict(
+                    title=legend_name if i == 0 else facet_legend_name, 
+                    len=scale_len, 
+                    y=scale_y)
+            ),
+            row=i+1, 
+            col=1
+        )
+
+    fig.update_layout(GraphConstants.default_layout)
+    fig.update_layout(margin=dict(l=20, r=20, t=80, b=10))
+
+    fig.update_xaxes(side="top",
+                     showticklabels=True,
+                     title=rank_col,
+                     row=1, col=1)
+    fig.update_xaxes(showticklabels=False, row=2, col=1)
+    
+    # update y axis
+    fig.update_yaxes(title="Sample name", row=1, col=1)
+    fig.update_yaxes(title="Sample name (Facet)", row=2, col=1)
 
     return fig
