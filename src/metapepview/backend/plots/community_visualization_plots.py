@@ -30,18 +30,21 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
                                 abundance_metric: AbundanceMetricType='Match Count',
                                 fetch_names: bool=True,
                                 include_undefined: bool=False,
-                                denovo_threshold: float=90,
                                 fractional_abundance: bool=False,
                                 topn: int=0):
     # Set column names to process for the figure
     xcol = 'Sample Name'
-    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
 
     # configure taxonomy columns to process based on rank and selected display format
     (display_suffix, hidden_suffix) = (' Name', ' Id') if fetch_names is True \
         else (' Id', ' Name')
     rank_display_col = rank + display_suffix    
     rank_hidden_col = rank + hidden_suffix
+
+    # generate lookup table to match display format (id/name) to its corresponding hidden format
+    rank_cols = [rank + sfx for sfx in (display_suffix, hidden_suffix)]
+    id_name_match = {displ_name: hidden_name for displ_name, hidden_name \
+        in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
     
     # Set replacement values for specific cases
     # value of undefined depends on dtype of column (id number or name string)
@@ -49,79 +52,51 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
         undefined_val = "Undefined"
     else:
         undefined_val = 0
-    other_val = 'Other'
 
-    # generate lookup table to match display format (id/name) to its corresponding hidden format
-    rank_cols = [rank + sfx for sfx in (display_suffix, hidden_suffix)]
-    id_name_match = {displ_name: hidden_name for displ_name, hidden_name \
-        in peptide_dataset[rank_cols].drop_duplicates().dropna().values}
-
-    # set correct discrete color scale depending on number of taxa
-    color_scale = deepcopy(GraphConstants.wide_color_palette) if topn > 10 \
-        else deepcopy(GraphConstants.color_palette) 
-
-    # convert dataset to rank name and their aggregated sum
-    comp_df = peptide_dataset[[ycol, rank_display_col, xcol]]
-    
-    # give value to all nan cells to represent undefined or unknown
-    if include_undefined is True:
-        comp_df.loc[:, rank_display_col] = comp_df[rank_display_col].fillna(undefined_val)
-            
-    # group all peptides belonging to rank, sum separate abundance scores
-    comp_df = comp_df.groupby(by=[xcol, rank_display_col])[[ycol]].sum().reset_index()
-    
-    # divide psm's by sum of psm's per sample name
-    if fractional_abundance is True:
-        comp_df.loc[:, ycol] /= comp_df.groupby(by=[xcol])[ycol].transform('sum')
+    comp_df, ycol = process_tax_abundance(
+        peptide_dataset,
+        abundance_metric,
+        rank_display_col,
+        include_undefined,
+        undefined_val,
+        fractional_abundance
+    )
     
     # only keep the most abundant taxa over both samples, optionally, max is taken instead of sum
     if topn > 0:
-        sorted_taxa_counts = comp_df[comp_df[rank_display_col] != undefined_val]\
-            .groupby(by=rank_display_col)[ycol]\
-            .sum()\
-            .sort_values(ascending=False)
-        
-        top_taxa = sorted_taxa_counts.head(topn)
-        top_taxa = top_taxa.index.to_list()
-        
-        if include_undefined == True:
-            top_taxa.append(undefined_val)
-        
-
+        top_taxa = determine_top_taxa(
+            comp_df=comp_df,
+            facet_df=None,
+            topn=topn,
+            tax_col=rank_display_col,
+            ycol=ycol,
+            facet_ycol=None,
+            undefined_val=undefined_val,
+            include_undefined=include_undefined)
         # summ smaller taxa into 'other' group
-        top_taxa_indices = comp_df[rank_display_col].isin(top_taxa + [undefined_val])
-        other_sum = comp_df[~top_taxa_indices].groupby(by=xcol)[ycol].sum()
-        other_df = other_sum.reset_index()
-        other_df[rank_display_col] = other_val
+        comp_df = add_other_group(
+            comp_df, 
+            rank_display_col, 
+            xcol, 
+            ycol, 
+            top_taxa, 
+            undefined_val
+        )  
         
-        comp_df = comp_df[comp_df[rank_display_col].isin(top_taxa)]
-        comp_df = comp_df.reset_index(drop=True)
-        comp_df = comp_df.sort_values(by=rank_display_col)
-        comp_df[rank_display_col] = comp_df[rank_display_col].astype(str)
-        
-        comp_df = pd.concat([comp_df, other_df]) 
-        
-    # wether taxonomy id or name is displayed, include the other as hidden data
-    comp_df.loc[:, rank_hidden_col] = comp_df[rank_display_col].apply(
-        lambda x: id_name_match.get(x, np.nan)
-    )
+    # whether taxonomy id or name is displayed, include the other as hidden data
+    comp_df = add_hidden_data_col(comp_df, rank_display_col, rank_hidden_col, id_name_match)
     
     # order categories to have 'Other' and 'Undefined' at the end
-    for custom_cat in ['Other', 'Undefined']:
-        if custom_cat in comp_df[rank_display_col].values:
-            other_df = comp_df[comp_df[rank_display_col] != custom_cat]
-            custom_cat_df = comp_df[comp_df[rank_display_col] == custom_cat]
-            comp_df = pd.concat([other_df, custom_cat_df])
-        
-    # assign clear distinct color for 'Undefined group
-    if 'Undefined' in comp_df[rank_display_col].values:
-        ncats = len(comp_df[rank_display_col].unique())
-        # if too more colors than scale + undef color, do nothing
-        if ncats <= len(color_scale):
-            color_scale[ncats - 1] = GraphConstants.undefined_color
-        elif ncats == len(color_scale) + 1:
-            color_scale.append(GraphConstants.undefined_color)
-            
+    comp_df = order_comp_categories(comp_df, rank_display_col, undefined_val)
+    
+    # set correct discrete color scale depending on number of taxa
+    color_scale = deepcopy(GraphConstants.wide_color_palette) if topn > 10 \
+        else deepcopy(GraphConstants.color_palette)
+
+    # configure colorscale to use
+    ncats = len(comp_df[rank_display_col].unique())
+    has_undefined = 'Undefined' in comp_df[rank_display_col].values
+    color_scale = set_color_scale(topn, ncats, has_undefined)
 
     fig = px.bar(comp_df,
                  title=f"Distribution PSM over taxa ({rank})",
@@ -164,7 +139,6 @@ def facet_taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
                                       abundance_metric: AbundanceMetricType='Match Count',
                                       fetch_names: bool=True,
                                       include_undefined: bool=False,
-                                      denovo_threshold: float=90,
                                       fractional_abundance: bool=False,
                                       facet_abundance_metric: AbundanceMetricType='Match Count',
                                       facet_include_undefined: bool=False,
@@ -172,7 +146,6 @@ def facet_taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
                                       topn: int=0):
     # Set column names to process for the figure
     xcol = 'Sample Name'
-    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
 
     # configure taxonomy columns to process based on rank and selected display format
     (display_suffix, hidden_suffix) = (' Name', ' Id') if fetch_names is True \
@@ -279,8 +252,6 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
                                 abundance_metric: AbundanceMetricType="Match Count",
                                 fetch_names: bool=True,
                                 include_undefined: bool =False,
-                                include_denovo_only: bool=False,
-                                denovo_threshold: float=90,
                                 fractional_abundance: bool=False,
                                 topn: int=0):
     # column name for abundances
@@ -296,53 +267,58 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
         undefined_val = "Undefined"
     else:
         undefined_val = 0
-    other_val = 'Other'
-    tax_comp_list = list()
+
+    # tax_comp_list = list()
     
-    # get composition data for each sample
-    for i, sample_name in enumerate(peptide_dataset[xcol].unique()):
-        dataset = peptide_dataset[peptide_dataset[xcol] == sample_name]
+    # # get composition data for each sample
+    # for i, sample_name in enumerate(peptide_dataset[xcol].unique()):
+    #     dataset = peptide_dataset[peptide_dataset[xcol] == sample_name]
             
-        # convert dataset to rank name and their aggregated sum
-        rank_composition = dataset[[ycol, rank_col]]
+    #     # convert dataset to rank name and their aggregated sum
+    #     rank_composition = dataset[[ycol, rank_col]]
         
-        # give value to all nan cells to represent undefined or unknown
-        if include_undefined is True:
-            rank_composition[rank_col].fillna(undefined_val, inplace=True)
+    #     # give value to all nan cells to represent undefined or unknown
+    #     if include_undefined is True:
+    #         rank_composition[rank_col].fillna(undefined_val, inplace=True)
                 
-        # group all peptides belonging to rank, sum separate abundance scores
-        rank_composition = rank_composition.groupby(by=rank_col).sum().reset_index()
+    #     # group all peptides belonging to rank, sum separate abundance scores
+    #     rank_composition = rank_composition.groupby(by=rank_col).sum().reset_index()
         
-        if fractional_abundance is True:
-            rank_composition[ycol] /= rank_composition[ycol].sum()
+    #     if fractional_abundance is True:
+    #         rank_composition[ycol] /= rank_composition[ycol].sum()
         
-        rank_composition.loc[:, xcol] = sample_name
+    #     rank_composition.loc[:, xcol] = sample_name
         
-        tax_comp_list.append(rank_composition)
-        
-    # combine samples into one datast
-    comp_df = pd.concat(tax_comp_list)
+    #     tax_comp_list.append(rank_composition)
+
+    # # combine samples into one datast
+    # comp_df = pd.concat(tax_comp_list)
+
+    comp_df, ycol = process_tax_abundance(
+        peptide_dataset=peptide_dataset,
+        abundance_metric=abundance_metric,
+        tax_col=rank_col,
+        include_undefined=include_undefined,
+        undefined_val=undefined_val,
+        fractional_abundance=fractional_abundance
+    )
     
     # only keep the most abundant taxa over both samples, optionally, max is taken instead of sum
     if topn > 0:
-        top_taxa = comp_df[comp_df[rank + suffix] != undefined_val]\
-            .groupby(by=rank + suffix)\
-            .sum()[ycol]\
-            .sort_values(ascending=False)\
-            .head(topn)
-        top_taxa = top_taxa.index.to_list()
+        top_taxa = determine_top_taxa(
+            comp_df=comp_df,
+            facet_df=None,
+            topn=topn,
+            tax_col=rank_col,
+            ycol=ycol,
+            facet_ycol=None,
+            undefined_val=undefined_val,
+            include_undefined=include_undefined
+        )
         
-        if include_undefined == True:
-            top_taxa.append(undefined_val)
-        
+        # in contrast to barplot, no 'Other' is added, just the top taxa (+ undefined)
         comp_df = comp_df[comp_df[rank_col].isin(top_taxa)]
         comp_df[rank_col] = comp_df[rank_col].astype(str)
-        
-    # if include_denovo_only is True and denovo_dataset is not None:
-    #     de_novo_psm = denovo_dataset[denovo_dataset["ALC (%)"] > denovo_threshold]["peptide_spectrum_matches"].sum()
-    #     comp_df.loc[len(comp_df.index)] = [f"de novo only (>{denovo_threshold})",
-    #                                        de_novo_psm,
-    #                                        denovo_dataset_name]
     
     value_matrix = comp_df[[ycol, xcol, rank_col]].pivot(index=xcol,
                                                          columns=rank_col,
@@ -360,6 +336,111 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
     fig.update_xaxes(side="top",
                      title=xtitle)
     fig.update_layout(GraphConstants.default_layout)
+    
+    return fig
+
+
+# taxonomy abundance composition
+def facet_taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
+                                      facet_dataset: pd.DataFrame | None,
+                                      rank: RankType="Phylum",
+                                      abundance_metric: AbundanceMetricType="Match Count",
+                                      fetch_names: bool=True,
+                                      include_undefined: bool =False,
+                                      fractional_abundance: bool=False,
+                                      facet_abundance_metric: AbundanceMetricType='Match Count',
+                                      facet_include_undefined: bool=False,
+                                      facet_fractional_abundance: bool=False,
+                                      topn: int=0):
+    # column name for abundances
+    xcol = 'Sample Name'
+    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
+    # get correct suffix from lineage columns
+    suffix = ' Name' if fetch_names is True else ' Id'
+    rank_col = rank + suffix            
+    
+
+    # Set replacement values for specific cases
+    # value of undefined depends on dtype of column (id number or name string)
+    if pd.api.types.is_string_dtype(peptide_dataset[rank_col].dtype):
+        undefined_val = "Undefined"
+    else:
+        undefined_val = 0
+
+    # facet dataset may be already provided (because Unipept suppl. was performed)
+    if facet_dataset is None:
+        facet_dataset = deepcopy(peptide_dataset)
+
+    comp_df, ycol = process_tax_abundance(
+        peptide_dataset=peptide_dataset,
+        abundance_metric=abundance_metric,
+        tax_col=rank_col,
+        include_undefined=include_undefined,
+        undefined_val=undefined_val,
+        fractional_abundance=fractional_abundance
+    )
+    facet_comp_df, facet_ycol = process_tax_abundance(
+        peptide_dataset=facet_dataset,
+        abundance_metric=facet_abundance_metric,
+        tax_col=rank_col,
+        include_undefined=facet_include_undefined,
+        undefined_val=undefined_val,
+        fractional_abundance=facet_fractional_abundance
+    )
+    
+    # only keep the most abundant taxa over both samples, optionally, max is taken instead of sum
+    if topn > 0:
+        top_taxa = determine_top_taxa(
+            comp_df=comp_df,
+            facet_df=facet_comp_df,
+            topn=topn,
+            tax_col=rank_col,
+            ycol=ycol,
+            facet_ycol=facet_ycol,
+            undefined_val=undefined_val,
+            include_undefined=any([include_undefined, facet_include_undefined])
+        )
+
+        # in contrast to barplot, no 'Other' is added, just the top taxa (+ undefined)
+        comp_df = comp_df[comp_df[rank_col].isin(top_taxa)]
+        comp_df[rank_col] = comp_df[rank_col].astype(str)
+
+        facet_comp_df = facet_comp_df[facet_comp_df[rank_col].isin(top_taxa)]
+        facet_comp_df[rank_col] = facet_comp_df[rank_col].astype(str)
+    
+    # ensure both dataframes have all categories (taxa and samples), even if they are 0
+    comp_df, facet_comp_df = add_missing_cats(comp_df, facet_comp_df, rank_col, fill_value=np.nan)
+
+    value_matrix = comp_df[[ycol, xcol, rank_col]].pivot(index=xcol,
+                                                         columns=rank_col,
+                                                         values=ycol)
+    facet_value_matrix = facet_comp_df[[facet_ycol, xcol, rank_col]].pivot(index=xcol,
+                                                                           columns=rank_col,
+                                                                           values=facet_ycol)
+    
+    fig = create_facet_heatmap(
+        comp_df=value_matrix,
+        facet_comp_df=facet_value_matrix,
+        rank_col=rank_col,
+        color_scale=GraphConstants.continuous_color_scale,
+        abundance_metric=abundance_metric,
+        fractional_abundance=fractional_abundance,
+        facet_abundance_metric=facet_abundance_metric,
+        facet_fractional_abundance=facet_fractional_abundance
+    )
+
+    # # create simple annotated heatmap
+    # fig = px.imshow(value_matrix,
+    #                 color_continuous_scale=GraphConstants.continuous_color_scale)
+    
+    # # configure x-axis title
+    # xtitle = 'Peptide spectrum matches' if abundance_metric == 'Match Count' else 'Area'
+    # if fractional_abundance is True:
+    #     xtitle = "Fraction " + xtitle.lower()
+    
+    # fig.update_xaxes(side="top",
+    #                  title=xtitle)
+    # fig.update_layout(GraphConstants.default_layout)
     
     return fig
 

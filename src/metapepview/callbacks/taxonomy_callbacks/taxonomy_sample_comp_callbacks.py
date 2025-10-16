@@ -12,6 +12,7 @@ from metapepview.backend import *
 from metapepview.backend.plots import \
     taxonomic_abundance_barplot, \
     facet_taxonomic_abundance_barplot, \
+    facet_taxonomic_abundance_heatmap, \
     taxonomic_abundance_heatmap, \
     taxonomy_dropoff_scatter
 from metapepview.constants import GlobalConstants as gc
@@ -117,13 +118,18 @@ def update_taxa_graph(page_active,
     else:
         plot_title = f"Taxonomic abundances, {tax_rank} rank"
 
-    if bar_graph is True and enable_facet is True:
+    if enable_facet is True:
+        if bar_graph is True:
+            plot_method = facet_taxonomic_abundance_barplot
+        else:
+            plot_method = facet_taxonomic_abundance_heatmap
+
         if top_n == 2:
             peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
             if facet_peptide_df is not None:
                 facet_peptide_df = facet_peptide_df[facet_peptide_df[tax_rank + ' Name'].isin(tax_ids)]
             
-            plot = facet_taxonomic_abundance_barplot(
+            plot = plot_method(
                 peptide_dataset=peptide_df,
                 facet_dataset=facet_peptide_df,
                 rank=tax_rank,
@@ -134,7 +140,7 @@ def update_taxa_graph(page_active,
 
         else:
             n_taxa = 9 if top_n == 1 else 20
-            plot = facet_taxonomic_abundance_barplot(
+            plot = plot_method(
                 peptide_dataset=peptide_df, 
                 facet_dataset=facet_peptide_df,
                 topn=n_taxa, 
