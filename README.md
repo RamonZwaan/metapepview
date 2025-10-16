@@ -195,5 +195,17 @@ In articles, please cite as follows: Ramon van der Zwaan, Mark van Loosdrecht an
 In addition, tools and methods from the following articles were incorporated into MetaPepView (note: reference table incomplete, to be completed):
 **For de novo (or global) taxonomic annotation of peptide sequences**
 - Gurdeep Singh R, Tanca A, Palomba A, Van der Jeugt F, Verschaffelt P, Uzzau S, Martens L, Dawyndt P, Mesuere B. Unipept 4.0: functional analysis of metaproteome data. Journal of proteome research. 2018 Nov 22;18(2):606-15. https://doi.org/10.1021/acs.jproteome.8b00716 
+- Mesuere B, Willems T, Van der Jeugt F, Devreese B, Vandamme P, Dawyndt P. (2016). Unipept web services for metaproteomics analysis. Bioinformatics, 32(11), 1746-1748. https://doi.org/10.1093/bioinformatics/btw039 
 - Kleikamp HB, Pronk M, Tugui C, da Silva LG, Abbas B, Lin YM, van Loosdrecht MC, Pabst M. Database-independent de novo metaproteomics of complex microbial communities. Cell Systems. 2021 May 19;12(5):375-83. https://doi.org/10.1016/j.cels.2021.04.003
 - Kleikamp HB, Van der Zwaan R, Van Valderen R, Van Ede JM, Pronk M, Schaasberg P, Allaart MT, Van Loosdrecht MC, Pabst M. NovoLign: metaproteomics by sequence alignment. ISME communications. 2024 Jan;4(1):ycae121. https://doi.org/10.1093/ismeco/ycae121
+
+
+## Relevant background, selected references
+
+To learn more about the methods and fundamentals of metaproteomics data processing, see the following references:
+
+- Van Den Bossche T, Armengaud J, Benndorf D, Blakeley-Ruiz JA, Brauer M, Cheng K, Creskey M, Figeys D, Grenga L, Griffin TJ, Henry C, Hettich RL, Holstein T, Jagtap PD, Jehmlich N, Kim J, Kleiner M, Kunath BJ, Malliet X, Martens L, Mehta S, Mesuere B, Ning Z, Tanca A, Uzzau S, Verschaffelt P, Wang J, Wilmes P, Zhang X, Zhang X, Li L; Metaproteomics Initiative. (2025). The microbiologist's guide to metaproteomics. iMeta, 4(3), e70031. https://doi.org/10.1002/imt2.70031
+- Van Den Bossche T, Beslic D, van Puyenbroeck S, Suomi T, Holstein T, Martens L, Elo LL, Muth T. (2025). Metaproteomics beyond databases: addressing the challenges and potentials of de novo sequencing. Proteomics, 25(17-18), 51-61. https://doi.org/10.1002/pmic.202400321
+- Kleiner M. (2019). Metaproteomics: much more than measuring gene expression in microbial communities. Msystems, 4(3), 10-1128. https://doi.org/10.1128/msystems.00115-19
+- Heyer R, Wolf M, Benndorf D, Uzzau S, Seifert J, Grenga L, Pabst M, Schmitt H, Mesuere B, Van Den Bossche T, Haange SB, Jehmlich N, Di Luca M, Ferrer M, Serrano-Villar S, Armengaud J, Bode HB, Hellwig P, Masselot CR, Léonard R, Wilmes P. (2025). Metaproteomics in the One Health framework for unraveling microbial effectors in microbiomes. Microbiome, 13(1), 134. https://doi.org/10.1186/s40168-025-02119-5
+- Grenga L, Arntzen MØ, Armengaud J. (2025). Metaproteomics and Meta‐Omics to Decrypt Microbiome Functionality. Proteomics, e70029. https://doi.org/10.1002/pmic.70029
