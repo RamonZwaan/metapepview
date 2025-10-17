@@ -191,9 +191,9 @@ tax_sample_de_novo_options = [
     taxa_group_display_selector,
     taxonomy_rank_selector,
     global_annot_de_novo_only_selector,
-    abundance_counting_selector,
-    normalize_abundance_selector,
-    include_unannotated_selector
+    abundance_counting_selector(),
+    normalize_abundance_selector(),
+    include_unannotated_selector()
 ]
 
 

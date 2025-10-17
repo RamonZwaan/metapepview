@@ -217,4 +217,4 @@ def export_tax_composition(button_click,
         tax_comp_df.append(group_aggs) 
     tax_comp_df = pd.concat(tax_comp_df).reset_index(drop=True)
     
-    return dcc.send_data_frame(tax_comp_df.to_csv, "tax_composition.csv")
+    return dcc.send_data_frame(tax_comp_df.to_csv, "tax_composition.tsv", sep="\t")

@@ -12,30 +12,11 @@ from metapepview.backend import *
 from metapepview.backend.utils import truncate_end
 from metapepview.backend.plots import pathway_abundance_barplot
 from metapepview.constants import GlobalConstants
+from metapepview.backend.utils.functional_plot_utils import *
 
 import numpy as np
 import pandas as pd
 from typing import Tuple, List, Dict
-
-
-def ko_to_symbol(kegg_orthology: str | float,
-                 ko_map_df: pd.DataFrame,
-                 ko_set: set) -> str | float:
-    if isinstance(kegg_orthology, float):
-        return kegg_orthology
-    
-    if kegg_orthology is None:
-        return np.nan
-    
-    if kegg_orthology not in ko_set:
-        return np.nan
-    
-    ko_info = ko_map_df.loc[kegg_orthology]
-    if ko_info.empty:
-        return np.nan
-    
-    else:
-        return ko_info[0].split(";")[0]
 
 
 @app.callback(
@@ -75,6 +56,7 @@ def kegg_db_to_memory(db_status, loaded_data):
         raise PreventUpdate
     
     return None
+
 
 @app.callback(
     Output("kegg_ko_map_data", "data"),
@@ -260,130 +242,56 @@ def update_pathway_barplot(peptide_json,
     else:
         ycol = "Area"
 
-
-    title = "functional abundance"
+    # check if everything is present to display plot
     if kegg_db is not None:
         kegg_db = KeggDatabase.read_json(kegg_db)
     else:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                "Import KEGG dataset (sidebar)...")
         return block_element, dict(), "Figure"
-    
     if peptide_json is None:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                "Import DB Search and functional annotation datasets...")
         return block_element, dict(), "Figure"
-    
     metapep_obj = MetaPepTable.read_json(peptide_json)
     if metapep_obj.functional_annotation_present is False:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                "No samples with functional annotation in dataset...")
         return block_element, dict(), "Figure"
+    if kegg_group_method == "Manual" and (custom_prot is None or custom_prot == []):
+        block_element = hidden_graph_with_text("pathway_barplot_figure",
+                                                "Select protein terms in filter settings...")
+        return block_element, dict(), "Figure"
     
+
     peptide_df = metapep_obj.data
-    
+
     # divide for each sample the psm value by the sum of psm for that sample, if specified
     if fractional_abundance is True:
-        for sample in peptide_df["Sample Name"].unique():
-            sample_idx = peptide_df[peptide_df["Sample Name"] == sample].index.to_list()
-            peptide_df.loc[sample_idx, ycol] /= peptide_df.loc[sample_idx, ycol].sum() # type:ignore
+        peptide_df = calculate_frac_abundance(peptide_df, ycol)
     
     # if taxa selection made on the taxonomy barplot, filter protein abundances by taxa
     # get taxonomy id from barplot selection point
     if filter_clade and clade_rank and clade_rank != 'Root':
         peptide_df = filter_taxonomy_clade(peptide_df, filter_clade, clade_rank, 'Name')
-        # set title name for graph    
-        title += f" from {filter_clade} clade"
-       
-    # define column lists required during processing when taxonomy is included and when not 
-    if include_taxa is True:
-        cols_filter_df = [ycol, "Sample Name", "Taxonomy Name", "KEGG_ko"]              # use to filter unrelevant columns
-        cols_group_peptides = ["Peptide Index", ycol, "Taxonomy Name", "Sample Name"]   # use to merge protein names by peptide sequence
-        cols_group_names = ["Protein Name", "Taxonomy Name", "Sample Name"]                                   # use to group and count psm's by function and taxonomy
-        tax_col = "Taxonomy Name"
-    else:
-        cols_filter_df = [ycol, "Sample Name", "KEGG_ko"]                             # use to filter unrelevant columns
-        cols_group_peptides = ["Peptide Index", ycol, "Sample Name"]                  # use to merge protein names by peptide sequence
-        cols_group_names = ["Protein Name", "Sample Name"]                                                  # use to group and count psm's by function
-        tax_col = None
-        
-    # filter unrelevant columns out of the dataset    
-    peptide_df = peptide_df[cols_filter_df]
-    
-    # split cells with multiple kegg annotations into separate rows
-    peptide_df.loc[:, "KEGG_ko"] = peptide_df["KEGG_ko"].str.split(",") 
 
-    # ensure unique index prior to explode, so that duplicate id's correspond to same original row
-    peptide_df = peptide_df.reset_index(drop=True) 
-    # put peptides annotated towards multiple kegg ko's in separate rows
-    peptide_df = peptide_df.explode("KEGG_ko")
-    
-    # filter peptide dataset outside of predifined pathways/modules/brite
-    if kegg_group_method == "Pathway":
-        valid_ko = kegg_db.list_ko(pathway=predifined_pathway,
-                                   module=predifined_module)
-    elif kegg_group_method == "BRITE":
-        valid_ko = kegg_db.list_ko(brite=predifined_brite_group)
-    elif custom_prot is None or custom_prot == []:
-        block_element = hidden_graph_with_text("pathway_barplot_figure",
-                                                "Select protein terms in filter settings...")
-        return block_element, dict(), "Figure"
-    else:
-        valid_ko = custom_prot
-    peptide_df = peptide_df[peptide_df["KEGG_ko"].isin(valid_ko)]
-    
-    # filter dataset with annotations belonging to nitrogen cycle
-    if kegg_format == "Protein/Gene name":
-        peptide_df["Protein Name"] = peptide_df["KEGG_ko"].apply(kegg_db.ko_to_symbol)
-        title = "Protein " + title
-    elif kegg_format == "EC":
-        peptide_df["Protein Name"] = peptide_df["KEGG_ko"].apply(kegg_db.ko_to_ec)
-        title = "Enzyme " + title
-    elif kegg_format == "Module":
-        peptide_df["Protein Name"] = peptide_df["KEGG_ko"].apply(kegg_db.ko_to_module)
-        title = "KEGG module " + title
-    else:
-        peptide_df["Protein Name"] = peptide_df["KEGG_ko"]
-        title = "KEGG orthology " + title
-        
-    # one ko may correspond to multiple modules or ec, explode to separate rows
-    peptide_df = peptide_df.explode("Protein Name")
-    # ko under pathway may also match towards modules outside of pathway, filter these
-    if kegg_format == "Module" and predifined_pathway is not None:
-        peptide_df[peptide_df["Protein Name"].isin(kegg_db.list_modules(predifined_pathway))]
-    
-    peptide_df.dropna(subset="Protein Name", inplace=True)
-    
-    # drop kegg ko column
-    peptide_df.drop("KEGG_ko", axis=1, inplace=True)
-    
-    # merge duplicate peptides whose protein name are the same
-    peptide_df["Peptide Index"] = peptide_df.index
-    peptide_df.drop_duplicates(subset=["Peptide Index", "Protein Name"], inplace=True)
-    
-    # for peptide duplicates with different protein names there are two options:
-    #   Count psm towards both names: this does result in inflated PSM numbers
-    #   Combine names (alphabetically): Most realistic data, but results in more categories that may not show in the plot.
-    if combine_annotations is True:
-        peptide_df = peptide_df.groupby(by=cols_group_peptides)["Protein Name"]\
-            .agg(lambda x: ",".join(sorted(x)))
-        peptide_df = peptide_df.to_frame().reset_index(names=cols_group_peptides)
-        
-    # with combined protein name categories, group by these categories to obtain psm counts
-    peptide_df = peptide_df.groupby(by=cols_group_names)[ycol].agg('sum')
-    peptide_df = peptide_df.to_frame().reset_index(names=cols_group_names)
+    peptide_df = process_kegg_groups(
+        peptide_df=peptide_df,
+        kegg_db=kegg_db,
+        ycol=ycol,
+        include_taxa=include_taxa,
+        kegg_group_method=kegg_group_method,
+        kegg_group_format=kegg_format,
+        custom_prot=custom_prot,
+        predifined_pathway=predifined_pathway,
+        predifined_module=predifined_module,
+        predifined_brite_group=predifined_brite_group,
+        combine_annotations=combine_annotations
+    )
 
     # keep only top n ko's based on largest contribution across samples
-    top_n_func = peptide_df.groupby(by="Protein Name")[ycol]\
-        .agg('sum')\
-        .sort_values(ascending=False)\
-    
-    # check if elements exceeds limit, set in plot title
-    if top_n_func.shape[0] > 20:
-        title += " (top 20 abundant)"
-        top_n_func = top_n_func.head(20)
-    
-    peptide_df = peptide_df[peptide_df["Protein Name"].isin(set(top_n_func.index))]
+    func_abundances = peptide_df.groupby(by="Protein Name")[ycol].agg('sum')
+    peptide_df = get_top_functions(peptide_df, func_abundances)
 
     # rescale each protein type to normalize towards one specified sample
     if normalize_to_sample is not None:
@@ -402,12 +310,23 @@ def update_pathway_barplot(peptide_json,
     if normalize_to_sample is not None:
         ytitle += f"/ {normalize_to_sample}"
     
+    # define column lists required during processing when taxonomy is included and when not 
+    if include_taxa is True:
+        tax_col = "Taxonomy Name"
+    else:
+        tax_col = None
+
+    plot_title = configure_plot_title(kegg_group_format=kegg_format,
+                                      filter_clade=filter_clade,
+                                      clade_rank=clade_rank,
+                                      func_abundances=func_abundances)    
+    
     plot = pathway_abundance_barplot(peptide_df,
                                     "Sample Name",
                                     ycol,
                                     "Protein Name",
                                     tax_col=tax_col,
-                                    custom_title=title,
+                                    custom_title=plot_title,
                                     custom_xname=kegg_format,
                                     custom_yname=ytitle)
     
@@ -415,7 +334,7 @@ def update_pathway_barplot(peptide_json,
 
     return dcc.Graph(figure=plot,
                      id="pathway_barplot_figure",
-                     style={"height": "40rem"}), dict(), title
+                     style={"height": "40rem"}), dict(), plot_title
 
 
 @app.callback(
@@ -549,4 +468,122 @@ def construct_pathway_url(peptide_json,
         return None, True, table_block, None
 
     return kegg_url, False, table_block, {"margin": "2rem 0rem"}
+
+
+@app.callback(
+    Output('export_functions_button', 'disabled'),
+    Input('peptides', 'data')
+)
+def toggle_export_button(peptide_json):
+    if peptide_json is None:
+        return True
+    else:
+        return False
+
+
+@app.callback(
+    Output('download_community_functions_csv', 'data'),
+    Input('export_functions_button', 'n_clicks'),
+    State('peptides', 'data'),
+    State("kegg_group_type", "value"),
+    State("kegg_display_format_radio", "value"),
+    State("brite_group_dropdown", "value"),
+    State("pathway_dropdown", "value"),
+    State("kegg_module_dropdown", "value"),
+    State("custom_pathway_items", "value"),
+    State("barplot_pathway_fraction_checkbox", "value"),    
+    State("barplot_pathway_include_taxa_checkbox", "value"),
+    State('barplot_func_quantification_column', 'value'),
+    State("func_annot_combine_duplicates", "value"),
+    State('tax_barplot_clade_selection_taxa', 'value'),
+    State('tax_barplot_clade_selection_rank', 'value'),
+    State('kegg_db_class_data', 'data'),
+    prevent_initial_call=True
+)
+def export_func_composition(button_click, 
+                            peptide_json, 
+                            kegg_group_method,
+                            kegg_format,
+                            predifined_brite_group,
+                            predifined_pathway,
+                            predifined_module,
+                            custom_prot,
+                            fractional_abundance,
+                            include_taxa,
+                            quant_method,
+                            combine_annotations,
+                            filter_clade,
+                            clade_rank,
+                            kegg_db):
+    # set y axis column based on quantification method
+    if quant_method == "Match Count":
+        ycol = "PSM Count"
+    else:
+        ycol = "Area"
+
+    # check if everything is present to display plot
+    if kegg_db is not None:
+        kegg_db = KeggDatabase.read_json(kegg_db)
+    else:
+        raise PreventUpdate
+    if peptide_json is None:
+        raise PreventUpdate
+    metapep_obj = MetaPepTable.read_json(peptide_json)
+    if metapep_obj.functional_annotation_present is False:
+        raise PreventUpdate
+    if kegg_group_method == "Manual" and (custom_prot is None or custom_prot == []):
+        raise PreventUpdate
     
+
+    peptide_df = metapep_obj.data
+
+    # divide for each sample the psm value by the sum of psm for that sample, if specified
+    if fractional_abundance is True:
+        peptide_df = calculate_frac_abundance(peptide_df, ycol)
+    
+    # if taxa selection made on the taxonomy barplot, filter protein abundances by taxa
+    # get taxonomy id from barplot selection point
+    if filter_clade and clade_rank and clade_rank != 'Root':
+        peptide_df = filter_taxonomy_clade(peptide_df, filter_clade, clade_rank, 'Name')
+
+    peptide_df = process_kegg_groups(
+        peptide_df=peptide_df,
+        kegg_db=kegg_db,
+        ycol=ycol,
+        include_taxa=include_taxa,
+        kegg_group_method=kegg_group_method,
+        kegg_group_format=kegg_format,
+        custom_prot=custom_prot,
+        predifined_pathway=predifined_pathway,
+        predifined_module=predifined_module,
+        predifined_brite_group=predifined_brite_group,
+        combine_annotations=combine_annotations
+    )
+
+    # Order all functions as follows: 
+    #   First order by sample name
+    #   Then order by function name from most abundant to least abundant.
+    #   For each function name, keep all rows together.
+    ord_df = []
+    for sample_name in peptide_df["Sample Name"].unique():
+        sample_pept_df = peptide_df[peptide_df["Sample Name"] == sample_name]
+        sample_func_abundances = (
+            sample_pept_df.groupby(by=["Protein Name"])[ycol]
+            .agg('sum')
+            .sort_values(ascending=False)
+        )
+        sample_pept_df = (sample_pept_df
+            .set_index("Protein Name")
+            .sort_values("PSM Count", ascending=False)
+            .loc[sample_func_abundances.index.to_list(), :]
+            .reset_index()
+        )
+        ord_df.append(sample_pept_df)
+    
+    ord_df = pd.concat(ord_df).reset_index(drop=True)
+
+    # Give "Protein Name" a more suitable name
+    # filter dataset with annotations belonging to nitrogen cycle
+    ord_df = ord_df.rename(columns={"Protein Name": kegg_format})
+
+    return dcc.send_data_frame(ord_df.to_csv, "community_functions.tsv", sep="\t")

@@ -278,6 +278,17 @@ kegg_export_block = [
     )
 ]
 
+data_export_button = [
+    dbc.Row(
+        [
+            dbc.Button("Export functions",
+                        id="export_functions_button",
+                        className="")
+        ],
+        style={"margin": "2.5rem 5rem"}
+    )
+]
+
 
 pathway_filters = [
     html.H3("Plot options"),
@@ -295,7 +306,7 @@ pathway_filters = [
     combine_annot_duplicates,
     include_taxonomies,
     fractional_abundances,
-] + clade_filter + kegg_export_block
+] + clade_filter + data_export_button + kegg_export_block
 
 
 functional_annotation_barplot = [
@@ -335,7 +346,8 @@ functional_annotation_page = [
                     style={"margin": "0rem 0rem 1rem 0rem", "height": "60rem"}
                 ),
                 width={'size': 8, 'order': 'last'}
-            )
+            ),
+            dcc.Download(id="download_community_functions_csv"),
         ],
         style={"height": "100%"}
     ),
