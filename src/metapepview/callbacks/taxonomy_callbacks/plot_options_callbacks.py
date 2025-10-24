@@ -279,5 +279,6 @@ def export_de_novo_tax_composition(button_click,
     pivot_df = pivot_df.sort_values(by="Taxonomy Rank", 
                                     key=lambda x: x.apply(GlobalConstants.standard_lineage_ranks.index)
     )
+    pivot_df = pivot_df.reset_index(drop=True)
 
     return dcc.send_data_frame(pivot_df.to_csv, "composition_local_vs_unipept.tsv", sep="\t")
