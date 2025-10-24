@@ -238,16 +238,30 @@ clade_filter = [
 
 
 export_button = [
+    html.H5("Export data"),
+    html.Hr(),
     dbc.Row(
         [
             dbc.Button("Export compositions",
                         id="export_taxonomy_button",
                         className="")
         ],
-        style={"margin": "2.5rem 5rem"}
+        style={"margin": "2rem 5rem"}
     )
 ]
 
+comp_eval_export_button = [
+    html.H5("Export data"),
+    html.Hr(),
+    dbc.Row(
+        [
+            dbc.Button("Export compositions",
+                        id="export_taxonomy_eval_button",
+                        className="")
+        ],
+        style={"margin": "2rem 5rem"}
+    )
+]
 
 # contents of box that displays taxonomy barplot
 taxonomy_barplot = [
@@ -381,13 +395,13 @@ taxonomy_sample_analysis = taxonomy_page_constructor(
 
 # Taxonomy annotation page
 taxonomy_de_novo_analysis = taxonomy_page_constructor(
-    tax_sample_de_novo_options + clade_filter,
+    tax_sample_de_novo_options + comp_eval_export_button, # + clade_filter,
     taxonomy_de_novo_barplot,
     [
         html.P("...")
     ],
     [
         # download component for taxonomy export
-        dcc.Download(id="download_taxonomy_composition_csv")
+        dcc.Download(id="download_taxonomy_composition_de_novo_csv")
     ]
 )

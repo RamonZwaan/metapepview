@@ -90,13 +90,31 @@ def add_other_group(
     other_sum = comp_df[~top_taxa_indices].groupby(by=xcol)[ycol].sum()
     other_df = other_sum.reset_index()
     other_df[tax_col] = 'Other'
+
+    comp_df = filter_dataset_top_taxa(comp_df, tax_col, top_taxa) 
     
+    comp_df = pd.concat([comp_df, other_df]) 
+
+    return comp_df
+
+
+def filter_dataset_top_taxa(comp_df: pd.DataFrame,
+                            tax_col: str,
+                            top_taxa: List[str]) -> pd.DataFrame:
+    """Keep only top taxa in the compositions dataset.
+
+    Args:
+        comp_df (pd.DataFrame): Compositions dataset.
+        tax_col (str): Taxonomy column to match top taxa.
+        top_taxa (List[str]): List of taxa to keep.
+
+    Returns:
+        pd.DataFrame: Filtered compositions dataset.
+    """
     comp_df = comp_df[comp_df[tax_col].isin(top_taxa)]
     comp_df = comp_df.reset_index(drop=True)
     comp_df = comp_df.sort_values(by=tax_col)
     comp_df[tax_col] = comp_df[tax_col].astype(str)
-    
-    comp_df = pd.concat([comp_df, other_df]) 
 
     return comp_df
 

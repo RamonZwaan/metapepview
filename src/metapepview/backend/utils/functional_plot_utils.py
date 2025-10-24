@@ -26,7 +26,7 @@ def configure_plot_title(kegg_group_format: str,
                          clade_rank: str,
                          func_abundances: pd.DataFrame):
     # title prefix
-    title = "functional abundance"
+    title = "abundance profile"
 
     # add clade filter to title
     if filter_clade and clade_rank and clade_rank != 'Root':

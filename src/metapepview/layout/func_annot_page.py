@@ -16,7 +16,7 @@ id_display_format = dbc.Row(
                 "Module",
                 "Protein/Gene name"
             ],
-            value="KO",
+            value="Protein/Gene name",
             id="kegg_display_format_radio",
             inline=False,
             style={"width": "15rem"}
@@ -210,7 +210,7 @@ include_taxonomies = dbc.Row(
         dbc.Col(
             dbc.Checkbox(
                 id="barplot_pathway_include_taxa_checkbox",
-                value=False,
+                value=True,
                 style={"width": "5.5rem"}
             )
         ),
@@ -246,7 +246,7 @@ fractional_abundances = dbc.Row(
 
 
 kegg_export_block = [
-    html.H5("Visualize pathway map", style={"margin-top": "2.5rem"}),
+    html.H5("Visualize pathway map"),#, style={"margin-top": "2.5rem"}),
     html.Hr(),
     dbc.Row(
         [
@@ -279,13 +279,15 @@ kegg_export_block = [
 ]
 
 data_export_button = [
+    html.H5("Export data"),
+    html.Hr(),
     dbc.Row(
         [
             dbc.Button("Export functions",
                         id="export_functions_button",
                         className="")
         ],
-        style={"margin": "2.5rem 5rem"}
+        style={"margin": "2rem 5rem"}
     )
 ]
 
@@ -314,7 +316,7 @@ functional_annotation_barplot = [
     html.Hr(),
     html.Div(dcc.Graph(id="pathway_barplot_figure"),
              id='pathway_barplot_graph', 
-             style={"display":"None"})
+             style={"display":"None"}),
 ]
 
 
@@ -330,7 +332,7 @@ functional_annotation_page = [
                     ],
                     className="shadow-sm",
                     style={"margin": "0rem 0rem 1rem 1rem",
-                           "height": "60rem",
+                           "height": "64rem",
                            "overflow-y": "scroll"}
                 ),
                 width={'size': 4}
@@ -343,7 +345,7 @@ functional_annotation_page = [
                         )
                     ],
                     className="shadow-sm",
-                    style={"margin": "0rem 0rem 1rem 0rem", "height": "60rem"}
+                    style={"margin": "0rem 0rem 1rem 0rem", "height": "64rem"}
                 ),
                 width={'size': 8, 'order': 'last'}
             ),

@@ -579,11 +579,11 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
                              abundance_metric: AbundanceMetricType='Match Count',
                              fetch_names: bool=True,
                              topn: int=0,
-                             fractional_abundance_threshold: float = 0.001,
-                             show_legend: bool = True):
+                             fractional_abundance: bool=False,
+                             fractional_abundance_threshold: float=0.001,
+                             show_legend: bool=True):
     # Set column names to process for the figure
     sample_name = 'Sample Name'
-    ycol = 'PSM Count' if abundance_metric == 'Match Count' else 'Area'
 
     # get correct suffix from lineage columns
     suffix = ' Name' if fetch_names is True else ' Id'
@@ -591,36 +591,43 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
     
     # set color scale based on topn count
     color_scale = GraphConstants.wide_color_palette if topn > 10 else GraphConstants.color_palette
-
-    # Set replacement values for specific cases
-    # value of undefined depends on dtype of column (id number or name string)
-    if pd.api.types.is_string_dtype(peptide_dataset[rank_col].dtype):
-        undefined_val = "Undefined"
-    else:
-        undefined_val = 0
-
-    # convert dataset to rank name and their aggregated sum
-    comp_df = peptide_dataset[[ycol, rank_col, sample_name]]
-            
-    # group all peptides belonging to rank, sum separate abundance scores
-    comp_df = comp_df.groupby(by=[sample_name, rank_col]).sum().reset_index()
     
-    # divide psm's by sum of psm's per sample name
-    comp_df.loc[:, ycol] /= comp_df.groupby(by=[sample_name])[ycol].transform('sum')
+    # For top taxa determination, calculate tax abundances with same settings as barplot
+    # TODO: export top taxa from barplot to dcc.Store, then import them here
+    top_tax_comp_df, _ = process_tax_abundance(
+        peptide_dataset=peptide_dataset,
+        abundance_metric=abundance_metric,
+        tax_col=rank_col,
+        include_undefined=False,
+        undefined_val=None,
+        fractional_abundance=fractional_abundance
+    )
+    comp_df, ycol = process_tax_abundance(
+        peptide_dataset=peptide_dataset,
+        abundance_metric=abundance_metric,
+        tax_col=rank_col,
+        include_undefined=False,
+        undefined_val=None,
+        fractional_abundance=True
+    )
     
+
     # only keep the most abundant taxa over both samples, optionally, max is taken instead of sum
     if topn > 0:
-        sorted_taxa_counts = comp_df[comp_df[rank_col] != undefined_val]\
-            .groupby(by=rank_col)[ycol]\
-            .sum()\
-            .sort_values(ascending=False)
+        top_taxa = determine_top_taxa(
+            comp_df=top_tax_comp_df,
+            facet_df=None,
+            topn=topn,
+            tax_col=rank_col,
+            ycol=ycol,
+            facet_ycol=None,
+            undefined_val=None,
+            include_undefined=False
+        )
         
-        # show one less, as this is given in barplot to "Other"
-        top_taxa = sorted_taxa_counts.head(topn)
-        top_taxa = top_taxa.index.to_list()
-        
-        comp_df = comp_df[comp_df[rank_col].isin(top_taxa)].reset_index(drop=True)
-        comp_df[rank_col] = comp_df[rank_col].astype(str)
+        comp_df = filter_dataset_top_taxa(comp_df=comp_df,
+                                          tax_col=rank_col,
+                                          top_taxa=top_taxa)
     
     # for each taxa, compute ratio between samples
     comp_pivot_df = comp_df.pivot(index=rank_col,
@@ -630,22 +637,22 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
     # compute ratio of fractions by dividing the numerator sample with the denominator sample
     comp_pivot_df['Ratio'] = comp_pivot_df[ratio_numerator_col] / comp_pivot_df[ratio_denominator_col]
     comp_pivot_df['Size'] = comp_pivot_df[ratio_numerator_col] + comp_pivot_df[ratio_denominator_col]
-    comp_pivot_df['yaxis scatter'] = "abundance"
+    comp_pivot_df['yaxis scatter'] = "abundance (%)"
     
     # rescale ratio to (-inf, inf) to (-1, 1) with log10 and tanh function
-    comp_pivot_df['Ratio'] = comp_pivot_df['Ratio'].apply(np.log10).apply(np.tanh)
+    comp_pivot_df['Norm ratio'] = comp_pivot_df['Ratio'].apply(np.log10).apply(np.tanh)
     comp_pivot_df = comp_pivot_df.reset_index()
     
     # build figure
     fig = make_subplots(rows=2,
                         cols=1,
-                        row_heights=[0.7, 0.3],
+                        row_heights=[0.5, 0.5],
                         shared_xaxes=True,
                         vertical_spacing=0.01)
     
     fig.add_trace(
         go.Bar(x=comp_pivot_df[rank_col],
-               y=comp_pivot_df['Ratio'],
+               y=comp_pivot_df['Norm ratio'],
                marker_color=color_scale,
                #marker_color=comp_pivot_df[rank_col],
                #color_discrete_sequence=GraphConstants.color_palette
@@ -656,11 +663,15 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
     
     # take root to let marker area correspond with fraction, multiply to scale to plot
     marker_size_values = (comp_pivot_df['Size'] ** 0.5) * 30
+    # give size fraction percentage as string value
+    marker_size_str = (comp_pivot_df['Size'] * 100 / 2).apply(lambda x: '{0:.1f}'.format(x))
     
     fig.add_trace(
         go.Scatter(x=comp_pivot_df[rank_col],
                    y=comp_pivot_df['yaxis scatter'],
-                   mode='markers',
+                   text=marker_size_str,
+                   textposition="top center",
+                   mode='markers+text',
                    marker=dict(
                        size=marker_size_values,
                        color=color_scale,
@@ -672,10 +683,12 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
     
     fig.update_layout(GraphConstants.default_layout)
     fig.update_layout(showlegend=show_legend,
-                      margin=dict(l=20, r=20, t=35, b=20),
-                      title="Over/under representation de novo annotation over db matching")
+                      margin=dict(l=20, r=20, t=35, b=20))
     fig.update_traces(width=0.5, row=1, col=1)
-    fig.update_layout(title=f"Abundance ratio {ratio_numerator_col}/{ratio_denominator_col}")
+    fig.update_layout(title=dict(
+                        text=f"Abundance ratio: {ratio_numerator_col} / {ratio_denominator_col}",
+                        font_size=16)
+                      )
     
     fig.update_xaxes(title=None)
     
@@ -686,7 +699,7 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
                    zeroline=True, 
                    zerolinecolor="Black",
                    showline=True, linecolor="Black", 
-                   title='normalized log ratio'),
+                   title='norm log ratio'),
         yaxis2=dict(gridcolor='rgba(0,0,0,0)',
                     gridwidth=0),
         xaxis2=dict(
@@ -745,7 +758,8 @@ def pathway_abundance_barplot(dataset: pd.DataFrame, # cols: Protein Name, (Taxo
                  barmode='group')
     
     fig.update_layout(GraphConstants.default_layout,
-                      margin=dict(t=30))
+                      margin=dict(t=30),
+                      legend_title_text=None)
     
     fig.update_xaxes(showline=True,
                      linecolor="Black",
