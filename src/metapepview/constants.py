@@ -33,6 +33,7 @@ class GlobalConstants:
     # URL for documentation
     docs_url = "https://ramonzwaan.github.io/metapepview/"
     docs_data_prep_url = "https://ramonzwaan.github.io/metapepview/prepare-input-data/"
+    docs_ref_data_prep_url = "https://ramonzwaan.github.io/metapepview/build-reference-dataset/"
     github_url = "https://github.com/RamonZwaan/metapepview/"
 
     # set display configuration depending on the func_level value

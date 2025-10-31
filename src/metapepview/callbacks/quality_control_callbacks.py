@@ -29,7 +29,8 @@ from metapepview.backend.plots import tic_over_rt_plot, \
     ref_intensity_dist_plot, \
     ref_score_threshold_barplot, \
     ref_transmission_scatter_plot, \
-    ref_miscleavage_dist_plot
+    ref_miscleavage_dist_plot, \
+    ref_score_metrics_barplot
 
 
 
@@ -1179,6 +1180,54 @@ def show_transmission_dist(ref_data,
                       style={'height': '100%'})
     
     return (graph, {"display": 'block', 'height': '24rem'})
+
+
+@app.callback(
+    Output("reference_metrics_scores_div", "children"),
+    Output("reference_metrics_scores_div", "style"),
+    Input("current_ref_statistics_store", "data"),
+    Input("mzml_metadata", "data"),
+    Input("db_search_psm_qa_upload", "contents"),
+    State("db_search_psm_qa_format", "value"),
+    Input("denovo_qa_upload", "contents"),
+    State("denovo_qa_format", "value")
+)
+def show_ref_data_metrics(ref_data,
+                          mzml_metadata,
+                          db_search_psm,
+                          db_search_psm_format,
+                          de_novo,
+                          de_novo_format):
+    if ref_data is None:
+        raise PreventUpdate
+    
+    if db_search_psm is not None:
+        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        if mzml_metadata is not None: 
+            db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
+    else:
+        db_search_psm = None
+    
+    if de_novo is not None:
+        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        if mzml_metadata is not None: 
+            de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
+    else:
+        de_novo = None
+    
+    # directly extract sample based on option key
+    ref_dict = json.loads(ref_data)
+    
+    fig = ref_score_metrics_barplot(stat_dict=ref_dict,
+                                    sample_db_search=db_search_psm,
+                                    sample_de_novo=de_novo,
+                                    spectral_metadata=mzml_metadata)
+    
+    graph = dcc.Graph(figure=fig,
+                      id="reference_score_barplot_fig",
+                      style={'height': '100%'})
+    
+    return (graph, {"display": 'block', 'height': '22rem'})
 
 
 @app.callback(

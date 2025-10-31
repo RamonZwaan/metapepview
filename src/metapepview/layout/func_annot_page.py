@@ -283,7 +283,7 @@ data_export_button = [
     html.Hr(),
     dbc.Row(
         [
-            dbc.Button("Export functions",
+            dbc.Button("Export complete functions",
                         id="export_functions_button",
                         className="")
         ],
@@ -311,9 +311,69 @@ pathway_filters = [
 ] + clade_filter + data_export_button + kegg_export_block
 
 
-functional_annotation_barplot = [
-    html.H3("Figure", id="func_annot_figure_title"),
+pathway_filters_acc = [
+    html.H3("Plot options"),
     html.Hr(),
+    dbc.Accordion(
+        [
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        id_display_format,
+                    ]
+                ),
+                title="Select display format"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        kegg_group_option_selector,
+                        brite_selector,
+                        pathway_selector,
+                        module_selector,
+                        custom_protein_selector,
+                    ]
+                ),
+                title="Select function group"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        abundance_counting_selector,
+                        normalize_samples,
+                        combine_annot_duplicates,
+                        include_taxonomies,
+                        fractional_abundances,
+                    ]
+                ),
+                title="Configure quantification"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    clade_filter,
+                ),
+                title="Configure taxonomy clade filter"
+            )
+        ],
+        always_open=True,
+        start_collapsed=True,
+        className="my-3"
+    )
+] + data_export_button + kegg_export_block
+
+
+functional_annotation_barplot = [
+    html.Div(
+        [
+            html.H5("Figure", id="func_annot_figure_title"),
+            dbc.Button("Export figure data", 
+                       id="export_func_annot_figure_data",
+                       className="me-3",
+                       disabled=True)
+        ],
+        className="d-flex align-items-center justify-content-between"
+    ),
+    html.Hr(className="my-2"),
     html.Div(dcc.Graph(id="pathway_barplot_figure"),
              id='pathway_barplot_graph', 
              style={"display":"None"}),
@@ -328,7 +388,7 @@ functional_annotation_page = [
                 dbc.Card(
                     [
                         # dbc.CardHeader("Filter settings"),
-                        dbc.CardBody(pathway_filters)
+                        dbc.CardBody(pathway_filters_acc)
                     ],
                     className="shadow-sm",
                     style={"margin": "0rem 0rem 1rem 1rem",
