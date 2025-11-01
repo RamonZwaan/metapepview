@@ -1416,15 +1416,25 @@ def ref_score_metrics_barplot(stat_dict: dict,
                               sample_db_search: MetaPepDbSearch | None=None,
                               sample_de_novo: MetaPepDeNovo | None=None,
                               spectral_metadata: dict | None=None):
-    ncols = 5
-    plot_titles = ["MS analysis time", 
-                   "# MS2 scans", 
+    ncols = 6
+    plot_titles = ["MS analysis time",
+                   "# MS1 scans",
+                   "# MS2 scans",
+                   "MS2/MS1",
                    "DB search matches",
                    "De novo identifications"]
-    dict_fields = ["total rt", "ms2 count", "db search matches", "de novo matches"]
+    
+    dict_fields = ["total rt", 
+                   "ms1 count", 
+                   "ms2 count",
+                   ["ms2 count", "ms1 count"],
+                   "db search matches", 
+                   "de novo matches"]
 
     axis_titles = ["Retention time (min)",
+                   "# MS1 scans",
                    "# MS2 scans",
+                   "# MS2/MS1",
                    "# DB search matches",
                    "# De novo identifications"]
     
@@ -1459,7 +1469,14 @@ def ref_score_metrics_barplot(stat_dict: dict,
 
         for sample_name, sample_data in stat_dict["samples"].items():
             sample_names.append(sample_name)
-            values.append(sample_data[data_field])
+
+            if isinstance(data_field, str):
+                values.append(sample_data[data_field])
+            # if two fields supplied, divide first value with second
+            else:
+                values.append(
+                    sample_data[data_field[0]] / sample_data[data_field[1]]
+                )
 
         fig.add_trace(
             go.Bar(x=values,
