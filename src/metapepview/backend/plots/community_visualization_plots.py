@@ -129,7 +129,7 @@ def taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
                      title=ytitle)
     
     # fig.update_layout(width=900, height=500)
-    return fig
+    return fig, comp_df[[xcol, ycol, rank_display_col]].reset_index(drop=True)
 
 
 
@@ -240,8 +240,17 @@ def facet_taxonomic_abundance_barplot(peptide_dataset: pd.DataFrame,
         facet_fractional_abundance=facet_fractional_abundance
     )
     
+    # combine plots into figure data
+    comp_df = comp_df[[xcol, ycol, rank_display_col]]
+    facet_comp_df = facet_comp_df[[xcol, facet_ycol, rank_display_col]]
+
+    comp_df["facet"] = False
+    facet_comp_df["facet"] = True
+
+    fig_df = pd.concat([comp_df, facet_comp_df]).reset_index(drop=True)
+
     # fig.update_layout(width=900, height=500)
-    return fig
+    return fig, fig_df
 
 
 
@@ -337,7 +346,7 @@ def taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
                      title=xtitle)
     fig.update_layout(GraphConstants.default_layout)
     
-    return fig
+    return fig, comp_df[[ycol, xcol, rank_col]].reset_index(drop=True)
 
 
 # taxonomy abundance composition
@@ -358,7 +367,6 @@ def facet_taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
     # get correct suffix from lineage columns
     suffix = ' Name' if fetch_names is True else ' Id'
     rank_col = rank + suffix            
-    
 
     # Set replacement values for specific cases
     # value of undefined depends on dtype of column (id number or name string)
@@ -429,20 +437,16 @@ def facet_taxonomic_abundance_heatmap(peptide_dataset: pd.DataFrame,
         facet_fractional_abundance=facet_fractional_abundance
     )
 
-    # # create simple annotated heatmap
-    # fig = px.imshow(value_matrix,
-    #                 color_continuous_scale=GraphConstants.continuous_color_scale)
+    # combine plots into figure data
+    comp_df = comp_df[[ycol, xcol, rank_col]]
+    facet_comp_df = facet_comp_df[[facet_ycol, xcol, rank_col]]
+
+    comp_df["facet"] = False
+    facet_comp_df["facet"] = True
+
+    fig_df = pd.concat([comp_df, facet_comp_df]).reset_index(drop=True)
     
-    # # configure x-axis title
-    # xtitle = 'Peptide spectrum matches' if abundance_metric == 'Match Count' else 'Area'
-    # if fractional_abundance is True:
-    #     xtitle = "Fraction " + xtitle.lower()
-    
-    # fig.update_xaxes(side="top",
-    #                  title=xtitle)
-    # fig.update_layout(GraphConstants.default_layout)
-    
-    return fig
+    return fig, fig_df
 
 
 def taxonomy_dropoff_scatter(lineage_counts: List[Tuple[str, int | float]],

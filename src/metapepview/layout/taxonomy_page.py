@@ -378,6 +378,7 @@ taxonomy_barplot = [
     ),
     html.Hr(className="my-2"),
     html.Div(dcc.Graph(id="taxonomy_barplot_figure"), id='taxa_barplot_graph', style={'display': 'None'}),
+    dcc.Store(id="taxonomy_barplot_figure_data", data=None)
 ]
 
 
@@ -511,6 +512,7 @@ taxonomy_sample_analysis = taxonomy_page_constructor(
     [
         # download component for taxonomy export
         dcc.Download(id="download_taxonomy_composition_csv"),
+        dcc.Download(id="download_taxonomy_figure_data_csv"),
         taxonomic_dropoff_modal
     ]
 )

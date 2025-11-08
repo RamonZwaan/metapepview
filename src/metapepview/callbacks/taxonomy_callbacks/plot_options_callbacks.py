@@ -2,6 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
+from io import StringIO
 import pandas as pd
 
 from metapepview.server import app
@@ -214,6 +215,28 @@ def export_tax_composition(button_click,
     tax_comp_df = pd.concat(tax_comp_df).reset_index(drop=True)
     
     return dcc.send_data_frame(tax_comp_df.to_csv, "tax_composition.tsv", sep="\t")
+
+
+@app.callback(
+    Output('download_taxonomy_figure_data_csv', 'data'),
+    Input('export_taxonomy_figure_data', 'n_clicks'),
+    State('taxonomy_barplot_figure_data', 'data'),
+    prevent_initial_call=True
+)
+def export_tax_comp_fig_data(button_click, 
+                             fig_data):
+    fig_data_df = pd.read_json(
+        StringIO(fig_data))
+    return dcc.send_data_frame(fig_data_df.to_csv, "taxonomy_composition.tsv", sep="\t")
+
+@app.callback(
+    Output('export_taxonomy_figure_data', 'disabled'),
+    Input('taxonomy_barplot_figure_data', 'data'),
+)
+def activate_tax_comp_fig_button(fig_data):
+    if fig_data is None:
+        return True
+    return False
 
 
 @app.callback(

@@ -30,6 +30,7 @@ def toggle_tax_facet_collapse(switch_value):
     Output('taxa_barplot_graph', 'children'),
     Output('taxa_barplot_graph', 'style'),
     Output('taxonomy_figure_title', 'children'),
+    Output('taxonomy_barplot_figure_data', 'data'),
     Input('sidebar_taxonomy_button', 'active'),
     Input('peptides', 'data'),
     Input("taxonomy_stacked_barplot_button", "active"),
@@ -82,18 +83,23 @@ def update_taxa_graph(page_active,
 
     # load peptides dataset, keep only taxonomy related columns
     peptide_df = MetaPepTable.read_json(peptide_json).data
-    peptide_df = peptide_df[gc.metapep_table_taxonomy_fields + \
-                            gc.metapep_table_global_taxonomy_fields +\
-                            ["Area", "PSM Count", "De Novo Match Count", "Sample Name"]]
-
-
-    # substitute missing taxonomy annotation with global annotation if specified
+    
     glob_tax_fields = gc.metapep_table_global_taxonomy_lineage
     glob_data_in_df = all(i in peptide_df.columns for i in glob_tax_fields)
-    glob_annot_diff = global_annot_fallback != facet_global_annot_fallback
+
+    if glob_data_in_df is True:
+        peptide_df = peptide_df[gc.metapep_table_taxonomy_fields + \
+                                gc.metapep_table_global_taxonomy_fields +\
+                                ["Area", "PSM Count", "De Novo Match Count", "Sample Name"]]
+        # substitute missing taxonomy annotation with global annotation if specified
+    else:
+        peptide_df = peptide_df[gc.metapep_table_taxonomy_fields + \
+                                ["Area", "PSM Count", "De Novo Match Count", "Sample Name"]]
     
     # Duplicate peptide dataset for facet if global annotation differs
+    glob_annot_diff = global_annot_fallback != facet_global_annot_fallback
     facet_peptide_df = None
+    
     if all(x is True for x in [enable_facet, glob_data_in_df, glob_annot_diff]):
         facet_peptide_df = deepcopy(peptide_df)
         if facet_global_annot_fallback is True:
@@ -129,7 +135,7 @@ def update_taxa_graph(page_active,
             if facet_peptide_df is not None:
                 facet_peptide_df = facet_peptide_df[facet_peptide_df[tax_rank + ' Name'].isin(tax_ids)]
             
-            plot = plot_method(
+            plot, fig_data = plot_method(
                 peptide_dataset=peptide_df,
                 facet_dataset=facet_peptide_df,
                 rank=tax_rank,
@@ -140,7 +146,7 @@ def update_taxa_graph(page_active,
 
         else:
             n_taxa = 9 if top_n == 1 else 20
-            plot = plot_method(
+            plot, fig_data = plot_method(
                 peptide_dataset=peptide_df, 
                 facet_dataset=facet_peptide_df,
                 topn=n_taxa, 
@@ -159,22 +165,25 @@ def update_taxa_graph(page_active,
 
         if top_n == 2:
             peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
-            plot = plot_method(peptide_df, 
-                               rank=tax_rank,
-                               abundance_metric=quant_method,
-                               fractional_abundance=fractional)
+            plot, fig_data = plot_method(peptide_df, 
+                                         rank=tax_rank,
+                                         abundance_metric=quant_method,
+                                         fractional_abundance=fractional)
         else:
             n_taxa = 9 if top_n == 1 else 20
-            plot = plot_method(peptide_df, 
-                               topn=n_taxa, 
-                               rank=tax_rank,
-                               abundance_metric=quant_method,
-                               fractional_abundance=fractional,
-                               include_undefined=unannotated)
+            plot, fig_data = plot_method(peptide_df, 
+                                         topn=n_taxa, 
+                                         rank=tax_rank,
+                                         abundance_metric=quant_method,
+                                         fractional_abundance=fractional,
+                                         include_undefined=unannotated)
 
-    return dcc.Graph(figure=plot,
+    return (dcc.Graph(figure=plot,
                     id="taxonomy_barplot_figure",
-                    style={'height': "45rem"}), dict(), plot_title
+                    style={'height': "45rem"}), 
+                dict(), 
+                plot_title,
+                fig_data.to_json())
 
 
 @app.callback(
