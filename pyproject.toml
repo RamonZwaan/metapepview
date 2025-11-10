@@ -14,14 +14,14 @@ authors = [{name = "Ramon van der Zwaan", email = "r.vanderzwaan@tudelft.nl"},
 
 # dependencies needed by your utils and dashboard
 dependencies = [
-    "dash==3.1.1",
-    "dash-bootstrap-components==2.0.3",
-    "numpy==2.3.1",
-    "pandas==2.3.1",
-    "plotly==6.2.0", 
-    "requests==2.32.4",
-    "scipy==1.16.0",
-    "waitress==3.0.2",
+    "dash==3.1",
+    "dash-bootstrap-components==2.0",
+    "numpy==2.3",
+    "pandas==2.3",
+    "plotly==6.2", 
+    "requests==2.32",
+    "scipy==1.16",
+    "waitress==3.0",
 ]
 
 [project.urls]
