@@ -99,7 +99,7 @@ def update_de_novo_taxa_graph(page_active,
         comp_plot = plot_method(peptide_df, 
                                 rank=tax_rank,
                                 abundance_metric=quant_method,
-                                fractional_abundance=fractional)
+                                fractional_abundance=fractional)[0]
         dif_plot = tax_differential_barplot(peptide_df,
                                             db_search_col,
                                             unipept_col,
@@ -117,7 +117,7 @@ def update_de_novo_taxa_graph(page_active,
                                 rank=tax_rank,
                                 abundance_metric=quant_method,
                                 fractional_abundance=fractional,
-                                include_undefined=unannotated)
+                                include_undefined=unannotated)[0]
         dif_plot = tax_differential_barplot(peptide_df,
                                             db_search_col,
                                             unipept_col,

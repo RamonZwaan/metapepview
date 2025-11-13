@@ -73,12 +73,12 @@ def update_taxa_graph(page_active,
     if peptide_json is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Import PSM and protein db datasets...")
-        return block_element, dict(), 'Figure'
+        return (block_element, dict(), 'Figure', None)
 
     if tax_rank is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select taxonomy rank in dropdown menu...")
-        return block_element, dict(), 'Figure'
+        return (block_element, dict(), 'Figure', None)
 
 
     # load peptides dataset, keep only taxonomy related columns
@@ -112,7 +112,7 @@ def update_taxa_graph(page_active,
     if tax_ids == [] and top_n == 2:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select custom tax id's...")
-        return block_element, dict(), 'Figure'
+        return (block_element, dict(), 'Figure', None)
 
     # filter the dataset based on taxa at corresponding rank
     if filter_clade and clade_rank and clade_rank != 'Root':
