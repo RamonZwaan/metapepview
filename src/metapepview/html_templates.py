@@ -106,9 +106,11 @@ def annotation_mini_importer_block(
     Returns:
         Any: List[Any]: Dash component block.
     """
-    header_block = html.B("Format", className="me-5")
+    dropdown_height = "30px"
 
     if format_options is not None:
+        header_block = html.B("Format", className="me-5")
+
         hide_dropdown = True if len(format_options) == 1 else False
 
         initial_val = format_options[0] if isinstance(format_options[0], str) else format_options[0]['value']
@@ -118,17 +120,18 @@ def annotation_mini_importer_block(
             value=initial_val,
             clearable=False,
             id=format_id,
-            style={'height': "30px", "width": "15rem"} if not hide_dropdown else None,
+            style={'height': dropdown_height, "width": "15rem"} if not hide_dropdown else None,
             className="" if len(format_options) > 1 else "d-none"
             )
 
         label = format_options[0] if isinstance(format_options[0], str) else format_options[0]['label']
         format_name = html.H6(label,
-            style={"height": "30px", "width": "10rem"} if hide_dropdown else None,
+            style={"height": dropdown_height, "width": "10rem"} if hide_dropdown else None,
             className="d-flex align-items-center mb-0" if len(format_options) == 1 else\
                 "d-none"
         )
     else:
+        header_block = None
         format_dropdown = dbc.Col(None)
         format_name = None
 
@@ -161,6 +164,7 @@ def annotation_mini_importer_block(
                 format_dropdown,
                 format_name
             ],
+            style={"height": dropdown_height},
             className="d-flex align-items-center justify-content-between my-3"
         ),
         dcc.Upload(

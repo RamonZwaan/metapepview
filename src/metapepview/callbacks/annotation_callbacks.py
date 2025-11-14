@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 from metapepview.server import app
 # import layout elements
 from metapepview.layout.annotation_page import *
+from metapepview.layout.sidebar import *
 
 from metapepview.backend.annotation import *
 from metapepview.backend.exceptions import AnnotationError
