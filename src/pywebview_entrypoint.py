@@ -19,7 +19,8 @@ from metapepview.callbacks.denovo_callbacks import *
 from metapepview.callbacks.func_annot_callbacks import *
 from metapepview.callbacks.denovo_callbacks import *
 from metapepview.callbacks.quality_control_callbacks import *
-from metapepview.callbacks.annotation_callbacks import *
+from metapepview.callbacks.import_callbacks.annotation_callbacks import *
+from metapepview.callbacks.import_callbacks.spectral_import_callbacks import *
 from metapepview.callbacks.sidebar_callbacks import *
 
 

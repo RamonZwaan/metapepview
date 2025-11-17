@@ -61,7 +61,6 @@ def show_peptides_names(contents, names, dates):
     return import_single_file(names, dates, max_name_len=30, drag_and_drop=False)
 
 
-
 @app.callback(
     Output('db_search_psm_valid', 'data'),
     Output('db_search_psm_name', 'children', allow_duplicate=True),
@@ -140,7 +139,6 @@ def show_denovo_names(contents, names, de_novo_format, dates):
                                    names,
                                    dates,
                                    valid_func)
-
 
 
 @app.callback(
@@ -307,16 +305,16 @@ def inactivate_annotation_button(psm_valid,
 
     # if no db search data, global taxonomy annotation should be performed
     elif psm_valid is not True and global_tax_annot is False:
-        tooltip = dbc.Tooltip(f"Add db search data, or check 'global annotation of peptides'",
-                                target="start_annotation_button_wrapper",
-                                placement="bottom",
-                                className="mt-1")
+        tooltip = dbc.Tooltip("Add db search data, or check 'global annotation of peptides'",
+                              target="start_annotation_button_wrapper",
+                              placement="bottom",
+                              className="mt-1")
         return (True, [tooltip])
     # finally, if db search data is present, at least one classification step has to be performed
     elif prot_db_valid is not True and\
         func_annot_db_valid is not True and\
         global_tax_annot is False:
-        tooltip = dbc.Tooltip(f"Add taxonomy or function classification data, or check 'global annotation of peptides'",
+        tooltip = dbc.Tooltip("Add taxonomy or function classification data, or check 'global annotation of peptides'",
                                 target="start_annotation_button_wrapper",
                                 placement="bottom",
                                 className="mt-1")
@@ -324,17 +322,17 @@ def inactivate_annotation_button(psm_valid,
 
     # valid ncbi taxonomy database is required for mapping of taxa to db search
     elif prot_db_valid is True and db_presence["ncbi_taxonomy"] is False:
-        tooltip = dbc.Tooltip(f"Import ncbi taxonomy database or perform global taxonomy classification only",
+        tooltip = dbc.Tooltip("Import ncbi taxonomy database or perform global taxonomy classification only",
             target="start_annotation_button_wrapper",
             placement="bottom",
             className="mt-1")
         return (True, [tooltip])
 
     else:
-        tooltip = dbc.Tooltip(f"start annotation",
-                                target="start_annotation_button_wrapper",
-                                placement="bottom",
-                                className="mt-1")
+        tooltip = dbc.Tooltip("start annotation",
+                              target="start_annotation_button_wrapper",
+                              placement="bottom",
+                              className="mt-1")
     return (False, [tooltip])
 
 

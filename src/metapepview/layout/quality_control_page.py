@@ -856,42 +856,36 @@ ref_benchmark = [
 # Protein DB page
 ms_performance = html.Div(
     [
-        html.Div(
-            [
-                html.Div(
-                    mzml_import,
-                    id='mzml_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-                html.Div(
-                    features_import,
-                    id='features_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-                html.Div(
-                    psm_file_validation_import,
-                    id='db_search_psm_qa_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-                html.Div(
-                    denovo_file_validation_import,
-                    id='denovo_qa_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-            ],
-            className="d-flex mb-3 justify-content-start"
-        ),
-        dbc.Alert(
-            id="qa_data_import_alert",
-            dismissable=True,
-            is_open=False,
-            color="danger",
-            className="mt-3"
-        ),
+        # html.Div(
+        #     [
+        #         html.Div(
+        #             mzml_import,
+        #             id='mzml_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #         html.Div(
+        #             features_import,
+        #             id='features_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #         html.Div(
+        #             psm_file_validation_import,
+        #             id='db_search_psm_qa_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #         html.Div(
+        #             denovo_file_validation_import,
+        #             id='denovo_qa_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #     ],
+        #     className="d-flex mb-3 justify-content-start"
+        # ),
+
         dbc.Tabs(
             [            
                 dbc.Tab(

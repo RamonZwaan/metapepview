@@ -81,6 +81,30 @@ sample_options_block = [
     # dcc.Store(id="valid_import_data"),
 ]
 
+
+spectral_data_options_block = [
+    html.Div(
+        [
+            html.H3("Add Experiment evaluation data"),
+            html.Div(
+            [
+                dbc.Spinner(html.Div(id="spectral_import_loading_spot", style={"width": "5rem"})),
+                html.Div(
+                    dbc.Button("Add sample", id="start_spectral_import_button",
+                            color="primary",
+                            className="px-3"),
+                    id="start_spectral_import_button_wrapper",
+                    className="me-1"
+                ),
+                html.Div(id="spectral_import_hint")
+            ],
+            className="d-flex align-items-center")
+        ],
+        className="d-flex justify-content-between"
+    )
+]
+
+
 peptide_data_block = html.Div(
     [
         html.Div(
@@ -602,7 +626,7 @@ spectral_data_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "mzml_upload_test", "mzml_name_txt_test", "mzml_valid_test"
+                "mzml_upload", "mzml_name_txt", "mzml_valid"
             )
         ],
         className="mx-4 mb-3"
@@ -610,7 +634,7 @@ spectral_data_import_block = [
     html.Hr(className="w-100 my-0"),
     html.Div(
         ["No file..."],
-        id="mzml_name_test",
+        id="mzml_name",
         className="px-4 pt-3 overflow-auto",
         style={"height": "10rem"}
     ),
@@ -627,7 +651,7 @@ feature_data_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "features_upload_test", "features_name_txt_test", "features_valid_test"
+                "features_upload", "features_name_txt", "features_valid"
             )
         ],
         className="mx-4 mb-3"
@@ -635,7 +659,69 @@ feature_data_import_block = [
     html.Hr(className="w-100 my-0"),
     html.Div(
         ["No file..."],
-        id="features_name_test",
+        id="features_name",
+        className="px-4 pt-3 overflow-auto",
+        style={"height": "10rem"}
+    ),
+]
+
+
+db_search_qa_import_block = [
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("DB search"),
+                ],
+                className="d-flex justify-content-between mb-4 align-items-center"
+            ),
+            annotation_mini_importer_block(
+                "db_search_psm_qa_upload", "db_search_psm_qa_import_txt", "db_search_psm_qa_valid",
+                format_options=gc.db_search_dropdown_options,
+                format_id="db_search_psm_qa_format",
+                allow_multiple=False
+            ),
+        ],
+        className="mx-4 mb-3"
+    ),
+    html.Hr(className="w-100 my-0"),
+    html.Div(
+        ["No file..."],
+        id="db_search_psm_qa_name",
+        className="px-4 pt-3 overflow-auto",
+        style={"height": "10rem"}
+    ),
+]
+
+
+de_novo_qa_import_block = [
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("De novo"),
+                    dbc.Button("Options",
+                               id="de_novo_modal_open",
+                               size="sm",
+                               className="" if gc.show_advanced_settings is True else "d-none",
+                               color="secondary",
+                               outline=True),
+                ],
+                className="d-flex justify-content-between mb-4 align-items-center"
+            ),
+            annotation_mini_importer_block(
+                "denovo_qa_upload", "denovo_qa_import_txt", "denovo_qa_valid",
+                format_options=gc.de_novo_dropdown_options,
+                format_id="denovo_qa_format",
+                allow_multiple=True
+            )
+        ],
+        className="mx-4 mb-3"
+    ),
+    html.Hr(className="w-100 my-0"),
+    html.Div(
+        ["No file..."],
+        id="denovo_qa_name",
         className="px-4 pt-3 overflow-auto",
         style={"height": "10rem"}
     ),
@@ -655,32 +741,8 @@ spectral_data_import_container = [
     html.Div(
         [
             html.Div(
-                db_search_import_block,
-                id="db_search_import_box",
-                className="py-3 w-100 overflow-visible",
-            )
-        ],
-        className="d-flex",
-        style={"width": "34%"}
-    ),
-    html.Div(
-        [
-            html.Div(className="vr"),
-            html.Div(
-                de_novo_import_block,
-                id="de_novo_import_box",
-                className="py-3 w-100 overflow-visible",
-            )
-        ],
-        className="d-flex",
-        style={"width": "34%"}
-    ),
-    html.Div(
-        [
-            html.Div(className="vr"),
-            html.Div(
                 spectral_data_import_block,
-                id="taxonomy_db_import_box",
+                id="spec_data_import_box",
                 className="py-3 w-100"
             )
         ],
@@ -692,8 +754,32 @@ spectral_data_import_container = [
             html.Div(className="vr"),
             html.Div(
                 feature_data_import_block,
-                id="functional_db_import_box",
+                id="feature_data_import_box",
                 className="py-3 w-100 overflow-visible"
+            )
+        ],
+        className="d-flex",
+        style={"width": "34%"}
+    ),
+    html.Div(
+        [
+            html.Div(className="vr"),
+            html.Div(
+                db_search_qa_import_block,
+                id="db_search_qa_import_box",
+                className="py-3 w-100 overflow-visible",
+            )
+        ],
+        className="d-flex",
+        style={"width": "34%"}
+    ),
+    html.Div(
+        [
+            html.Div(className="vr"),
+            html.Div(
+                de_novo_qa_import_block,
+                id="de_novo_qa_import_box",
+                className="py-3 w-100 overflow-visible",
             )
         ],
         className="d-flex",
@@ -705,6 +791,13 @@ spectral_data_import_container = [
 import_block = html.Div(
     [
         peptide_data_block,
+        dbc.Alert(
+            id="qa_data_import_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
         dbc.Alert(
             id="peptides_import_format_alert",
             dismissable=True,
@@ -760,17 +853,13 @@ import_block = html.Div(
                 dbc.AccordionItem(
                     html.Div(
                         [
-                            # html.Div(
-                            #     sample_options_block,
-                            #     id="peptide_import_container",
-                            #     className="p-3",
-                            #     #style={"height": "31rem"}
-                            # ),
-                            # html.Hr(className="m-0", style={"color": "#8a8a8a"}),
-                            # html.Div(html.A(html.I("Guide: how to prepare data for import", 
-                            #             style={"font-size": "0.9vw"},
-                            #             ), href=gc.docs_data_prep_url, target="_blank"), className="ms-3 py-2"),
-                            # html.Hr(className="m-0"),
+                            html.Div(
+                                spectral_data_options_block,
+                                id="spectral_data_import_container",
+                                className="p-3",
+                                #style={"height": "31rem"}
+                            ),
+                            html.Hr(className="m-0"),
                             html.Div(
                                 spectral_data_import_container,
                                 id="spectral_data_import_container",
@@ -791,7 +880,7 @@ import_block = html.Div(
                                 className="p-3",
                                 #style={"height": "31rem"}
                             ),
-                            html.Hr(className="m-0", style={"color": "#8a8a8a"}),
+                            # html.Hr(className="m-0", style={"color": "#8a8a8a"}),
                             html.Hr(className="m-0"),
                             html.Div(
                                 data_import_container,
@@ -818,7 +907,9 @@ import_block = html.Div(
                 html.Div(
                     [
                         html.H4("Performance evaluation dataset"),
-                        dbc.Button('Clear data', id='clear_spectral_dataset', className="me-2"),
+                        dbc.Button('Clear data', 
+                                   id='clear_spectral_dataset', 
+                                   className="me-2"),
                     ],
                     className="d-flex px-3 pt-3 justify-content-between align-items-center"
                 ),
@@ -828,7 +919,9 @@ import_block = html.Div(
                         html.Div(
                             [
                                 html.H5("Spectra: ", className="text-secondary mb-0 pb-0"),
-                                html.H6("S7.mzML", className="ms-3 mb-0 pb-0")
+                                html.H6("S7.mzML", 
+                                        id="mzml_store_name",
+                                        className="ms-3 mb-0 pb-0")
                             ],
                             className="d-flex align-items-end",
                             style={"width": "50%"}
@@ -836,7 +929,8 @@ import_block = html.Div(
                         html.Div(
                             [
                                 html.H5("Features: ", className="text-secondary mb-0 pb-0"),
-                                html.I(className="bi bi-check-circle-fill me-3 ms-3 fs-5 text-success"),
+                                html.I(id="feature_store_valid",
+                                       className="bi bi-check-circle-fill me-3 ms-3 fs-5 text-success"),
                                 # html.H6("spec.featureXML", className="ps-4")
                             ], 
                             className="d-flex align-items-center",
@@ -845,8 +939,11 @@ import_block = html.Div(
                         html.Div(
                             [
                                 html.H5("DB search data: ", className="text-secondary mb-0 pb-0"),
-                                html.I(className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
-                                html.H6("Peaks 11", className="mb-0 pb-0")
+                                html.I(id="db_search_qa_store_valid",
+                                       className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
+                                html.H6("Peaks 11", 
+                                        id="db_search_qa_store_format",
+                                        className="mb-0 pb-0")
                             ], 
                             className="d-flex align-items-center",
                             style={"width": "50%"}
@@ -854,8 +951,11 @@ import_block = html.Div(
                         html.Div(
                             [
                                 html.H5("de novo data: ", className="text-secondary mb-0 pb-0"),
-                                html.I(className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
-                                html.H6("Peaks 11", className="mb-0 pb-0")
+                                html.I(id="de_novo_qa_store_valid",
+                                       className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
+                                html.H6("Peaks 11", 
+                                        id="de_novo_qa_store_name",
+                                        className="mb-0 pb-0")
                             ], 
                             className="d-flex align-items-center",
                             style={"width": "50%"}
