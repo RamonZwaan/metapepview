@@ -536,6 +536,6 @@ def calculate_miscleavages(db_search: pd.DataFrame) -> Tuple[List[str], List[int
         counts.append(miscleave_series.get(cat, 0))
 
     # final counts are all values outside of defined categories
-    counts.append(miscleave_series.drop(categories[:-1]).sum())
+    counts.append(miscleave_series.drop(categories[:-1], errors="ignore").sum())
 
     return (categories, counts)
