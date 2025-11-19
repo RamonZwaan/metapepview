@@ -31,3 +31,4 @@ class RefBuilderOptions():
     de_novo_thresholds: List[float]
     intensity_percentiles: List[int | float]
     transmission_loss_percentiles: List[int | float]
+    min_pept_ident: int = 10

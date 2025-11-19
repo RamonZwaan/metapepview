@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from typing import List, IO, Self, Dict
+from typing import List, IO, Self, Dict, Sequence
 
 from metapepview.backend.types.proteomics.proteomics_base_classes import DeNovoMethods
 from metapepview.backend.types.metapep_table import MetaPepDeNovo
@@ -102,7 +102,7 @@ class CasanovoDeNovo(DeNovoMethods):
             raise TypeError(failed_msg)
 
 
-    def get_source_files(self):
+    def get_source_files(self) -> Sequence[str]:
         """Return all raw spectral file names from dataset, excluding file type
         suffix.
 
@@ -114,7 +114,7 @@ class CasanovoDeNovo(DeNovoMethods):
         Returns:
             Sequence[str]: All raw spectral file names in dataset.
         """
-        return self._source_files
+        return list(self._source_files.values())
        
     @classmethod
     def __fetch_all_source_files(cls, contents: IO[str]) -> Dict[str, str]:
@@ -287,7 +287,10 @@ class CasanovoDeNovo(DeNovoMethods):
         )
 
         # Signal intensities are not provided by Casanovo
-        df.loc[:, "Area"] = np.nan
+        if df.shape[0] > 0:
+            df.loc[:, "Area"] = np.nan
+        else:
+            df.loc[:, "Area"] = []
 
         h_mass = PhysicalConstants.proton_mass
 

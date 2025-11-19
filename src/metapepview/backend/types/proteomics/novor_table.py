@@ -299,12 +299,15 @@ class NovorDeNovo(DeNovoMethods):
         df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
-        
-        # No Area information supplied in output file
-        df['Area'] = np.nan
-        # TODO: Extract PTM data from peptide column
-        df['PTM'] = np.nan
-        
+
+        # Signal intensities are not provided by Casanovo
+        if df.shape[0] > 0:
+            df.loc[:, "Area"] = np.nan
+            df.loc[:, "PTM"] = np.nan
+        else:
+            df.loc[:, "Area"] = []
+            df.loc[:, "PTM"] = []
+
         # filter out peptides from cRAP dataset
         if crap_dataset is not None:
             df = filter_crap(df, 'Sequence', crap_dataset)

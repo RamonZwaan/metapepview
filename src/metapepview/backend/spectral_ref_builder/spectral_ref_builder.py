@@ -55,12 +55,15 @@ def fetch_file_locations(options: RefBuilderOptions) -> Dict[str, Dict[str, Path
         source_names = [mzml_path.stem]
         output_dict = add_to_source_dict(output_dict, source_names, mzml_path, "mzml")
     for db_search_path in db_search_files:
-        source_names = ident_file_source(db_search_path, "db search", options)
-        output_dict = add_to_source_dict(output_dict, source_names, db_search_path, "db search")
+        db_search_obj = read_ident_file(db_search_path, "db search", options)
+        if check_valid_ident_file(db_search_obj, options) is True:
+            source_names = ident_file_source(db_search_obj)
+            output_dict = add_to_source_dict(output_dict, source_names, db_search_path, "db search")
     for de_novo_path in de_novo_files:
-        source_names = ident_file_source(de_novo_path, "de novo", options)
-        output_dict = add_to_source_dict(output_dict, source_names, de_novo_path, "de novo")
-
+        de_novo_obj = read_ident_file(de_novo_path, "de novo", options)
+        if check_valid_ident_file(de_novo_obj, options) is True:
+            source_names = ident_file_source(de_novo_obj)
+            output_dict = add_to_source_dict(output_dict, source_names, de_novo_path, "de novo")
     
     return output_dict
 
@@ -636,8 +639,8 @@ def build_ref_data(
     file_loc_dict = fetch_file_locations(ref_options)
     
     mzml_count = len([x["mzml"] for x in file_loc_dict.values() if x is not None])
-    db_search_count = len([x["db search"] for x in file_loc_dict.values() if x is not None])
-    de_novo_count = len([x["de novo"] for x in file_loc_dict.values() if x is not None])
+    db_search_count = len([x["db search"] for x in file_loc_dict.values() if x['db search'] is not None])
+    de_novo_count = len([x["de novo"] for x in file_loc_dict.values() if x['de novo'] is not None])
 
     print(f"found {len(file_loc_dict.keys())} experiments:")
     print(f"{mzml_count} mzML files")

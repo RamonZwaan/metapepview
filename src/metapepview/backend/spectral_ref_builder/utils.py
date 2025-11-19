@@ -8,20 +8,53 @@ from metapepview.backend.type_operations import * # load_metapep_db_search, load
 from metapepview.backend.utils import *
 
 
-def ident_file_source(ident_file: Path,
-                      filetype: str,
-                      options: RefBuilderOptions) -> Sequence[str]:
+def read_ident_file(ident_file: Path,
+                    filetype: str,
+                    options: RefBuilderOptions) -> DbSearchMethods | DeNovoMethods:
     if filetype == "db search":
-        source = db_search_importers[options.db_search_format]\
-            .read_file(ident_file)\
-            .get_source_files()
+        obj = db_search_importers[options.db_search_format]\
+            .read_file(ident_file)
     elif filetype == "de novo":
-        source = de_novo_importers[options.de_novo_format]\
-            .read_file(ident_file)\
-            .get_source_files()
+        obj = de_novo_importers[options.de_novo_format]\
+            .read_file(ident_file)
     else:
         raise ValueError("Invlid filetype supplied")
-    return source
+    return obj
+
+
+def check_valid_ident_file(ident_obj: DbSearchMethods | DeNovoMethods,
+                           options: RefBuilderOptions) -> bool:
+    """Check if peptide identifications file (db search or de novo) is valid.
+
+    Args:
+        ident_obj (DbSearchMethods | DeNovoMethods): Identification file data.
+        options (RefBuilderOptions): options parameters.
+
+    Returns:
+        bool: True if valid for further processing.
+    """
+    if ident_obj.data.shape[0] < options.min_pept_ident:
+        return False
+    return True
+
+
+
+def ident_file_source(ident_obj: DbSearchMethods | DeNovoMethods) -> Sequence[str]:
+    """Get source (raw spectral file) names of peptide identification file.
+    Loads the data and fetches all spectral file names.
+
+    Args:
+        ident_file (Path): _description_
+        filetype (str): _description_
+        options (RefBuilderOptions): _description_
+
+    Raises:
+        ValueError: _description_
+
+    Returns:
+        Tuple[Sequence[str], bool]: _description_
+    """
+    return ident_obj.get_source_files()
     
 
 def add_to_source_dict(output_dict: Dict[str, Dict[str, Path | None]],
@@ -187,6 +220,10 @@ def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
 
     # compute error bars
     rank_mat = np.array([x + (max_len - len(x))*[0] for x in rank_mat])
+
+    if rank_mat.size == 0:
+        return(np.array([]), np.array([]))
+
     mean_array = rank_mat.mean(axis=0)
     std_array = rank_mat.std(axis=0)
     
@@ -261,7 +298,8 @@ def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
             df = load_metapep_db_search(df_path.open('r'), name, file_format) #type:ignore
         elif file_type == 'de novo':
             df = load_metapep_de_novo(df_path.open('r'), name, file_format) #type:ignore
-        
+    
+
         # if file contains data from other source files, omit them
         if len(df.source_files) > 1:
             df = df.filter_spectral_name(name)
