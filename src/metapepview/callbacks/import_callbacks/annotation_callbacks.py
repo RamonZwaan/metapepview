@@ -61,6 +61,7 @@ def show_peptides_names(contents, names, dates):
     return import_single_file(names, dates, max_name_len=30, drag_and_drop=False)
 
 
+
 @app.callback(
     Output('db_search_psm_valid', 'data'),
     Output('db_search_psm_name', 'children', allow_duplicate=True),
@@ -206,31 +207,6 @@ def show_taxonomy_db_name(contents,
                                 name,
                                 date,
                                 valid_func)
-
-
-@app.callback(
-    Output('peptides', 'data', allow_duplicate=True),
-    Output('experiment_name_field', 'value'),
-    Output('peptides_import_format_alert', 'children'),
-    Output('peptides_import_format_alert', 'is_open'),
-    Input('peptides_obj_upload', 'contents'),
-    Input('peptides_obj_upload', 'filename'),
-    prevent_initial_call=True
-)
-def process_peptides_data(peptide_data, file_name):
-    if peptide_data is None:
-        raise PreventUpdate
-    archive_format = determine_archive_format(file_name)
-    data_str = memory_to_str(peptide_data, archive_format)
-
-    valid, err_msg = MetaPepTable.validate_json(data_str)
-    if not valid:
-        return None, None, err_msg, True
-
-    # experiment name taken from filename except last suffix
-    file_name = "".join(file_name.split('.')[:-1])
-
-    return data_str, file_name, None, False
 
 
 @app.callback(
@@ -757,24 +733,126 @@ def download_annotated_dataset_csv(n_clicks,
     Output("download_peptides_json", "data"),
     Input("export_peptides_json", "n_clicks"),
     State("peptides", "data"),
+    # State("peptides_metadata", "data"),
+    State("mzml_data", "data"),
+    State("mzml_peaks_data", "data"),
+    State("mzml_metadata", "data"),
+    State("features_data", "data"),
+    State("features_metadata", "data"),
+    State("db_search_qa_data", "data"),
+    State("de_novo_qa_data", "data"),
     State("experiment_name_field", "value"),
     prevent_initial_call=True
 )
 def download_annotated_dataset_json(n_clicks,
                                     peptide_json,
+                                    # pept_metadata,
+                                    mzml_data,
+                                    mzml_peaks,
+                                    mzml_metadata,
+                                    features_data,
+                                    features_metadata,
+                                    db_search_qa_data,
+                                    de_novo_qa_data,
                                     experiment_name):
-    if peptide_json is None:
-        return
+    # at least one of annotation data or spectral data should be present
+    if peptide_json is None and mzml_data is None:
+        return None
 
     if experiment_name is None:
         experiment_name = "peptides"
 
     # import json into metapep object
-    peptides_obj = MetaPepTable.read_json(peptide_json)
+    # peptides_obj = MetaPepTable.read_json(peptide_json)
     file_name = f'{experiment_name}.json'
 
+    project_dict = {
+        "peptides": peptide_json,# peptides_obj.to_json(),
+        "mzml_data": mzml_data,
+        "mzml_peaks": mzml_peaks,
+        "mzml_metadata": mzml_metadata,
+        "features_data": features_data,
+        "features_metadata": features_metadata,
+        "db_search_qa_data": db_search_qa_data,
+        "de_novo_qa_data": de_novo_qa_data
+    }
+
     # Download dataframe from object
-    return dict(content=peptides_obj.to_json(), filename=file_name)
+    return dict(content=json.dumps(project_dict), filename=file_name)
+
+
+@app.callback(
+    Output('peptides', 'data', allow_duplicate=True),
+    Output("mzml_data", "data", allow_duplicate=True),
+    Output("mzml_peaks_data", "data", allow_duplicate=True),
+    Output("mzml_metadata", "data", allow_duplicate=True),
+    Output("features_data", "data", allow_duplicate=True),
+    Output("features_metadata", "data", allow_duplicate=True),
+    Output("db_search_qa_data", "data", allow_duplicate=True),
+    Output("de_novo_qa_data", "data", allow_duplicate=True),
+    Output('experiment_name_field', 'value', allow_duplicate=True),
+    Output('peptides_import_format_alert', 'children'),
+    Output('peptides_import_format_alert', 'is_open'),
+    Input('peptides_obj_upload', 'contents'),
+    Input('peptides_obj_upload', 'filename'),
+    prevent_initial_call=True
+)
+def process_peptides_data(project_data, 
+                          file_name):
+    empty_project = (None, 
+                     None, 
+                     None, 
+                     None, 
+                     None, 
+                     None, 
+                     None, 
+                     None, 
+                     None)
+
+    if project_data is None:
+        raise PreventUpdate
+    archive_format = determine_archive_format(file_name)
+    data_str = memory_to_str(project_data, archive_format)
+
+    # Deserialize the JSON string
+    try:
+        json_dict = json.loads(data_str)
+    except:
+        return None, None, "Failed to parse data as json.", True
+    
+    # experiment name taken from filename except last suffix
+    file_name = "".join(file_name.split('.')[:-1])
+
+    # Keep backwards compatibility with past project format
+    if "peptides" not in json_dict.keys():
+        metapep_table_data = data_str
+        valid, err_msg = MetaPepTable.validate_json(metapep_table_data)
+        if not valid:
+            return empty_project + (err_msg, True)
+        else:
+            return (data_str,) + (None,)*7 + (file_name, None, False)
+
+    # process annotation peptides data
+    metapep_table_data = json_dict["peptides"]
+    if metapep_table_data is not None:
+        valid, err_msg = MetaPepTable.validate_json(metapep_table_data)
+        if not valid:
+            return empty_project + (err_msg, True)
+
+    # process spectral data
+
+
+    return (metapep_table_data,
+            json_dict.get("mzml_data"),
+            json_dict.get("mzml_peaks"),
+            json_dict.get("mzml_metadata"),
+            json_dict.get("features_data"),
+            json_dict.get("features_metadata"),
+            json_dict.get("db_search_qa_data"),
+            json_dict.get("de_novo_qa_data"),
+            file_name, 
+            None, 
+            False)
 
 
 @app.callback(

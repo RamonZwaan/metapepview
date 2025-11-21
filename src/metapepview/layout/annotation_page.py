@@ -497,7 +497,9 @@ db_search_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "db_search_psm_upload", "db_search_psm_import_txt", "db_search_psm_valid",
+                "db_search_psm_upload", 
+                "db_search_psm_import_txt", 
+                "db_search_psm_valid",
                 format_options=gc.db_search_dropdown_options,
                 format_id="db_search_psm_format",
                 allow_multiple=True
@@ -676,7 +678,9 @@ db_search_qa_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "db_search_psm_qa_upload", "db_search_psm_qa_import_txt", "db_search_psm_qa_valid",
+                "db_search_psm_qa_upload", 
+                "db_search_psm_qa_import_txt", 
+                "db_search_psm_qa_valid",
                 format_options=gc.db_search_dropdown_options,
                 format_id="db_search_psm_qa_format",
                 allow_multiple=False
@@ -700,12 +704,6 @@ de_novo_qa_import_block = [
             html.Div(
                 [
                     html.H4("De novo"),
-                    dbc.Button("Options",
-                               id="de_novo_modal_open",
-                               size="sm",
-                               className="" if gc.show_advanced_settings is True else "d-none",
-                               color="secondary",
-                               outline=True),
                 ],
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
@@ -713,7 +711,7 @@ de_novo_qa_import_block = [
                 "denovo_qa_upload", "denovo_qa_import_txt", "denovo_qa_valid",
                 format_options=gc.de_novo_dropdown_options,
                 format_id="denovo_qa_format",
-                allow_multiple=True
+                allow_multiple=False
             )
         ],
         className="mx-4 mb-3"
@@ -766,7 +764,7 @@ spectral_data_import_container = [
             html.Div(className="vr"),
             html.Div(
                 db_search_qa_import_block,
-                id="db_search_qa_import_box",
+                id="db_search_psm_qa_import_box",
                 className="py-3 w-100 overflow-visible",
             )
         ],
@@ -778,7 +776,7 @@ spectral_data_import_container = [
             html.Div(className="vr"),
             html.Div(
                 de_novo_qa_import_block,
-                id="de_novo_qa_import_box",
+                id="denovo_qa_import_box",
                 className="py-3 w-100 overflow-visible",
             )
         ],
@@ -855,7 +853,6 @@ import_block = html.Div(
                         [
                             html.Div(
                                 spectral_data_options_block,
-                                id="spectral_data_import_container",
                                 className="p-3",
                                 #style={"height": "31rem"}
                             ),
@@ -941,8 +938,7 @@ import_block = html.Div(
                                 html.H5("DB search data: ", className="text-secondary mb-0 pb-0"),
                                 html.I(id="db_search_qa_store_valid",
                                        className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
-                                html.H6("Peaks 11", 
-                                        id="db_search_qa_store_format",
+                                html.H6(id="db_search_qa_store_format",
                                         className="mb-0 pb-0")
                             ], 
                             className="d-flex align-items-center",
@@ -950,11 +946,10 @@ import_block = html.Div(
                         ),
                         html.Div(
                             [
-                                html.H5("de novo data: ", className="text-secondary mb-0 pb-0"),
+                                html.H5("De novo data: ", className="text-secondary mb-0 pb-0"),
                                 html.I(id="de_novo_qa_store_valid",
                                        className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
-                                html.H6("Peaks 11", 
-                                        id="de_novo_qa_store_name",
+                                html.H6(id="de_novo_qa_store_name",
                                         className="mb-0 pb-0")
                             ], 
                             className="d-flex align-items-center",

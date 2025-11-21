@@ -239,7 +239,7 @@ class SageDbSearch(DbSearchMethods):
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset
-        source_files: List[str] = df.loc[:, 'Source File'].unique().tolist()
+        source_files: List[str] = self.get_source_files()
         
         # configure file name, if given the function argument, else the class file name
         if sample_name is None:

@@ -33,21 +33,6 @@ from metapepview.backend.plots import tic_over_rt_plot, \
     ref_score_metrics_barplot
 
 
-
-def show_spectra_name(name):
-    """Display filename of annotated peptide dataset import.
-    """
-    # provide own implementation that does not look for nonetype at content
-    # but at name, as content will not be stored in upload object
-    if name is None:
-        return html.P("No file...")
-    # update name in sidebar
-    else:
-        if len(name) > 30:
-            name = name[:30-3] + '...'
-        return html.P(name, className="ms-1") 
-
-
 @app.callback(
     Output("tic_sec_param_int_cutoff_container", "hidden"),
     Output("tic_sec_param_conf_cutoff_container", "hidden"),

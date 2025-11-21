@@ -18,250 +18,348 @@ from metapepview.constants import GlobalConstants as gc
 
 
 
-# @app.callback(
-#     Output('db_search_psm_qa_valid', 'data'),
-#     Output('db_search_psm_qa_name', 'children'),
-#     Output('db_search_psm_qa_upload', 'contents'),
-#     # Output('db_search_psm_qa_format_alert', 'children'),
-#     # Output('db_search_psm_qa_format_alert', 'is_open'),
-#     Output('db_search_psm_qa_import_box', 'style'),
-#     Input('db_search_psm_qa_upload', 'contents'),
-#     Input('db_search_psm_qa_format', 'value'),
-#     State('db_search_psm_qa_upload', 'filename'),
-#     State('db_search_psm_qa_upload', 'last_modified'))
-# def show_db_psm_search_qa_name(contents, file_format, name, date):
-#     """Display filename of annotated peptide dataset import.
-#     """
-#     # set validation function
-#     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-#         cont_buf = memory_to_stringio(cont, archv)
-#         return validate_db_search(cont_buf, file_format)
+@app.callback(
+    Output('db_search_psm_qa_valid', 'data'),
+    Output('db_search_psm_qa_name', 'children'),
+    Output('db_search_psm_qa_upload', 'contents'),
+    Output('db_search_psm_qa_import_box', 'style'),
+    Input('db_search_psm_qa_upload', 'contents'),
+    Input('mzml_metadata', 'data'),
+    State('db_search_psm_qa_format', 'value'),
+    State('db_search_psm_qa_upload', 'filename'),
+    State('db_search_psm_qa_upload', 'last_modified'),
+    prevent_initial_call=True
+)
+def show_db_psm_search_qa_name(contents, 
+                               mzml_metadata,
+                               file_format,
+                               name, 
+                               date):
+    """Display filename of annotated peptide dataset import.
+    """
+    # set validation function
+    def valid_func(cont, archv) -> Tuple[bool, str | None]:
+        cont_buf = memory_to_stringio(cont, archv)
+
+        if mzml_metadata is None:
+            return validate_db_search(cont_buf, file_format)
+        else:
+            try:
+                db_search_obj = load_metapep_db_search(cont_buf,
+                                                    name,
+                                                    file_format)
+            except Exception as err:
+                return False, err
+
+            source_name = mzml_metadata["raw file name"] 
+            if source_name not in db_search_obj.source_files:
+                msg = "mzml and DB search not from same experiment."
+                return False, msg
+        return True, None
     
-#     valid_data, name, content, err_msg, success, import_box_style = validate_single_file(contents, name, date, valid_func, drag_and_drop=True)
+    (valid_data, 
+     name, 
+     content, 
+     err_msg, 
+     success, 
+     import_box_style) = validate_single_file(contents, 
+                                              name, 
+                                              date, 
+                                              valid_func, 
+                                              drag_and_drop=True)
     
-#     # update import box style
-#     qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
-#     if "background-color" in import_box_style.keys():
-#         qa_box_style["background-color"] = import_box_style["background-color"]
-    
-#     return (valid_data, name, content, qa_box_style)
+    return (valid_data, name, content, import_box_style)
 
-
-# @app.callback(
-#     Output('denovo_qa_valid', 'data'),
-#     Output('denovo_qa_name', 'children'),
-#     Output('denovo_qa_upload', 'contents'),
-#     # Output('denovo_qa_format_alert', 'children'),
-#     # Output('denovo_qa_format_alert', 'is_open'),
-#     Output('denovo_qa_import_box', 'style'),
-#     Input('denovo_qa_upload', 'contents'),
-#     Input('denovo_qa_format', 'value'),
-#     State('denovo_qa_upload', 'filename'),
-#     State('denovo_qa_upload', 'last_modified'))
-# def show_denovo_search_qa_name(contents, file_format, name, date):
-#     """Display filename of annotated peptide dataset import.
-#     """
-#     # set validation function
-#     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-#         cont_buf = memory_to_stringio(cont, archv)
-#         return validate_de_novo(cont_buf, file_format)
-#     valid_data, name, content, err_msg, success, import_box_style = validate_single_file(contents, name, date, valid_func, drag_and_drop=True)
-
-#     # update import box style
-#     qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
-#     if "background-color" in import_box_style.keys():
-#         qa_box_style["background-color"] = import_box_style["background-color"]
-    
-#     return (valid_data, name, content, qa_box_style)
-
-
-# @app.callback(
-#     Output('start_annotation_button', 'disabled'),
-#     Output('annotation_hint', 'children'),
-#     Input('mzml_valid', 'data'),
-
-# )
-# def inactivate_spectral_import_button(mzml_valid):
-#     tooltip_target = "start_spectral_import_button_wrapper"
-
-#     if mzml_valid is not True:
-#         tooltip = dbc.Tooltip("Import spectral dataset (mzML)",
-#                               target=tooltip_target,
-#                               placement="bottom",
-#                               className="mt-1")
-#         return (True, [tooltip])
-
-#     else:
-#         tooltip = dbc.Tooltip(f"start annotation",
-#                                 target="start_annotation_button_wrapper",
-#                                 placement="bottom",
-#                                 className="mt-1")
-#     return (False, [tooltip])
 
 
 @app.callback(
-    Output("mzml_data", "data"),
-    Output("mzml_peaks_data", "data"),
-    Output("mzml_metadata", "data"),
-    Output("mzml_upload", "contents"),
+    Output('denovo_qa_valid', 'data'),
+    Output('denovo_qa_name', 'children'),
+    Output('denovo_qa_upload', 'contents'),
+    # Output('denovo_qa_format_alert', 'children'),
+    # Output('denovo_qa_format_alert', 'is_open'),
+    Output('denovo_qa_import_box', 'style'),
+    Input('denovo_qa_upload', 'contents'),
+    Input('denovo_qa_format', 'value'),
+    Input("mzml_metadata", "data"),
+    State('denovo_qa_upload', 'filename'),
+    State('denovo_qa_upload', 'last_modified'))
+def show_denovo_search_qa_name(contents, 
+                               file_format, 
+                               mzml_metadata,
+                               name, 
+                               date):
+    """Display filename of annotated peptide dataset import.
+    """
+    if contents is None:
+        raise PreventUpdate
+
+    # set validation function
+    def valid_func(cont, archv) -> Tuple[bool, str | None]:
+        cont_buf = memory_to_stringio(cont, archv)
+
+        if mzml_metadata is None:
+            return validate_de_novo(cont_buf, file_format)
+        else:
+            try:
+                de_novo_obj = load_metapep_de_novo(cont_buf,
+                                                   name,
+                                                   file_format)
+            except Exception as err:
+                return False, err
+
+            source_name = mzml_metadata["raw file name"] 
+            if source_name not in de_novo_obj.source_files:
+                msg = "mzml and de novo data not from same experiment."
+                return False, msg
+        return True, None
+    
+
+    (valid_data, 
+     name, 
+     content, 
+     err_msg, 
+     success, 
+     import_box_style) = validate_single_file(contents, 
+                                              name, 
+                                              date, 
+                                              valid_func, 
+                                              drag_and_drop=True)
+    
+    return (valid_data, name, content, import_box_style)
+
+
+@app.callback(
     Output("mzml_name", "children"),
-    Output('mzml_valid', 'data'),
-    Output('mzml_import_box', 'style'),
+    Input("mzml_upload", "filename")
+)
+def show_mzml(filename):
+    return filename
+
+
+@app.callback(
+    Output("features_name", "children"),
+    Input("features_upload", "filename")
+)
+def show_features(filename):
+    return filename
+
+
+@app.callback(
+    Output('start_spectral_import_button', 'disabled'),
+    Output('spectral_import_hint', 'children'),
+    Input('mzml_upload', 'contents'),
+    Input("db_search_psm_qa_valid", "data"),
+    Input("denovo_qa_valid", "data"),
+)
+def inactivate_spectral_import_button(mzml_content,
+                                      db_search_valid,
+                                      de_novo_valid):
+    tooltip_target = "start_spectral_import_button_wrapper"
+
+    if mzml_content is None:
+        tooltip = dbc.Tooltip("Import spectral dataset (mzML)",
+                              target=tooltip_target,
+                              placement="bottom",
+                              className="mt-1")
+        return (True, [tooltip])
+    elif db_search_valid is False:
+        tooltip = dbc.Tooltip("Invalid db search file supplied. Check format or if it is from same experiment as mzml",
+                              target=tooltip_target,
+                              placement="bottom",
+                              className="mt-1")
+        return (True, [tooltip])
+    elif de_novo_valid is False:
+        tooltip = dbc.Tooltip("Invalid de novo file supplied. Check format or if it is from same experiment as mzml",
+                              target=tooltip_target,
+                              placement="bottom",
+                              className="mt-1")
+        return (True, [tooltip])
+
+    else:
+        tooltip = dbc.Tooltip(f"start import",
+                                target="start_spectral_import_button_wrapper",
+                                placement="bottom",
+                                className="mt-1")
+        return (False, [tooltip])
+
+
+@app.callback(
+    Output("mzml_data", "data", allow_duplicate=True),
+    Output("mzml_peaks_data", "data", allow_duplicate=True),
+    Output("mzml_metadata", "data", allow_duplicate=True),
+    Output("features_data", "data", allow_duplicate=True),
+    Output("features_metadata", "data", allow_duplicate=True),
+    Output("db_search_qa_data", "data", allow_duplicate=True),
+    Output("de_novo_qa_data", "data", allow_duplicate=True),
+    Output("spectral_data_import_container", "children"),
     Output("qa_data_import_alert", "children", allow_duplicate=True),
     Output("qa_data_import_alert", "is_open", allow_duplicate=True),
     Input("start_spectral_import_button", "n_clicks"),
     State("mzml_upload", "contents"),
     State("mzml_upload", "filename"),
+    State("features_upload", "contents"),
+    State("features_upload", "filename"),
+    State("db_search_psm_qa_upload", "contents"),
+    State("db_search_psm_qa_format", "value"),
+    State("db_search_psm_qa_valid", "data"),
+    State("denovo_qa_upload", "contents"),
+    State("denovo_qa_format", "value"),
+    State("denovo_qa_valid", "data"),
     prevent_initial_call=True
 )
-def store_mzml_dataset(content, filename):
+def store_spectral_dataset(btn, 
+                           mzml_content, 
+                           mzml_filename,
+                           features_content, 
+                           features_filename,
+                           db_search_content,
+                           db_search_format,
+                           db_search_valid, 
+                           de_novo_content,
+                           de_novo_format,
+                           de_novo_valid):
     # only update if valid data uploaded
-    if content is None:
-        raise PreventUpdate
-    print("Start mzML wrangling...")
+    if mzml_content is None:
+        raise PreventUpdate    
+
+    # Import mzml data and return as compressed string data
+    (mzml_data, 
+     mzml_peaks, 
+     mzml_metadata,
+     mzml_valid) = import_mzml(mzml_content, mzml_filename)
     
-    fields = [
-        "scan number",
-        "MS level",
-        "peaks count",
-        "retention time",
-        "total ion current",
-        "precursor intensity",
-        "precursor scan number",
-        "ion injection time",
-        "precursor m/z",
-        "m/z array",
-        "intensity array"
-    ]
-    
-    archive_format = determine_archive_format(filename)
-    
-    qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
-    
-    try:
-        data, metadata = mzml_to_df(memory_to_file_like(content, archive_format),
-                                    fields)
-        
-        numeric_fields = [
-            'scan number',
-            'MS level',
-            'peaks count',
-            'retention time',
-            'total ion current',
-            'precursor intensity',
-            'precursor m/z',
-            'precursor scan number',
-            'ion injection time'
-        ]
-        
-        data[numeric_fields] = data[numeric_fields].astype(float)
-        
-        # store peaks inside separate dataset
-        peaks_data = data[["m/z array", "intensity array"]]
-        peaks_data = peaks_data.to_json(orient="index")
-        data = data.drop(labels=["m/z array", "intensity array"], axis=1)
-        
-        metadata["total retention time"] = data.iloc[-1]['retention time']    
-    except Exception as err:
-        print(err)
-        
-        qa_box_style["background-color"] = StyleConstants.import_failed_color
-        return (
-            None, 
-            None, 
-            None, 
-            None, 
-            import_single_file(None, None, drag_and_drop=True),
-            False,
-            qa_box_style,
-            f"Failed to import mzML data: {err}",
-            True
-        )
-    print("Finished wrangling...")
-    # After dataset is imported, remove upload data to save memory
-    # However, do keep the filename for display in dashboard
-    
-    qa_box_style["background-color"] = StyleConstants.import_success_color
-    return (
-        compress_string(data.to_json()), 
-        compress_string(peaks_data), 
-        metadata, 
-        None, 
-        import_single_file(filename, None, drag_and_drop=True),
-        True,
-        qa_box_style,
-        None,
-        False
-    )
+    # require mzml data for any information to be stored
+    if mzml_valid is False or any(x is False for x in [db_search_valid, de_novo_valid]):
+        if mzml_valid is False:
+            msg = "Failed to load mzml dataset"
+        elif db_search_valid is False:
+            msg = "Invalid db search file... Potentially due to invalid format or different experiment source from mzml"
+        elif de_novo_valid is False:
+            msg = "Invalid de novo file... Potentially due to invalid format or different experiment source from mzml"
+        return (None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                spectral_data_options_block,
+                msg,
+                True)
+
+    # import feature data and return as compressed string data
+    if features_content is not None:
+        (feature_data, 
+        feature_metadata, 
+        feature_valid) = import_features(features_content, 
+                                         features_filename, 
+                                         mzml_metadata)
+    else:
+        # no feature data is considered valid to prevent raising alert message
+        feature_data = None
+        feature_metadata = None
+        feature_valid = True
+
+    # compress db search and de novo data
+    if db_search_content is not None:
+        db_search_data = load_metapep_db_search(db_search_content, 
+                                                "sample", 
+                                                db_search_format)
+        db_search_json = db_search_data.to_json()
+        db_search_store = compress_string(db_search_json)
+    else:
+        db_search_store = None
+    if de_novo_content is not None:
+        de_novo_data = load_metapep_de_novo(de_novo_content,
+                                            "sample",
+                                            de_novo_format)
+        de_novo_json = de_novo_data.to_json()
+        de_novo_store = compress_string(de_novo_json)
+    else:
+        de_novo_store = None
+
+    if feature_valid is False:
+        alert_open = True
+        alert_msg = "Failed to load Feature dataset, spectral data imported without features."
+    else:
+        alert_open = False
+        alert_msg = None
+
+    return (mzml_data,
+            mzml_peaks,
+            mzml_metadata,
+            feature_data,
+            feature_metadata,
+            db_search_store,
+            de_novo_store,
+            spectral_data_options_block,
+            alert_msg,
+            alert_open)
 
 
 @app.callback(
-    Output("features_data", "data"),
-    Output("features_metadata", "data"),
-    Output("features_upload", "contents"),
-    Output("features_name", "children"),
-    Output('features_valid', 'data'),
-    Output('features_import_box', 'style'),
-    Output("qa_data_import_alert", "children", allow_duplicate=True),
-    Output("qa_data_import_alert", "is_open", allow_duplicate=True),
-    Input("features_upload", "contents"),
-    Input("features_upload", "filename"),
-    State("mzml_metadata", "data"),
+    Output("mzml_data", "data", allow_duplicate=True),
+    Output("mzml_peaks_data", "data", allow_duplicate=True),
+    Output("mzml_metadata", "data", allow_duplicate=True),
+    Output("features_data", "data", allow_duplicate=True),
+    Output("features_metadata", "data", allow_duplicate=True),
+    Output("db_search_qa_data", "data", allow_duplicate=True),
+    Output("de_novo_qa_data", "data", allow_duplicate=True),
+    Input("clear_spectral_dataset", "n_clicks"),
+    prevent_initial_call=True,
+)
+def clear_spectral_data(_):
+    return (None,)*7
+
+
+@app.callback(
+    Output("mzml_store_name", "children", allow_duplicate=True),
+    Output("feature_store_valid", "className", allow_duplicate=True),
+    Output("db_search_qa_store_valid", "className", allow_duplicate=True),
+    Output("db_search_qa_store_format", "children", allow_duplicate=True),
+    Output("de_novo_qa_store_valid", "className", allow_duplicate=True),
+    Output("de_novo_qa_store_name", "children", allow_duplicate=True),
+    Input("mzml_metadata", "data"),
+    Input("features_data", "data"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     prevent_initial_call=True
 )
-def store_features_dataset(content, filename, mzml_metadata):
-    # only update if valid data uploaded
-    if content is None:
-        raise PreventUpdate
-    qa_box_style = deepcopy(StyleConstants.qa_import_box_style)
+def show_imported_spectra(mzml_metadata,
+                          features,
+                          db_search,
+                          de_novo):
+    # icon classname format
+    icon_classname = "bi me-3 ms-3 fs-5 "
+    failed_icon = icon_classname + "bi-x-circle-fill me-3 ms-3 fs-5 text-danger"
+    success_icon = icon_classname + "bi-check-circle-fill me-3 ms-3 fs-5 text-success"
     
-    # only process features file after mzml file is imported
-    if mzml_metadata is None:
-        qa_box_style["background-color"] = StyleConstants.import_failed_color
-        return (
-            None, 
-            None, 
-            None, 
-            import_single_file(None, None, drag_and_drop=True),
-            False,
-            qa_box_style,
-            "Need to import mzml data first...",
-            True
-        )
-    
-    archive_format = determine_archive_format(filename)
-    
-    print("Process feature data...")
-    try:
-        data, metadata = featurexml_to_df(memory_to_file_like(content, archive_format), 
-                                          None)
-    except Exception as err:
-        print(err)
-        
-        qa_box_style["background-color"] = StyleConstants.import_failed_color
-        return (
-            None, 
-            None, 
-            None, 
-            import_single_file(None, None, drag_and_drop=True),
-            False,
-            qa_box_style,
-            f"Failed to import features: {err}",
-            True
-        )
-    print("Finished feature processing...")
-    # After dataset is imported, remove upload data to save memory
-    # However, do keep the filename for display in dashboard
-    
-    qa_box_style["background-color"] = StyleConstants.import_success_color
-    return (
-        compress_string(data.to_json()), 
-        metadata, 
-        None, 
-        import_single_file(filename, None, drag_and_drop=True),
-        True,
-        qa_box_style,
-        None,
-        False
-    )
+    if mzml_metadata is not None:
+        spectra_name = mzml_metadata["raw file name"]
+    else:
+        spectra_name = "-"
 
+    if db_search is not None:
+        db_search_obj = MetaPepDbSearch.read_json(
+            decompress_string(db_search)
+        )
+        db_search_format = db_search_obj.data_source
+    else:
+        db_search_format = "-"
+
+    if de_novo is not None:
+        de_novo_obj = MetaPepDeNovo.read_json(
+            decompress_string(de_novo)
+        )
+        de_novo_format = de_novo_obj.data_source
+    else:
+        de_novo_format = "-"
+
+
+    return (spectra_name,
+            failed_icon if features is None else success_icon,
+            failed_icon if db_search is None else success_icon,
+            db_search_format,
+            failed_icon if de_novo is None else success_icon,
+            de_novo_format)

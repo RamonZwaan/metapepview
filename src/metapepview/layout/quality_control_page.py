@@ -6,47 +6,47 @@ from metapepview.constants import GlobalConstants, StyleConstants
 
 
 
-mzml_import = qa_importer_block(
-    "Spectral File (mzML)",
-    "mzml_upload",
-    "mzml_name",
-    "mzml_valid",
-)
+# mzml_import = qa_importer_block(
+#     "Spectral File (mzML)",
+#     "mzml_upload",
+#     "mzml_name",
+#     "mzml_valid",
+# )
 
-features_import = qa_importer_block(
-    "Features (featureXML)",
-    "features_upload",
-    "features_name",
-    "features_valid",
-)
-
-
-psm_file_validation_import = qa_importer_block(
-    "DB search Import",
-    "db_search_psm_qa_upload",
-    "db_search_psm_qa_name",
-    "db_search_psm_qa_valid",
-    format_options=GlobalConstants.db_search_dropdown_options,
-    format_id="db_search_psm_qa_format"
-)
+# features_import = qa_importer_block(
+#     "Features (featureXML)",
+#     "features_upload",
+#     "features_name",
+#     "features_valid",
+# )
 
 
-denovo_file_validation_import = qa_importer_block(
-    "De Novo Import",
-    "denovo_qa_upload",
-    "denovo_qa_name",
-    "denovo_qa_valid",
-    format_options=GlobalConstants.de_novo_dropdown_options,
-    format_id="denovo_qa_format"
-)
+# psm_file_validation_import = qa_importer_block(
+#     "DB search Import",
+#     "db_search_psm_qa_upload",
+#     "db_search_psm_qa_name",
+#     "db_search_psm_qa_valid",
+#     format_options=GlobalConstants.db_search_dropdown_options,
+#     format_id="db_search_psm_qa_format"
+# )
 
 
-ref_set_import = qa_importer_block(
-    "Reference Data Import",
-    "ref_prot_upload",
-    "ref_prot_name",
-    "ref_prot_valid",
-)
+# denovo_file_validation_import = qa_importer_block(
+#     "De Novo Import",
+#     "denovo_qa_upload",
+#     "denovo_qa_name",
+#     "denovo_qa_valid",
+#     format_options=GlobalConstants.de_novo_dropdown_options,
+#     format_id="denovo_qa_format"
+# )
+
+
+# ref_set_import = qa_importer_block(
+#     "Reference Data Import",
+#     "ref_prot_upload",
+#     "ref_prot_name",
+#     "ref_prot_valid",
+# )
 
 
 

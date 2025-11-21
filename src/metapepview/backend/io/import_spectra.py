@@ -10,7 +10,10 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import numpy as np
 
-from metapepview.backend.utils import spectrum_id_to_scan_number
+from metapepview.backend.utils import spectrum_id_to_scan_number, \
+    determine_archive_format, \
+    memory_to_file_like, \
+    compress_string
 
 
 # regex patterns
@@ -18,114 +21,81 @@ _SCAN_NUM_PATTERN = re.compile(r"(?<=scan=)[0-9]+")
 _PEAKS_COUNT_PATTERN = re.compile(r"(?<=defaultArrayLength=)[0-9]+")
 
 
-def mzxml_to_df(file: str | Path | IO[bytes],
-                fields: Sequence[str] | None = None) -> pd.DataFrame:
-    if isinstance(file, str):
-        file = Path(file)
+
+def import_mzml(content: str,
+                filename: str) -> Tuple[str, 
+                                        str, 
+                                        Dict[str, Any],
+                                        bool] | \
+                                  Tuple[None, 
+                                        None, 
+                                        None,
+                                        bool]:
+    """Import mzml file uploaded to dashboard and return data and metadata.
+
+    Args:
+        content (str): mzml content.
+        filename (str): mzml file name.
+
+    Returns:
+        Tuple[...]: mzml datasets with valid indicator.
+    """
+    print("Start mzML wrangling...")
     
-    # parse xml file
-    tree = ET.parse(file)
-    root = tree.getroot()
-    
-    # output data
-    available_fields = [
-        'num',
-        'scanType',
-        'centroided',
-        'msLevel',
-        'peaksCount',
-        'polarity',
-        'retentionTime',
-        'collisionEnergy',
-        'lowMz',
-        'highMz',
-        'basePeakMz',
-        'basePeakIntensity',
-        'totIonCurrent',
-        'msInstrumentID',
-        'peaks',
-        'compressionType',
-        'compressedLen',
-        'byteOrder',
-        'precision',
-        'contentType',
-        'precursorScanNum',
-        'precursorIntensity',
-        'precursorCharge',
-        'activationMethod',
-        'windowWideness',
-        'precursorMz',
+    fields = [
+        "scan number",
+        "MS level",
+        "peaks count",
+        "retention time",
+        "total ion current",
+        "precursor intensity",
+        "precursor scan number",
+        "ion injection time",
+        "precursor m/z",
+        "m/z array",
+        "intensity array"
     ]
     
-    ms2_only_cols = [
-        'collisionEnergy',
-        'precursorScanNum',
-        'precursorIntensity',
-        'precursorCharge',
-        'activationMethod',
-        'windowWideness',
-        'precursorMz'
-    ]
+    archive_format = determine_archive_format(filename)
     
-    # if a list of fields is supplied, create output dict with only those fields, else, create one with all fields
-    # Note:
-    #   Some fields are required, and therefore will always be present in the output.
-    if fields is not None:
-        if not all(i in available_fields for i in fields):
-            raise ValueError("Invalid field name given. The following fields are valid:\n\n{}".format("\n".join(available_fields)))
-        scans = {k: [] for k in fields}
-        relevant_fields = set(fields)
-    else:
-        scans = {k: [] for k in available_fields}
-        relevant_fields = set(available_fields)
-    
-    
-    def check_add_field(key: str, element: ET.Element | str | None):
-        if key not in relevant_fields:
-            return
-        elif not isinstance(element, ET.Element): 
-            scans[key].append(element)
-        else:
-            scans[key].append(element.get(key))
-    
-    
-    # parse scans
-    for element in root.findall('{*}msRun/{*}scan'):
-        if element.get('msLevel') == '1':
-            peaks = element[0]
-            for key in ms2_only_cols:
-                check_add_field(key, None)
-            
-        else:
-            precursor = element[0]
-            peaks = element[1]
-            
-            for key in precursor.keys():
-                check_add_field(key, precursor)
-            check_add_field('precursorMz', precursor.text)
+    try:
+        data, metadata = mzml_to_df(memory_to_file_like(content, archive_format),
+                                    fields)
         
-        for key in element.keys():
-            # retention time is stored in ISO 8601 format ('PT...S'), currently, the prefix and suffix
-            # are simply removed
-            if key == 'retentionTime' and 'retentionTime' in relevant_fields:
-                value = element.get(key)
-                if value is not None:
-                    value = value[2:-1]
-                scans[key].append(value)
-            else:
-                check_add_field(key, element)
-
-        for key in peaks.keys():
-            check_add_field(key, peaks)
-        check_add_field('peaks', peaks.text)
-
-    return pd.DataFrame(scans)
+        numeric_fields = [
+            'scan number',
+            'MS level',
+            'peaks count',
+            'retention time',
+            'total ion current',
+            'precursor intensity',
+            'precursor m/z',
+            'precursor scan number',
+            'ion injection time'
+        ]
+        
+        data[numeric_fields] = data[numeric_fields].astype(float)
+        
+        # store peaks inside separate dataset
+        peaks_data = data[["m/z array", "intensity array"]]
+        peaks_data = peaks_data.to_json(orient="index")
+        data = data.drop(labels=["m/z array", "intensity array"], axis=1)
+        
+        metadata["total retention time"] = data.iloc[-1]['retention time']    
+    except Exception as err:
+        print(err)
+        return (None, None, None, False)
     
-
+    print("Finished wrangling...")
+    return (compress_string(data.to_json()),
+            compress_string(peaks_data), 
+            metadata,
+            True)
 
 
 
 newtype = TypeVar('newtype')
+
 
 def mzml_to_df(file: str | Path | IO[bytes],
                fields: Sequence[str] | None = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
