@@ -1452,12 +1452,13 @@ def ref_score_metrics_barplot(stat_dict: dict,
     sample_values = [np.nan] * ncols
     if spectral_metadata is not None:
         sample_values[0] = spectral_metadata.get("total retention time")
-        # sample_values[1] = spectral_metadata.get("MS1 spectrum count")
-        sample_values[1] = spectral_metadata.get("MS2 spectrum count")
+        sample_values[1] = spectral_metadata.get("MS1 spectrum count")
+        sample_values[2] = spectral_metadata.get("MS2 spectrum count")
+        sample_values[3] = sample_values[2] / sample_values[1]
     if sample_db_search is not None:
-        sample_values[2] = sample_db_search.data.shape[0]
+        sample_values[4] = sample_db_search.data.shape[0]
     if sample_de_novo is not None:
-        sample_values[3] = sample_de_novo.data.shape[0]
+        sample_values[5] = sample_de_novo.data.shape[0]
 
     for n in range(ncols):
         plot_title = plot_titles[n]

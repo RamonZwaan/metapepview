@@ -118,11 +118,21 @@ def update_experiment_name(current_field_name, stored_data):
 @app.callback(
     Output("experiment_name_field", "value", allow_duplicate=True),
     Output('peptides', 'data', allow_duplicate=True),
+    Output("mzml_data", "data", allow_duplicate=True),
+    Output("mzml_peaks_data", "data", allow_duplicate=True),
+    Output("mzml_metadata", "data", allow_duplicate=True),
+    Output("features_data", "data", allow_duplicate=True),
+    Output("features_metadata", "data", allow_duplicate=True),
+    Output("db_search_qa_data", "data", allow_duplicate=True),
+    Output("de_novo_qa_data", "data", allow_duplicate=True),
+    Output('clear_peptides_data', 'n_clicks'),
     Input('clear_peptides_data', 'n_clicks'),
     prevent_initial_call=True
 )
-def clear_peptide_data(_):
-    return None , None
+def clear_peptide_data(n_clicks):
+    if n_clicks > 0:
+        return (None,)*9 + (0,)
+    raise PreventUpdate
 
 
 @app.callback(

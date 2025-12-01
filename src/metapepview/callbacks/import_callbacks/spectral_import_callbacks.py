@@ -244,7 +244,7 @@ def store_spectral_dataset(btn,
                 None,
                 None,
                 None,
-                spectral_data_options_block,
+                spectral_data_import_container,
                 msg,
                 True)
 
@@ -293,7 +293,7 @@ def store_spectral_dataset(btn,
             feature_metadata,
             db_search_store,
             de_novo_store,
-            spectral_data_options_block,
+            spectral_data_import_container,
             alert_msg,
             alert_open)
 
@@ -306,25 +306,27 @@ def store_spectral_dataset(btn,
     Output("features_metadata", "data", allow_duplicate=True),
     Output("db_search_qa_data", "data", allow_duplicate=True),
     Output("de_novo_qa_data", "data", allow_duplicate=True),
+    # Output("clear_spectral_dataset", "n_clicks"),
     Input("clear_spectral_dataset", "n_clicks"),
     prevent_initial_call=True,
 )
-def clear_spectral_data(_):
-    return (None,)*7
+def clear_spectral_data(n_clicks):
+    if n_clicks > 0:
+        return (None,)*7# + (0,)
+    raise PreventUpdate
 
 
 @app.callback(
-    Output("mzml_store_name", "children", allow_duplicate=True),
-    Output("feature_store_valid", "className", allow_duplicate=True),
-    Output("db_search_qa_store_valid", "className", allow_duplicate=True),
-    Output("db_search_qa_store_format", "children", allow_duplicate=True),
-    Output("de_novo_qa_store_valid", "className", allow_duplicate=True),
-    Output("de_novo_qa_store_name", "children", allow_duplicate=True),
+    Output("mzml_store_name", "children"),
+    Output("feature_store_valid", "className"),
+    Output("db_search_qa_store_valid", "className"),
+    Output("db_search_qa_store_format", "children"),
+    Output("de_novo_qa_store_valid", "className"),
+    Output("de_novo_qa_store_name", "children"),
     Input("mzml_metadata", "data"),
     Input("features_data", "data"),
     Input("db_search_qa_data", "data"),
-    Input("de_novo_qa_data", "data"),
-    prevent_initial_call=True
+    Input("de_novo_qa_data", "data")
 )
 def show_imported_spectra(mzml_metadata,
                           features,

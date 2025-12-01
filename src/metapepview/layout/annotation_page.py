@@ -123,7 +123,10 @@ peptide_data_block = html.Div(
                 ),
                 html.Div(
                     [
-                        dbc.Button('Clear project', id='clear_peptides_data', className="px-3 me-2"),
+                        dbc.Button('Clear project', 
+                                   id='clear_peptides_data', 
+                                   n_clicks=0,
+                                   className="px-3 me-2"),
                         dbc.Button('Export project', id='export_peptides_json', className="px-3 me-2"),
                         dcc.Upload(
                             [
@@ -904,7 +907,8 @@ import_block = html.Div(
                 html.Div(
                     [
                         html.H4("Performance evaluation dataset"),
-                        dbc.Button('Clear data', 
+                        dbc.Button('Clear data',
+                                   n_clicks=0, 
                                    id='clear_spectral_dataset', 
                                    className="me-2"),
                     ],
@@ -916,7 +920,7 @@ import_block = html.Div(
                         html.Div(
                             [
                                 html.H5("Spectra: ", className="text-secondary mb-0 pb-0"),
-                                html.H6("S7.mzML", 
+                                html.H6("-", 
                                         id="mzml_store_name",
                                         className="ms-3 mb-0 pb-0")
                             ],
@@ -927,7 +931,7 @@ import_block = html.Div(
                             [
                                 html.H5("Features: ", className="text-secondary mb-0 pb-0"),
                                 html.I(id="feature_store_valid",
-                                       className="bi bi-check-circle-fill me-3 ms-3 fs-5 text-success"),
+                                       className="bi me-3 ms-3 fs-5 bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
                                 # html.H6("spec.featureXML", className="ps-4")
                             ], 
                             className="d-flex align-items-center",
@@ -937,7 +941,7 @@ import_block = html.Div(
                             [
                                 html.H5("DB search data: ", className="text-secondary mb-0 pb-0"),
                                 html.I(id="db_search_qa_store_valid",
-                                       className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
+                                       className="bi me-3 ms-3 fs-5 bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
                                 html.H6(id="db_search_qa_store_format",
                                         className="mb-0 pb-0")
                             ], 
@@ -948,7 +952,7 @@ import_block = html.Div(
                             [
                                 html.H5("De novo data: ", className="text-secondary mb-0 pb-0"),
                                 html.I(id="de_novo_qa_store_valid",
-                                       className="bi bi-check-circle-fill me-2 ms-3 fs-5 text-success"),
+                                       className="bi me-3 ms-3 fs-5 bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
                                 html.H6(id="de_novo_qa_store_name",
                                         className="mb-0 pb-0")
                             ], 

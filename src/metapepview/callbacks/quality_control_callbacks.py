@@ -13,6 +13,7 @@ from metapepview.server import app
 from metapepview.html_templates import *
 from metapepview.constants import StyleConstants
 from metapepview.layout.quality_control_page import *
+from metapepview.layout.app_layout import *
 from metapepview.layout.func_annot_page import *
 
 from metapepview.backend import *
@@ -54,18 +55,14 @@ def hide_tic_over_rt_options(secondary_param):
     Input("mzml_data", "data"),
     Input("mzml_metadata", "data"),
     Input("features_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
 )
 def show_metric_values(mzml_df, 
                        mzml_metadata,
                        features_metadata,
                        db_search_psm,
-                       db_search_psm_format,
-                       de_novo,
-                       de_novo_format):
+                       de_novo):
 
     if mzml_metadata is None:
         mzml_metadata = dict()
@@ -105,7 +102,8 @@ def show_metric_values(mzml_df,
     de_novo_count_str = "-"
 
     if db_search_psm is not None and mzml_df is not None:
-        db_search_obj = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+        db_search_obj = MetaPepDbSearch.read_json(
+            decompress_string(db_search_psm))\
             .filter_spectral_name(mzml_metadata["raw file name"])
         if db_search_obj is not None and isinstance(ms2_count, int):
             db_search_count = db_search_obj.data.shape[0]
@@ -118,7 +116,8 @@ def show_metric_values(mzml_df,
             db_search_count_str = "{}".format(db_search_count)
             
     if de_novo is not None and mzml_df is not None:
-        de_novo_obj = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+        de_novo_obj = MetaPepDeNovo.read_json(
+            decompress_string(de_novo))\
             .filter_spectral_name(mzml_metadata["raw file name"])
         if de_novo_obj is not None and isinstance(ms2_count, int):
             de_novo_count = de_novo_obj.data.shape[0]
@@ -209,10 +208,8 @@ def show_metric_values(mzml_df,
     Input("mzml_peaks_data", "data"),
     Input("mzml_metadata", "data"),
     Input("features_data", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("tic_ms_level", "value"),
     Input("tic_ms_sma_range", "value"),
     Input("tic_ms_red_fact", "value"),
@@ -225,9 +222,7 @@ def show_tic_over_rt(dataset,
                      mzml_metadata,
                      features,
                      db_search_psm,
-                     db_search_psm_format,
                      de_novo,
-                     de_novo_format,
                      ms_level,
                      sma_range,
                      reduction_factor,
@@ -255,11 +250,11 @@ def show_tic_over_rt(dataset,
         peaks = decompress_string(peaks)
     # only load metapep data if required
     elif secondary_param == "DB Search Counts" and db_search_psm is not None:
-        prot_data = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+        prot_data = MetaPepDbSearch.read_json(decompress_string(db_search_psm))\
             .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
     elif secondary_param == "De Novo Counts" and de_novo is not None:
-        prot_data = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+        prot_data = MetaPepDeNovo.read_json(decompress_string(de_novo))\
             .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
     if (secondary_param == "Peak Width (FWHM)" or secondary_param == "Feature Quality")\
@@ -293,70 +288,19 @@ def show_tic_over_rt(dataset,
 
 
 @app.callback(
-    Output("ms2_spec_div", "children"),
-    Output("ms2_spec_div", "style"),
-    Input("tic_over_rt_fig", "clickData"),
-    State("mzml_data", "data"),
-    State("mzml_peaks_data", "data")
-)
-def show_ms2_spectrum(tic_data, content, peaks):
-    if content is None or tic_data is None:
-        raise PreventUpdate
-    content = decompress_string(content)
-    peaks = decompress_string(peaks)
-    
-    
-    content = pd.read_json(StringIO(content))
-    click_rt = tic_data["points"][0]["x"]
-    
-    xvals = []
-    yvals = []
-    
-    # parse mzxml for closest ms2 scan
-    for idx, scan in content.iterrows():
-            
-        # skip scan if mslevel not of interest
-        if scan['MS level'] != 2:
-            continue
-        
-        rt = scan['retention time']
-        
-        # if scan closest to selected rt, retrieve spectra data
-        if float(rt) > click_rt:
-            peaks = json.loads(peaks).get(str(idx))
-            if peaks is not None:
-                mz_array = peaks["m/z array"]
-                int_array = peaks["intensity array"]
-                peak_number = scan['peaks count']
-                xvals = decode_mzml_peaks(mz_array, peak_number)
-                yvals = decode_mzml_peaks(int_array, peak_number)
-            break
-    
-    fig = ms2_from_signal_arrays(xvals, yvals)
-    fig.update_layout(autosize=True)
-    graph = dcc.Graph(figure=fig, id="ms2_spec_fig", style={'height': '100%'})
-    
-    return (graph, {"display": 'block', "height": "19rem"})
-
-
-@app.callback(
     Output("mz_over_rt_div", "children"),
     Output("mz_over_rt_div", "style"),
     Input("mzml_data", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "contents"),
+    Input("de_novo_qa_data", "contents"),
     Input("mz_over_rt_int_cutoff", "value"),
     Input("mz_over_rt_ident_frac", "value")
 )
 def show_mz_over_rt(mzml_content,
                     mzml_metadata,
                     db_search_psm,
-                    db_search_psm_format,
                     de_novo,
-                    de_novo_format,
                     int_cutoff,
                     ident_val):
     # only update once mzxml is uploaded
@@ -369,19 +313,19 @@ def show_mz_over_rt(mzml_content,
     
     # add identification data based on selected option and delivered datasets
     if ident_val == "DB search" and db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+        db_search_obj = MetaPepDbSearch.read_json(decompress_string(db_search_psm))\
             .filter_spectral_name(mzml_metadata["raw file name"])
     else:
-        db_search_psm = None
+        db_search_obj = None
     if ident_val == "De novo" and de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+        de_novo_obj = MetaPepDeNovo.read_json(decompress_string(de_novo))\
             .filter_spectral_name(mzml_metadata["raw file name"])
     else:
-        de_novo = None
+        de_novo_obj = None
     
 
 
-    fig = mz_over_rt_plot(mzml_content, db_search_psm, de_novo, int_cutoff)
+    fig = mz_over_rt_plot(mzml_content, db_search_obj, de_novo_obj, int_cutoff)
     fig.update_layout(autosize=True)
     graph = dcc.Graph(figure=fig, id="tic_over_rt_fig", style={'height': '100%'})
     return (graph, {"display": 'block', 'height': '19rem'})
@@ -390,20 +334,18 @@ def show_mz_over_rt(mzml_content,
 @app.callback(
     Output("mz_over_rt_ident_frac", "disabled"),
     Output("mz_over_rt_ident_frac", "options"),
-    Input("db_search_psm_qa_valid", "data"),
-    Input("denovo_qa_valid", "data"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
 )
-def update_ident_dropdown_mz_over_rt(db_search_psm_valid,
-                                     de_novo_valid):
+def update_ident_dropdown_mz_over_rt(db_search_psm,
+                                     de_novo):
     disable = True
     options = ["None"]
     
-    print(f"db search psm valid in mz over rt: {db_search_psm_valid}")
-    print(f"de novo valid in mz over rt: {de_novo_valid}")
-    if db_search_psm_valid is True:
+    if db_search_psm is not None:
         options.append("DB search")
         disable = False
-    if de_novo_valid is True:
+    if de_novo is not None:
         options.append("De novo")
         disable = False
         
@@ -412,11 +354,12 @@ def update_ident_dropdown_mz_over_rt(db_search_psm_valid,
 
 @app.callback(
     Output("scan_int_dist_alc_cutoff", "disabled"),
-    Input("denovo_qa_valid", "data"),
+    Input("de_novo_qa_data", "data"),
 )
-def update_alc_cutoff_scan_int(de_novo_valid):
-    print(f"de novo valid in alc cutoff: {de_novo_valid}")
-    if de_novo_valid is True:
+def update_alc_cutoff_scan_int(de_novo):
+    valid_de_novo = de_novo is not None
+    print(f"de novo valid in alc cutoff: {valid_de_novo}")
+    if valid_de_novo:
         return False
     else:
         return True
@@ -425,14 +368,14 @@ def update_alc_cutoff_scan_int(de_novo_valid):
 @app.callback(
     Output("int_dist_fig_norm_bars", "disabled"),
     Input("scan_int_dist_ms_level", "value"),
-    Input("db_search_psm_qa_valid", "data"),
-    Input("denovo_qa_valid", "data"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
 )
 def update_bar_norm_scan_int(ms_level,
-                             db_search_valid,
-                             de_novo_valid):
+                             db_search,
+                             de_novo):
     # normalization only if MS2 and pept ident dataset present
-    if ms_level == 2 and any([db_search_valid, de_novo_valid]):
+    if ms_level == 2 and any(x is not None for x in [db_search, de_novo]):
         return False
     else:
         return True
@@ -441,18 +384,18 @@ def update_bar_norm_scan_int(ms_level,
 @app.callback(
     Output("ms1_over_ms2_ident_frac", "disabled"),
     Output("ms1_over_ms2_ident_frac", "options"),
-    Input("db_search_psm_qa_valid", "data"),
-    Input("denovo_qa_valid", "data"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
 )
-def update_ident_dropdown_ms1_ms2(db_search_psm_valid,
-                                  de_novo_valid):
+def update_ident_dropdown_ms1_ms2(db_search_psm,
+                                  de_novo):
     disable = True
     options = ["None"]
 
-    if db_search_psm_valid is True:
+    if db_search_psm is not None:
         options.append("DB search")
         disable = False
-    if de_novo_valid is True:
+    if de_novo is not None:
         options.append("De novo")
         disable = False
         
@@ -464,10 +407,8 @@ def update_ident_dropdown_ms1_ms2(db_search_psm_valid,
     Output("scan_int_dist_div", "style"),
     Input("mzml_data", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("scan_int_dist_ms_level", "value"),
     Input("scan_int_dist_alc_cutoff", "value"),
     Input("int_dist_fig_norm_bars", "value"),
@@ -475,9 +416,7 @@ def update_ident_dropdown_ms1_ms2(db_search_psm_valid,
 def show_tic_dist(mzml_content,
                   mzml_metadata,
                   db_search_psm,
-                  db_search_psm_format,
                   de_novo,
-                  de_novo_format,
                   ms_level,
                   alc_cutoff,
                   norm_bars):
@@ -491,12 +430,12 @@ def show_tic_dist(mzml_content,
     
     # add identification data based on selected option and delivered datasets
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
         db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     if de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo =  MetaPepDeNovo.read_json(decompress_string(de_novo))
         de_novo = de_novo.filter_spectral_name(mzml_metadata['raw file name'])
     else:
         de_novo = None
@@ -519,10 +458,8 @@ def show_tic_dist(mzml_content,
     Input("mzml_data", "data"),
     Input("mzml_peaks_data", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("ms1_over_ms2_mz_cutoff", "value"),
     Input("ms1_over_ms2_ident_frac", "value")
 )
@@ -530,9 +467,7 @@ def show_frag_eff(mzml_content,
                   peaks,
                   metadata,
                   db_search_psm,
-                  db_search_psm_format,
                   de_novo,
-                  de_novo_format,
                   mz_cutoff,
                   ident_frac):
     # only update once mzxml is uploaded
@@ -546,12 +481,12 @@ def show_frag_eff(mzml_content,
    
     # add identification data based on selected option and delivered datasets
     if ident_frac == "DB search" and db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)\
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))\
             .filter_spectral_name(metadata["raw file name"])
     else:
         db_search_psm = None
     if ident_frac == "De novo" and de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)\
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))\
             .filter_spectral_name(metadata["raw file name"])
     else:
         de_novo = None
@@ -573,18 +508,14 @@ def show_frag_eff(mzml_content,
 @app.callback(
     Output("pept_confidence_div", "children"),
     Output("pept_confidence_div", "style"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("pept_conf_metric", "value"),
     Input("pept_conf_lgp_cutoff", "value"),
     Input("pept_conf_alc_cutoff", "value")
 )
 def show_confidence_dist(db_search_psm,
-                         db_search_psm_format,
                          de_novo,
-                         de_novo_format,
                          metric,
                          lgp_cutoff,
                          alc_cutoff):
@@ -593,12 +524,12 @@ def show_confidence_dist(db_search_psm,
         raise PreventUpdate
     
     if metric in ["DB search", "DB search / De novo", "All"] and db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
     else:
         db_search_psm = None
     
     if metric in ["De novo", "DB search / De novo", "All"] and de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))
     else:
         de_novo = None
     
@@ -630,17 +561,13 @@ def update_alc_cutoff_charge_dist(de_novo_valid):
     Output("feature_charge_dist_div", "children"),
     Output("feature_charge_dist_div", "style"),
     Input("features_data", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("feature_charge_dist_alc_cutoff", "value")
 )
 def show_charge_dist(features,
                      db_search_psm,
-                     db_search_psm_format,
                      de_novo,
-                     de_novo_format,
                      alc_cutoff):
     if features is not None:
         features = decompress_string(features)
@@ -649,12 +576,12 @@ def show_charge_dist(features,
         raise PreventUpdate
 
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
     else:
         db_search_psm = None
     
     if de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))
     else:
         de_novo = None
     
@@ -733,19 +660,15 @@ def show_custom_ref_name(names, dates):
     Output("reference_confidence_div", "children"),
     Output("reference_confidence_div", "style"),
     Input("current_ref_statistics_store", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("mzml_metadata", "data"),
     Input("ref_score_conf_metric", "value"),
     Input("ref_score_conf_x_scaling", "value"),
 )
 def show_reference_score_dist(ref_data,
                               db_search_psm,
-                              db_search_psm_format,
                               de_novo,
-                              de_novo_format,
                               mzml_metadata,
                               score_type,
                               x_normalization):
@@ -753,13 +676,13 @@ def show_reference_score_dist(ref_data,
         raise PreventUpdate
     
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
         if mzml_metadata is not None: db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))
         if mzml_metadata is not None: de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         de_novo = None
@@ -796,18 +719,14 @@ def show_reference_score_dist(ref_data,
     Output("reference_score_thres_div", "style"),
     Input("current_ref_statistics_store", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    Input("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    Input("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("ref_conf_dist_norm", "value")
 )
 def show_score_threshold_dist(ref_data,
                               mzml_metadata,
                               db_search_psm,
-                              db_search_psm_format,
                               de_novo,
-                              de_novo_format,
                               normalization_option):
     if ref_data is None:
         raise PreventUpdate
@@ -816,13 +735,13 @@ def show_score_threshold_dist(ref_data,
     formats = ['db search', 'de novo', 'de novo only']
     
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
         if mzml_metadata is not None: db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))
         if mzml_metadata is not None: de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         de_novo = None
@@ -885,13 +804,11 @@ def show_intensity_dist(ref_data,
     Output("miscleavage_dist_div", "style"),
     Input("current_ref_statistics_store", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    State("db_search_psm_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
 )
 def show_miscleavage_dist(ref_data,
                           mzml_metadata,
-                          db_search_psm,
-                          db_search_psm_format):
+                          db_search_psm):
     if ref_data is None:
         raise PreventUpdate
 
@@ -899,7 +816,7 @@ def show_miscleavage_dist(ref_data,
     ref_dict = json.loads(ref_data)
 
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
         if mzml_metadata is not None: 
             db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
@@ -949,29 +866,25 @@ def show_transmission_dist(ref_data,
     Output("reference_metrics_scores_div", "style"),
     Input("current_ref_statistics_store", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    State("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    State("denovo_qa_format", "value")
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
 )
 def show_ref_data_metrics(ref_data,
                           mzml_metadata,
                           db_search_psm,
-                          db_search_psm_format,
-                          de_novo,
-                          de_novo_format):
+                          de_novo):
     if ref_data is None:
         raise PreventUpdate
     
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
         if mzml_metadata is not None: 
             db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))
         if mzml_metadata is not None: 
             de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
@@ -997,10 +910,8 @@ def show_ref_data_metrics(ref_data,
     Output("reference_score_barplot_div", "style"),
     Input("current_ref_statistics_store", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_psm_qa_upload", "contents"),
-    State("db_search_psm_qa_format", "value"),
-    Input("denovo_qa_upload", "contents"),
-    State("denovo_qa_format", "value"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("threshold_barplot_scaling", "value"),
     Input("threshold_barplot_fill_bars", "value"),
     Input("threshold_barplot_filter_de_novo_only", "value")
@@ -1008,9 +919,7 @@ def show_ref_data_metrics(ref_data,
 def show_score_barplot_dist(ref_data,
                             mzml_metadata,
                             db_search_psm,
-                            db_search_psm_format,
                             de_novo,
-                            de_novo_format,
                             normalization,
                             fill_bars,
                             filter_de_novo_only):
@@ -1021,14 +930,14 @@ def show_score_barplot_dist(ref_data,
     formats = ['db search', 'de novo', 'de novo only']
     
     if db_search_psm is not None:
-        db_search_psm = load_metapep_db_search(db_search_psm, "filename", db_search_psm_format)
+        db_search_psm = MetaPepDbSearch.read_json(decompress_string(db_search_psm))
         if mzml_metadata is not None: 
             db_search_psm = db_search_psm.filter_spectral_name(mzml_metadata["raw file name"])
     else:
         db_search_psm = None
     
     if de_novo is not None:
-        de_novo = load_metapep_de_novo(de_novo, "filename", de_novo_format)
+        de_novo = MetaPepDeNovo.read_json(decompress_string(de_novo))
         if mzml_metadata is not None: 
             de_novo = de_novo.filter_spectral_name(mzml_metadata["raw file name"])
     else:
