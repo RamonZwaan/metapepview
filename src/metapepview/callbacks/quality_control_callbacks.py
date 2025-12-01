@@ -292,8 +292,8 @@ def show_tic_over_rt(dataset,
     Output("mz_over_rt_div", "style"),
     Input("mzml_data", "data"),
     Input("mzml_metadata", "data"),
-    Input("db_search_qa_data", "contents"),
-    Input("de_novo_qa_data", "contents"),
+    Input("db_search_qa_data", "data"),
+    Input("de_novo_qa_data", "data"),
     Input("mz_over_rt_int_cutoff", "value"),
     Input("mz_over_rt_ident_frac", "value")
 )
