@@ -31,7 +31,7 @@ def validate_db_search(file_buffer: str | IO[str],
         try:
             importer.read_file_buffer(file_buffer)
             return True, None
-        except ValueError as e:
+        except Exception as e:
             return False, repr(e)
 
 
@@ -55,7 +55,7 @@ def validate_de_novo(file_buffer: str | IO[str],
         try:
             importer.read_file_buffer(file_buffer)
             return True, None
-        except ValueError as e:
+        except Exception as e:
             return False, repr(e)
 
 

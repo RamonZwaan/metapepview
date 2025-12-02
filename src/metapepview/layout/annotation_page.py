@@ -72,11 +72,6 @@ sample_options_block = [
         className="d-flex justify-content-between"
     ),
 
-    # proteomics_data,
-    # de_novo_data,
-    # taxonomic_annotation,
-    # functional_annotation,
-
     dcc.Store(id="current_taxonomy_db_loc"),
     # dcc.Store(id="valid_import_data"),
 ]
@@ -828,7 +823,21 @@ import_block = html.Div(
             className="mt-3"
         ),
         dbc.Alert(
+            id="de_novo_qa_format_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
+        dbc.Alert(
             id="db_search_format_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
+        dbc.Alert(
+            id="db_search_qa_format_alert",
             dismissable=True,
             is_open=False,
             color="danger",

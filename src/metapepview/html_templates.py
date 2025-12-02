@@ -437,17 +437,20 @@ def validate_multiple_files(contents: List[str] | None,
             box_style = StyleConstants.success_box_style
         else:
             name_list = import_multiple_files(None, None)
-            return (False, name_list, None, msg, True,
+            return (False, name_list, None, msg, success,
                     StyleConstants.failed_box_style)
     else:
         valid_data = None
-        file_names= None
+        file_names = None
+        success = True      # Set to true as no input is not considered an issue
+        msg = None
 
     name_list = import_multiple_files(file_names,
                                       dates,
                                       max_name_len=30)
 
-    return (valid_data, name_list, contents, msg, False, box_style)
+
+    return (valid_data, name_list, contents, msg, success, box_style)
 
 
 def validate_single_file(contents: str | None,
@@ -508,7 +511,7 @@ def validate_single_file(contents: str | None,
             import_single_file(name, dates, max_name_len=30, drag_and_drop=drag_and_drop),
             contents,
             msg,
-            not success,
+            success,
             box_style)
 
 

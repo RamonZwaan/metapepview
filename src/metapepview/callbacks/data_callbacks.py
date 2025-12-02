@@ -103,7 +103,7 @@ def remove_peptide_data(datatable_data,
 
 @app.callback(
     Output("experiment_name_field", "value", allow_duplicate=True),
-    Output('experiment_name', 'data'),
+    Output('experiment_name', 'data', allow_duplicate=True),
     Input("experiment_name_field", "value"),
     State('experiment_name', 'data'),
     prevent_initial_call=True
@@ -117,6 +117,7 @@ def update_experiment_name(current_field_name, stored_data):
 
 @app.callback(
     Output("experiment_name_field", "value", allow_duplicate=True),
+    Output("experiment_name", "data", allow_duplicate=True),
     Output('peptides', 'data', allow_duplicate=True),
     Output("mzml_data", "data", allow_duplicate=True),
     Output("mzml_peaks_data", "data", allow_duplicate=True),
@@ -131,7 +132,7 @@ def update_experiment_name(current_field_name, stored_data):
 )
 def clear_peptide_data(n_clicks):
     if n_clicks > 0:
-        return (None,)*9 + (0,)
+        return (None,)*10 + (0,)
     raise PreventUpdate
 
 

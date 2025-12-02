@@ -88,7 +88,7 @@ def import_mzml(content: str,
     
     print("Finished wrangling...")
     return (compress_string(data.to_json()),
-            compress_string(peaks_data), 
+            peaks_data, 
             metadata,
             True)
 

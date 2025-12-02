@@ -92,7 +92,10 @@ def show_db_search_psm_names(contents, names, format, dates, current_sample_name
     # if no sample name given, give it the first item from PSM files
     if current_sample_name is None and valid_data is True:
         current_sample_name = names[0]
-    return (valid_data, name_list, current_sample_name, contents, msg, False,
+
+    open_alert = not success_status
+
+    return (valid_data, name_list, current_sample_name, contents, msg, open_alert,
             box_style)
 
 
@@ -136,10 +139,15 @@ def show_denovo_names(contents, names, de_novo_format, dates):
         cont_buf = memory_to_stringio(cont, archv)
         return validate_de_novo(cont_buf, de_novo_format)
 
-    return validate_multiple_files(contents,
-                                   names,
-                                   dates,
-                                   valid_func)
+    valid_data, name_list, contents, msg, success_status, box_style = validate_multiple_files(
+        contents,
+        names,
+        dates,
+        valid_func)
+    
+    format_alert = not success_status
+
+    return (valid_data, name_list, contents, msg, format_alert, box_style)
 
 
 @app.callback(
@@ -162,12 +170,16 @@ def show_functional_db_name(contents, name, func_db_format, dates):
         cont_buf = memory_to_stringio(cont, archv)
         return validate_func_map(cont_buf, func_db_format)
 
-    return validate_single_file(
+    valid_data, file_name, contents, msg, success, box_style = validate_single_file(
         contents,
         name,
         dates,
         valid_func,
     )
+
+    alert_open = not success
+
+    return (valid_data, file_name, contents, msg, alert_open, box_style)
 
 
 @app.callback(
@@ -203,10 +215,16 @@ def show_taxonomy_db_name(contents,
                                                           tax_format,
                                                           tax_element_format,
                                                           archv)
-    return validate_single_file(contents,
-                                name,
-                                date,
-                                valid_func)
+    valid_data, file_name, contents, msg, success, box_style = validate_single_file(
+        contents,
+        name,
+        date,
+        valid_func)
+    
+    alert_open = not success
+
+    return (valid_data, file_name, contents, msg, alert_open, box_style)
+
 
 
 @app.callback(
@@ -669,7 +687,7 @@ def process_manual_annotation(n_clicks,
     if current_peptides_df is not None:
         try:
             new_peptides = MetaPepTable.concat_tables([current_peptides_df, new_peptides])
-        except ValueError as e:
+        except Exception as e:
             alert_msg = f"Failed to add sample to project table: {e}"
             alert_open = True
             return (current_peptides, 
@@ -694,7 +712,7 @@ def process_manual_annotation(n_clicks,
         
     return (new_peptides_dump,
             current_metadata,
-            None,
+            loading_status,
             data_import_container,
             None,
             False)

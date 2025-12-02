@@ -246,10 +246,10 @@ def show_tic_over_rt(dataset,
 
     # only load peaks data if required
     prot_data = None
-    if secondary_param == "Peak Count" and peak_int_cutoff > 0:
-        peaks = decompress_string(peaks)
+    # if secondary_param == "Peak Count" and peak_int_cutoff > 0:
+    #     peaks = decompress_string(peaks)
     # only load metapep data if required
-    elif secondary_param == "DB Search Counts" and db_search_psm is not None:
+    if secondary_param == "DB Search Counts" and db_search_psm is not None:
         prot_data = MetaPepDbSearch.read_json(decompress_string(db_search_psm))\
             .filter_spectral_name(mzml_metadata["raw file name"])
         secondary_param = "Confidence"
@@ -475,7 +475,7 @@ def show_frag_eff(mzml_content,
         raise PreventUpdate
     
     mzml_content = decompress_string(mzml_content)
-    peaks = decompress_string(peaks)
+    # peaks = decompress_string(peaks)
     
     mzml_content = pd.read_json(StringIO(mzml_content))
    
@@ -549,10 +549,10 @@ def show_confidence_dist(db_search_psm,
 
 @app.callback(
     Output("feature_charge_dist_alc_cutoff", "disabled"),
-    Input("denovo_qa_valid", "data"),
+    Input("de_novo_qa_data", "data"),
 )
-def update_alc_cutoff_charge_dist(de_novo_valid):
-    if de_novo_valid is True:
+def update_alc_cutoff_charge_dist(de_novo):
+    if de_novo is not None:
         return False
     else:
         return True

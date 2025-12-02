@@ -58,5 +58,5 @@ def validate_func_map(file_buffer: str | IO[str],
                 file_buffer = memory_to_stringio(file_buffer, archive_format)
             importer.read_file_buffer(file_buffer)
             return True, None
-        except ValueError as e:
+        except Exception as e:
             return False, repr(e)

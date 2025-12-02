@@ -22,6 +22,8 @@ from metapepview.constants import GlobalConstants as gc
     Output('db_search_psm_qa_valid', 'data'),
     Output('db_search_psm_qa_name', 'children'),
     Output('db_search_psm_qa_upload', 'contents'),
+    Output('db_search_qa_format_alert', 'children', allow_duplicate=True),
+    Output('db_search_qa_format_alert', 'is_open', allow_duplicate=True),
     Output('db_search_psm_qa_import_box', 'style'),
     Input('db_search_psm_qa_upload', 'contents'),
     Input('mzml_metadata', 'data'),
@@ -68,7 +70,9 @@ def show_db_psm_search_qa_name(contents,
                                               valid_func, 
                                               drag_and_drop=True)
     
-    return (valid_data, name, content, import_box_style)
+    open_alert = not success
+
+    return (valid_data, name, content, err_msg, open_alert, import_box_style)
 
 
 
@@ -76,8 +80,8 @@ def show_db_psm_search_qa_name(contents,
     Output('denovo_qa_valid', 'data'),
     Output('denovo_qa_name', 'children'),
     Output('denovo_qa_upload', 'contents'),
-    # Output('denovo_qa_format_alert', 'children'),
-    # Output('denovo_qa_format_alert', 'is_open'),
+    Output('de_novo_qa_format_alert', 'children'),
+    Output('de_novo_qa_format_alert', 'is_open'),
     Output('denovo_qa_import_box', 'style'),
     Input('denovo_qa_upload', 'contents'),
     Input('denovo_qa_format', 'value'),
@@ -126,7 +130,9 @@ def show_denovo_search_qa_name(contents,
                                               valid_func, 
                                               drag_and_drop=True)
     
-    return (valid_data, name, content, import_box_style)
+    open_alert = not success
+    
+    return (valid_data, name, content, err_msg, open_alert, import_box_style)
 
 
 @app.callback(
@@ -185,6 +191,7 @@ def inactivate_spectral_import_button(mzml_content,
 
 
 @app.callback(
+    Output('spectral_import_loading_spot', 'children'),
     Output("mzml_data", "data", allow_duplicate=True),
     Output("mzml_peaks_data", "data", allow_duplicate=True),
     Output("mzml_metadata", "data", allow_duplicate=True),
@@ -219,9 +226,13 @@ def store_spectral_dataset(btn,
                            de_novo_content,
                            de_novo_format,
                            de_novo_valid):
+    loading_status = None
+
     # only update if valid data uploaded
     if mzml_content is None:
         raise PreventUpdate    
+
+    empty_data = (None,)*8
 
     # Import mzml data and return as compressed string data
     (mzml_data, 
@@ -237,16 +248,7 @@ def store_spectral_dataset(btn,
             msg = "Invalid db search file... Potentially due to invalid format or different experiment source from mzml"
         elif de_novo_valid is False:
             msg = "Invalid de novo file... Potentially due to invalid format or different experiment source from mzml"
-        return (None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                None,
-                spectral_data_import_container,
-                msg,
-                True)
+        return empty_data + (spectral_data_import_container, msg, True)
 
     # import feature data and return as compressed string data
     if features_content is not None:
@@ -266,6 +268,11 @@ def store_spectral_dataset(btn,
         db_search_data = load_metapep_db_search(db_search_content, 
                                                 "sample", 
                                                 db_search_format)
+        
+        if mzml_metadata["raw file name"] not in db_search_data.source_files:
+            msg = "mzml and DB search not from same experiment."
+            return empty_data + (spectral_data_import_container, msg, True)
+
         db_search_json = db_search_data.to_json()
         db_search_store = compress_string(db_search_json)
     else:
@@ -274,6 +281,11 @@ def store_spectral_dataset(btn,
         de_novo_data = load_metapep_de_novo(de_novo_content,
                                             "sample",
                                             de_novo_format)
+
+        if mzml_metadata["raw file name"] not in de_novo_data.source_files:
+            msg = "mzml and de novo not from same experiment."
+            return empty_data + (spectral_data_import_container, msg, True)
+
         de_novo_json = de_novo_data.to_json()
         de_novo_store = compress_string(de_novo_json)
     else:
@@ -286,7 +298,8 @@ def store_spectral_dataset(btn,
         alert_open = False
         alert_msg = None
 
-    return (mzml_data,
+    return (loading_status,
+            mzml_data,
             mzml_peaks,
             mzml_metadata,
             feature_data,
