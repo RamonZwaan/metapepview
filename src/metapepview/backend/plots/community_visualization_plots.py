@@ -639,12 +639,12 @@ def tax_differential_barplot(peptide_dataset: pd.DataFrame,
                                   values=ycol).fillna(0.0)
     
     # compute ratio of fractions by dividing the numerator sample with the denominator sample
-    comp_pivot_df['Ratio'] = comp_pivot_df[ratio_numerator_col] / comp_pivot_df[ratio_denominator_col]
-    comp_pivot_df['Size'] = comp_pivot_df[ratio_numerator_col] + comp_pivot_df[ratio_denominator_col]
-    comp_pivot_df['yaxis scatter'] = "abundance (%)"
+    comp_pivot_df.loc[:, 'Ratio'] = comp_pivot_df[ratio_numerator_col] / comp_pivot_df[ratio_denominator_col]
+    comp_pivot_df.loc[:, 'Size'] = comp_pivot_df[ratio_numerator_col] + comp_pivot_df[ratio_denominator_col]
+    comp_pivot_df.loc[:, 'yaxis scatter'] = "abundance (%)"
     
     # rescale ratio to (-inf, inf) to (-1, 1) with log10 and tanh function
-    comp_pivot_df['Norm ratio'] = comp_pivot_df['Ratio'].apply(np.log10).apply(np.tanh)
+    comp_pivot_df.loc[:, 'Norm ratio'] = comp_pivot_df['Ratio'].apply(np.log10).apply(np.tanh)
     comp_pivot_df = comp_pivot_df.reset_index()
     
     # build figure

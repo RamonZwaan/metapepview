@@ -67,7 +67,7 @@ def show_samples_data(peptides_json):
             if not isinstance(trunc, str):
                 trunc = "None"
             return trunc
-        sample_df[col] = sample_df[col].apply(text_processing)
+        sample_df.loc[:, col] = sample_df[col].apply(text_processing)
 
     return (sample_df.to_dict('records'),
             [{'id': c, 'name': c} for c in table_cols],

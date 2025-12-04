@@ -114,7 +114,7 @@ def filter_dataset_top_taxa(comp_df: pd.DataFrame,
     comp_df = comp_df[comp_df[tax_col].isin(top_taxa)]
     comp_df = comp_df.reset_index(drop=True)
     comp_df = comp_df.sort_values(by=tax_col)
-    comp_df[tax_col] = comp_df[tax_col].astype(str)
+    comp_df.loc[:, tax_col] = comp_df[tax_col].astype(str)
 
     return comp_df
 
