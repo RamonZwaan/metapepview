@@ -18,19 +18,19 @@ This section provides a high level overview of the processing steps performed du
 	3. Add *de novo* data only if its `raw_spectral_name` is not present in the dict. Thus, ensure that every spectrum file has only one *de novo* file within a single sample. (between samples, duplicate files are allowed)
 6. Import database search file(s) **if present**
 	1. If **Merge DB search** is True (all DB search files are one sample):
-		1. Load all DB search files to `MetaPepDbSearch` ([[annotation-pipeline#Convert source specific metaproteomics format into MetaPepView format|Load metapep DB search]]) format and store in list, filter out crap peptides if specified for all files
+		1. Load all DB search files to `MetaPepDbSearch` ([[annotation-pipeline#Convert source specific metaproteomics format into meta-PepView format|Load metapep DB search]]) format and store in list, filter out crap peptides if specified for all files
 		2.  Concatenate `MetaPepDbSearch` tables (one per DB search file)
 		3. Check during concatenation that source files (raw spectrum file) are unique across objects, otherwise, peptides may be counted double
 		4. [[annotation-pipeline#Process data into new sample|Create new sample dataset]] for concatenated `MetaPepDbSearch` file.
 	2. If **Merge DB search** is False (each DB search file is its own sample):
 		1. loop through DB search files:
-			1. Load an DB search file and process into `MetaPepDbSearch` (see [[annotation-pipeline#Convert source specific metaproteomics format into MetaPepView format|Load metapep DB search]]) (filter crap if specified)
+			1. Load an DB search file and process into `MetaPepDbSearch` (see [[annotation-pipeline#Convert source specific metaproteomics format into meta-PepView format|Load metapep DB search]]) (filter crap if specified)
 			2. [[annotation-pipeline#Process data into new sample|Create new sample dataset]] for single `MetaPepDbSearch` file.
 			3. Append `MetaPepTable` into list and iterate to next DB search file.
 		2. Concatenate all `MetaPepTable` objects into single object..
 7. If no DB search files supplied but only *de novo* file: Build `MetaPepTable` (see `build_metapep_table()` level) for sample with only *de novo* data and taxonomy mapping. Append sample to existing `MetaPepTable` and return it.
 
-### Convert source specific metaproteomics format into MetaPepView format
+### Convert source specific metaproteomics format into meta-PepView format
 1. Load correct DB search class based on DB search/*de novo* format (e.g. Sage).
 2. Read data in class and add sample name to it.
 3. Convert format specific DB search/*de novo* object to `MetaPep{DbSearch | DeNovo}` object.

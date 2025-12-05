@@ -33,7 +33,7 @@ nav:
     - Data management: 
       - Data import: data-import.md
       - Annotation: annotation.md
-      - Project table: project-table.md
+      - Project data: project-table.md
     - Community visualization:
       - Overview: community-visualization.md
       - Community composition: taxonomy-visualization.md
