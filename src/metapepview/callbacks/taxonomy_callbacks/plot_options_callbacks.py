@@ -49,7 +49,7 @@ def update_barplot_taxa_selector(selector_radio_value):
     Either a list of predifined pathways can be given, or a multi choose
     menu to select your own genes.
     """
-    if selector_radio_value == 1:
+    if selector_radio_value != 2:
         return True
     else:
         return False
