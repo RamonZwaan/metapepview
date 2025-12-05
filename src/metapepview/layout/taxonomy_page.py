@@ -3,6 +3,11 @@ import dash_bootstrap_components as dbc
 
 from metapepview.constants import GlobalConstants as gc
 
+from metapepview.html_templates import abundance_counting_selector,\
+    normalize_abundance_selector,\
+    include_unannotated_selector,\
+    global_fallback_selector
+
 
 # buttongroup to select the type of graph to show
 graph_type_selection = dbc.Row(
@@ -94,86 +99,6 @@ taxonomy_rank_selector = dbc.Row(
 )
 
 
-abundance_counting_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Quantification")),
-        dbc.Col(
-            dbc.RadioItems(
-                options=[
-                    {"label": "PSM count", "value": "Match Count"}, 
-                    {"label": "Combined signal intensity", "value":"Area"}
-                ],
-                value="Match Count",
-                id="barplot_taxa_quantification_column",
-                inline=False,
-                style={"width": "15rem"}
-            )
-        )
-    ],
-    style={"margin": "1.5rem 0rem", "display": "flex", "align-items": "center"}
-)
-
-
-normalize_abundance_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Normalize abundances")),
-        dbc.Col(
-            dbc.Checkbox(
-                id="barplot_taxa_fraction_checkbox",
-                value=False,
-                style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
-            )
-        )
-    ],
-    style={"margin": "1.5rem 0rem"}
-)
-
-
-include_unannotated_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Include unannotated")),
-        dbc.Col(
-            dbc.Checkbox(
-                id="barplot_taxa_unannotated_checkbox",
-                value=False,
-                style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
-            )
-        )
-    ],
-    style={"margin": "1.5rem 0rem"}
-)
-
-global_fallback_selector = dbc.Row(
-    [
-        dbc.Col(html.B("Include Unipept annotation",
-                       id="tax_allow_glob_annot_text",
-                       style={'text-decoration-line': "underline", 
-                              'text-decoration-style': "dotted"}
-        )),
-        dbc.Col(
-            dbc.Checkbox(
-                id="barplot_taxa_allow_global_annot_checkbox",
-                value=False,
-                style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
-            )
-        ),
-        dbc.Popover(
-            """
-                For peptides without taxonomy annotation (at displayed rank) from
-                local annotation file, use Unipept taxonomy annotation. Both DB 
-                search matched peptides and de novo identified peptides will be
-                included in the community composition.
-            """,
-            id="tax_glob_annot_popover",
-            target="tax_allow_glob_annot_text",
-            trigger="hover",
-            placement='right',
-            className="p-2")
-    ],
-    className="" if gc.show_advanced_settings is True else "d-none",
-    style={"margin": "1.5rem 0rem"}
-)
-
 global_annot_de_novo_only_selector = dbc.Row(
     [
         dbc.Col(html.B("Unipept composition de novo only",
@@ -208,39 +133,42 @@ global_annot_de_novo_only_selector = dbc.Row(
 )
 
 
-# modal body of barplot
-tax_sample_comp_options = [
-    html.H3("Plot options"),
-    html.Hr(),
-    graph_type_selection,
-    taxa_dropdown_selector,
-    taxa_group_display_selector,
-    taxonomy_rank_selector,
-    abundance_counting_selector,
-    normalize_abundance_selector,
-    include_unannotated_selector,
-    global_fallback_selector
+facet_plot_switch = dbc.Row(
+    [
+        dbc.Col(html.B("Enable side-by-side plot")),
+        dbc.Col(
+            dbc.Switch(id="activate_taxonomy_facet", 
+                       value=False,
+                       className="align-self-center",
+                       style={"width": "15rem"})
+        )
+    ],
+    style={"margin": "1.5rem 0rem"}
+)
+
+
+tax_sample_facet_collapse = [
+    facet_plot_switch,
+    dbc.Collapse(
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    html.H5("Facet plot options"),
+                    abundance_counting_selector(True),
+                    normalize_abundance_selector(True),
+                    include_unannotated_selector(True),
+                    global_fallback_selector(True)
+                ]
+            )
+        ),
+        id="tax_comp_facet_options",
+        is_open=False
+    )
 ]
-
-
-tax_sample_de_novo_options = [
-    html.H3("Plot options"),
-    html.Hr(),
-    graph_type_selection,
-    sample_selector,
-    taxa_dropdown_selector,
-    taxa_group_display_selector,
-    taxonomy_rank_selector,
-    global_annot_de_novo_only_selector,
-    abundance_counting_selector,
-    normalize_abundance_selector,
-    include_unannotated_selector
-]
-
 
 clade_filter = [
-    html.H5("Filter by Clade", style={"margin-top": "2.5rem"}),
-    html.Hr(),
+    # html.H5("Filter by clade", style={"margin-top": "2.5rem"}),
+    # html.Hr(),
     dbc.Row(
         [
             dbc.Col(html.B("Clade rank"), style={"text-align": 'left'}),
@@ -274,37 +202,204 @@ clade_filter = [
         className="d-flex align-items-center",
         style={"margin": "1.5rem 0rem"}
     ),
-
 ]
 
 
-export_button = [
-    dbc.Row(
+# modal body of barplot
+tax_sample_comp_options = [
+    html.H3("Plot options"),
+    html.Hr(),
+    graph_type_selection,
+    taxa_dropdown_selector,
+    taxa_group_display_selector,
+    taxonomy_rank_selector,
+    abundance_counting_selector(),
+    normalize_abundance_selector(),
+    include_unannotated_selector(),
+    global_fallback_selector()
+]
+
+
+tax_sample_comp_options_acc = [
+    html.H3("Plot options"),
+    html.Hr(),
+    graph_type_selection,
+    dbc.Accordion(
         [
-            dbc.Button("Export compositions",
-                        id="export_taxonomy_button",
-                        className="")
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        taxa_dropdown_selector,
+                        taxa_group_display_selector,
+                        taxonomy_rank_selector,
+                    ]
+                ),
+                title="Select taxa"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        abundance_counting_selector(),
+                        normalize_abundance_selector(),
+                        include_unannotated_selector(),
+                        global_fallback_selector()
+                    ]
+                ),
+                title="Configure quantification"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        facet_plot_switch,
+                        dbc.Collapse(
+                            dbc.Card(
+                                dbc.CardBody(
+                                    [
+                                        html.H5("Facet plot options"),
+                                        abundance_counting_selector(True),
+                                        normalize_abundance_selector(True),
+                                        include_unannotated_selector(True),
+                                        global_fallback_selector(True)
+                                    ]
+                                )
+                            ),
+                            id="tax_comp_facet_options",
+                            is_open=False
+                        )
+                    ]
+                ),
+                title="Configure secondary plot"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    clade_filter,
+                ),
+                title="Configure taxonomy clade filter"
+            )
         ],
-        style={"margin": "2.5rem 5rem"}
+        always_open=True,
+        start_collapsed=True,
+        className="my-3"
     )
 ]
 
 
+
+
+tax_sample_de_novo_options = [
+    html.H3("Plot options"),
+    html.Hr(),
+    graph_type_selection,
+    sample_selector,
+    taxa_dropdown_selector,
+    taxa_group_display_selector,
+    taxonomy_rank_selector,
+    global_annot_de_novo_only_selector,
+    abundance_counting_selector(),
+    normalize_abundance_selector(),
+    include_unannotated_selector()
+]
+
+
+tax_sample_de_novo_options_acc = [
+    html.H3("Plot options"),
+    html.Hr(),
+    graph_type_selection,
+    sample_selector,
+
+    dbc.Accordion(
+        [
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        taxa_dropdown_selector,
+                        taxa_group_display_selector,
+                        taxonomy_rank_selector,
+                    ]
+                ),
+                title="Select taxa"
+            ),
+            dbc.AccordionItem(
+                html.Div(
+                    [
+                        global_annot_de_novo_only_selector,
+                        abundance_counting_selector(),
+                        normalize_abundance_selector(),
+                        include_unannotated_selector()
+                    ]
+                ),
+                title="Configure quantification"
+            ),
+        ],
+        always_open=True,
+        start_collapsed=True,
+        className="my-3"
+    )
+]
+
+
+export_button = [
+    html.H5("Export data"),
+    html.Hr(),
+    dbc.Row(
+        [
+            dbc.Button("Export complete compositions",
+                        id="export_taxonomy_button",
+                        className="")
+        ],
+        style={"margin": "2rem 5rem"}
+    )
+]
+
+comp_eval_export_button = [
+    html.H5("Export data"),
+    html.Hr(),
+    dbc.Row(
+        [
+            dbc.Button("Export complete compositions",
+                        id="export_taxonomy_eval_button",
+                        className="")
+        ],
+        style={"margin": "2rem 5rem"}
+    )
+]
+
 # contents of box that displays taxonomy barplot
 taxonomy_barplot = [
-    html.H3("Figure", id="taxonomy_figure_title"),
-    html.Hr(),
+    html.Div(
+        [
+            html.H5("Figure", id="taxonomy_figure_title"),
+            dbc.Button("Export figure data", 
+                       id="export_taxonomy_figure_data",
+                       className="me-3",
+                       disabled=True)
+        ],
+        className="d-flex align-items-center justify-content-between"
+    ),
+    html.Hr(className="my-2"),
     html.Div(dcc.Graph(id="taxonomy_barplot_figure"), id='taxa_barplot_graph', style={'display': 'None'}),
+    dcc.Store(id="taxonomy_barplot_figure_data", data=None)
 ]
 
 
 taxonomy_de_novo_barplot = [
-    html.H3("Figure", id="taxonomy_de_novo_figure_title"),
-    html.Hr(),
+    html.Div(
+        [
+            html.H5("Figure", id="taxonomy_de_novo_figure_title"),
+            dbc.Button("Export figure data", 
+                       id="export_taxonomy_de_novo_figure_data",
+                       className="me-3",
+                       disabled=True)
+        ],
+        className="d-flex align-items-center justify-content-between"
+    ),
+
+    html.Hr(className="my-2"),
     html.Div([
         dcc.Graph(id="taxonomy_barplot_de_novo_figure"),
         dcc.Graph(id="taxonomy_dif_barplot_de_novo_figure"),
     ], id='taxa_barplot_de_novo_graph', style={'display': 'None'}),
+    dcc.Store(id="taxonomy_de_novo_figure_data")
 ]
 
 
@@ -408,7 +503,8 @@ def taxonomy_page_constructor(
 
 # Taxonomy annotation page
 taxonomy_sample_analysis = taxonomy_page_constructor(
-    tax_sample_comp_options + clade_filter + export_button,
+    # tax_sample_comp_options + tax_sample_facet_collapse + clade_filter + export_button,
+    tax_sample_comp_options_acc + export_button,
     taxonomy_barplot,
     [
         html.P("...")
@@ -416,19 +512,21 @@ taxonomy_sample_analysis = taxonomy_page_constructor(
     [
         # download component for taxonomy export
         dcc.Download(id="download_taxonomy_composition_csv"),
+        dcc.Download(id="download_taxonomy_figure_data_csv"),
         taxonomic_dropoff_modal
     ]
 )
 
 # Taxonomy annotation page
 taxonomy_de_novo_analysis = taxonomy_page_constructor(
-    tax_sample_de_novo_options + clade_filter,
+    # tax_sample_de_novo_options + comp_eval_export_button, # + clade_filter,
+    tax_sample_de_novo_options_acc + comp_eval_export_button,
     taxonomy_de_novo_barplot,
     [
         html.P("...")
     ],
     [
         # download component for taxonomy export
-        dcc.Download(id="download_taxonomy_composition_csv")
+        dcc.Download(id="download_taxonomy_composition_de_novo_csv")
     ]
 )

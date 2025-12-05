@@ -31,8 +31,8 @@ from metapepview.constants import *
     Input("barplot_de_novo_sample_items", "value"),
     Input("taxonomy_stacked_barplot_button", "active"),
     Input('barplot_custom_taxa_items', 'value'),
-    Input('tax_barplot_clade_selection_taxa', 'value'),
-    Input('tax_barplot_clade_selection_rank', 'value'),
+    #Input('tax_barplot_clade_selection_taxa', 'value'),
+    #Input('tax_barplot_clade_selection_rank', 'value'),
     Input('barplot_taxa_selector_radio', 'value'),
     Input('barplot_taxa_rank_items', 'value'),
     Input('barplot_taxa_quantification_column', 'value'),
@@ -45,8 +45,8 @@ def update_de_novo_taxa_graph(page_active,
                               sample_name,
                               bar_graph,
                               tax_ids,
-                              filter_clade,
-                              clade_rank,
+                              #filter_clade,
+                              #clade_rank,
                               top_taxa,
                               tax_rank,
                               quant_method,
@@ -76,14 +76,17 @@ def update_de_novo_taxa_graph(page_active,
     peptide_df = peptide_df[peptide_df['Sample Name'] == sample_name]
     
     # reshape data: change sample name to metagenome annotation or unipept annotation
-    peptide_df, unipept_col = reshape_taxonomy_df_to_denovo(peptide_df, glob_annot_de_novo_only)
+    peptide_df, db_search_col, unipept_col = reshape_taxonomy_df_to_denovo(
+        peptide_df, 
+        glob_annot_de_novo_only
+        )
     
-    if filter_clade and clade_rank and clade_rank != 'Root':
-        # filter the dataset based on taxa at corresponding rank
-        peptide_df = peptide_df[peptide_df[clade_rank + " Name"] == filter_clade]
-        plot_title = f"{sample_name} Taxonomic abundances from {filter_clade} clade, {tax_rank} rank"
-    else:
-        plot_title = f"{sample_name} Taxonomic abundances, {tax_rank} rank"
+    # if filter_clade and clade_rank and clade_rank != 'Root':
+    #     # filter the dataset based on taxa at corresponding rank
+    #     peptide_df = peptide_df[peptide_df[clade_rank + " Name"] == filter_clade]
+    #     plot_title = f"{sample_name} Taxonomic abundances from {filter_clade} clade, {tax_rank} rank"
+    # else:
+    plot_title = f"{sample_name} Taxonomic abundances, {tax_rank} rank"
     
     if bar_graph is True:
         plot_method = taxonomic_abundance_barplot
@@ -96,11 +99,13 @@ def update_de_novo_taxa_graph(page_active,
         comp_plot = plot_method(peptide_df, 
                                 rank=tax_rank,
                                 abundance_metric=quant_method,
-                                fractional_abundance=fractional)
+                                fractional_abundance=fractional)[0]
         dif_plot = tax_differential_barplot(peptide_df,
+                                            db_search_col,
                                             unipept_col,
-                                            'DB search taxonomy',
-                                            tax_rank)
+                                            tax_rank,
+                                            abundance_metric=quant_method,
+                                            fractional_abundance=fractional)
     elif top_taxa == 2:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select custom tax id's...")
@@ -112,13 +117,14 @@ def update_de_novo_taxa_graph(page_active,
                                 rank=tax_rank,
                                 abundance_metric=quant_method,
                                 fractional_abundance=fractional,
-                                include_undefined=unannotated)
+                                include_undefined=unannotated)[0]
         dif_plot = tax_differential_barplot(peptide_df,
+                                            db_search_col,
                                             unipept_col,
-                                            'DB search taxonomy',
                                             tax_rank,
                                             abundance_metric=quant_method,
                                             topn=n_taxa,
+                                            fractional_abundance=fractional,
                                             show_legend=False)
 
     

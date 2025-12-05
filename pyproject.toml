@@ -20,7 +20,7 @@ dependencies = [
     "pandas==2.3",
     "plotly==6.2", 
     "requests==2.32",
-    "scipy==1.16",
+    "scipy~=1.16.3",
     "waitress==3.0",
 ]
 

@@ -96,7 +96,7 @@ def validate_acc_tax_map(upload_contents: str | IO[str],
         try:
             tax_format.read_file_buffer(str_file_obj)
             return True, None
-        except ValueError as e:
+        except Exception as e:
             return False, repr(e)
     else:
         raise ValueError("Invalid taxonomy format")

@@ -133,7 +133,8 @@ def build_spectral_reference_data(
                 },
                 "samples": {
                     'x.raw': {
-                        'timestamp': val
+                        'timestamp': val,
+                        'ms1 count': val
                         'ms2 count': val,
                         'total rt: val
                         'mean pept len': val,
@@ -280,6 +281,7 @@ def build_spectral_reference_data(
         # initialize empty sample field
         sample_output = {
             'timestamp': np.nan,
+            'ms1 count': np.nan,
             'ms2 count': np.nan,
             'total rt': np.nan,
             'mean pept len': np.nan,
@@ -427,6 +429,7 @@ def build_spectral_reference_data(
                 ms2_df = mzml_df[mzml_df['MS level'] == 2]
                 ms1_df = mzml_df[mzml_df['MS level'] == 1]
                 sample_output['ms2 count'] = ms2_df.shape[0]
+                sample_output['ms1 count'] = ms1_df.shape[0]
                 
                 sample_output['total rt'] = mzml_df.at[mzml_df.index[-1],
                                                        'retention time']

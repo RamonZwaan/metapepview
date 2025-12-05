@@ -106,9 +106,11 @@ def annotation_mini_importer_block(
     Returns:
         Any: List[Any]: Dash component block.
     """
-    header_block = html.B("Format", className="me-5")
+    dropdown_height = "30px"
 
     if format_options is not None:
+        header_block = html.B("Format", className="me-5")
+
         hide_dropdown = True if len(format_options) == 1 else False
 
         initial_val = format_options[0] if isinstance(format_options[0], str) else format_options[0]['value']
@@ -118,17 +120,18 @@ def annotation_mini_importer_block(
             value=initial_val,
             clearable=False,
             id=format_id,
-            style={'height': "30px", "width": "15rem"} if not hide_dropdown else None,
+            style={'height': dropdown_height, "width": "15rem"} if not hide_dropdown else None,
             className="" if len(format_options) > 1 else "d-none"
             )
 
         label = format_options[0] if isinstance(format_options[0], str) else format_options[0]['label']
         format_name = html.H6(label,
-            style={"height": "30px", "width": "10rem"} if hide_dropdown else None,
+            style={"height": dropdown_height, "width": "10rem"} if hide_dropdown else None,
             className="d-flex align-items-center mb-0" if len(format_options) == 1 else\
                 "d-none"
         )
     else:
+        header_block = None
         format_dropdown = dbc.Col(None)
         format_name = None
 
@@ -161,6 +164,7 @@ def annotation_mini_importer_block(
                 format_dropdown,
                 format_name
             ],
+            style={"height": dropdown_height},
             className="d-flex align-items-center justify-content-between my-3"
         ),
         dcc.Upload(
@@ -433,17 +437,20 @@ def validate_multiple_files(contents: List[str] | None,
             box_style = StyleConstants.success_box_style
         else:
             name_list = import_multiple_files(None, None)
-            return (False, name_list, None, msg, True,
+            return (False, name_list, None, msg, success,
                     StyleConstants.failed_box_style)
     else:
         valid_data = None
-        file_names= None
+        file_names = None
+        success = True      # Set to true as no input is not considered an issue
+        msg = None
 
     name_list = import_multiple_files(file_names,
                                       dates,
                                       max_name_len=30)
 
-    return (valid_data, name_list, contents, msg, False, box_style)
+
+    return (valid_data, name_list, contents, msg, success, box_style)
 
 
 def validate_single_file(contents: str | None,
@@ -504,7 +511,7 @@ def validate_single_file(contents: str | None,
             import_single_file(name, dates, max_name_len=30, drag_and_drop=drag_and_drop),
             contents,
             msg,
-            not success,
+            success,
             box_style)
 
 
@@ -735,5 +742,89 @@ def configure_metadata_format_container():
             className=function_class_name,
             style={"width": "50%"}
         )
-,
     ]
+
+
+
+# taxonomy plot options with variable id's
+
+def abundance_counting_selector(facet: bool = False):
+    component_id = "barplot_taxa_quantification_column" if facet is False\
+        else "facet_barplot_taxa_quantification_column"
+    
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Quantification")),
+            dbc.Col(
+                dbc.RadioItems(
+                    options=[
+                        {"label": "PSM count", "value": "Match Count"}, 
+                        {"label": "Combined signal intensity", "value":"Area"}
+                    ],
+                    value="Match Count",
+                    id=component_id,
+                    inline=False,
+                    style={"width": "15rem"}
+                )
+            )
+        ],
+        style={"margin": "1.5rem 0rem", "display": "flex", "align-items": "center"}
+    )
+
+
+def normalize_abundance_selector(facet: bool = False):
+    component_id = "barplot_taxa_fraction_checkbox" if facet is False\
+        else "facet_barplot_taxa_fraction_checkbox"
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Normalize abundances")),
+            dbc.Col(
+                dbc.Checkbox(
+                    id=component_id,
+                    value=False,
+                    style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
+                )
+            )
+        ],
+        style={"margin": "1.5rem 0rem"}
+    )
+
+
+def include_unannotated_selector(facet: bool = False):
+    component_id = "barplot_taxa_unannotated_checkbox" if facet is False\
+        else "facet_barplot_taxa_unannotated_checkbox"
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Include unannotated")),
+            dbc.Col(
+                dbc.Checkbox(
+                    id=component_id,
+                    value=False,
+                    style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
+                )
+            )
+        ],
+        style={"margin": "1.5rem 0rem"}
+    )
+
+
+def global_fallback_selector(facet: bool = False):
+    component_id = "barplot_taxa_allow_global_annot_checkbox" if facet is False\
+        else "facet_barplot_taxa_allow_global_annot_checkbox"
+    return dbc.Row(
+        [
+            dbc.Col(html.B("Include Unipept annotation",
+                        style={'text-decoration-line': "underline", 
+                                'text-decoration-style': "dotted"}
+            )),
+            dbc.Col(
+                dbc.Checkbox(
+                    id=component_id,
+                    value=False,
+                    style={"width": "15rem"}#, "display": "flex", "justify-content": "flex-end"}
+                )
+            ),
+        ],
+        className="" if gc.show_advanced_settings is True else "d-none",
+        style={"margin": "1.5rem 0rem"}
+    )

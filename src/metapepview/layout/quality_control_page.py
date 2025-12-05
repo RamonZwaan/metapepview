@@ -6,47 +6,47 @@ from metapepview.constants import GlobalConstants, StyleConstants
 
 
 
-mzml_import = qa_importer_block(
-    "Spectral File (mzML)",
-    "mzml_upload",
-    "mzml_name",
-    "mzml_valid",
-)
+# mzml_import = qa_importer_block(
+#     "Spectral File (mzML)",
+#     "mzml_upload",
+#     "mzml_name",
+#     "mzml_valid",
+# )
 
-features_import = qa_importer_block(
-    "Features (featureXML)",
-    "features_upload",
-    "features_name",
-    "features_valid",
-)
-
-
-psm_file_validation_import = qa_importer_block(
-    "DB search Import",
-    "db_search_psm_qa_upload",
-    "db_search_psm_qa_name",
-    "db_search_psm_qa_valid",
-    format_options=GlobalConstants.db_search_dropdown_options,
-    format_id="db_search_psm_qa_format"
-)
+# features_import = qa_importer_block(
+#     "Features (featureXML)",
+#     "features_upload",
+#     "features_name",
+#     "features_valid",
+# )
 
 
-denovo_file_validation_import = qa_importer_block(
-    "De Novo Import",
-    "denovo_qa_upload",
-    "denovo_qa_name",
-    "denovo_qa_valid",
-    format_options=GlobalConstants.de_novo_dropdown_options,
-    format_id="denovo_qa_format"
-)
+# psm_file_validation_import = qa_importer_block(
+#     "DB search Import",
+#     "db_search_psm_qa_upload",
+#     "db_search_psm_qa_name",
+#     "db_search_psm_qa_valid",
+#     format_options=GlobalConstants.db_search_dropdown_options,
+#     format_id="db_search_psm_qa_format"
+# )
 
 
-ref_set_import = qa_importer_block(
-    "Reference Data Import",
-    "ref_prot_upload",
-    "ref_prot_name",
-    "ref_prot_valid",
-)
+# denovo_file_validation_import = qa_importer_block(
+#     "De Novo Import",
+#     "denovo_qa_upload",
+#     "denovo_qa_name",
+#     "denovo_qa_valid",
+#     format_options=GlobalConstants.de_novo_dropdown_options,
+#     format_id="denovo_qa_format"
+# )
+
+
+# ref_set_import = qa_importer_block(
+#     "Reference Data Import",
+#     "ref_prot_upload",
+#     "ref_prot_name",
+#     "ref_prot_valid",
+# )
 
 
 
@@ -61,7 +61,7 @@ tic_over_rt = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Total Ion Current", style={"margin-right": "3rem"}),
+                        html.H4("Total ion current", style={"margin-right": "3rem"}),
                         html.Div(
                             [
                                 html.Div(
@@ -376,7 +376,7 @@ transmission_scatter = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("MS2 Ion Transmission"),
+                        html.H4("MS2 ion transmission"),
                         html.Div(
                             [
                                 html.Div(
@@ -500,7 +500,7 @@ ref_confidence_dist_line = dbc.Card(
             [
                 html.Div(
                     [
-                        html.H4("Confidence Ranked Distribution"),
+                        html.H4("Confidence ranked distribution"),
                         html.Div(
                             [
                                 html.B("Metric:", style={"margin-right": "1rem", "text-align": "center"}),
@@ -568,7 +568,7 @@ ref_intensity_dist_scatter = dbc.Card(
     [
         dbc.CardBody(
             [
-                html.H4("Scan Intensity Distribution"),
+                html.H4("Scan intensity distribution"),
                 html.Hr(),
                 html.Div(dcc.Graph(id="reference_intensity_fig"), id="reference_intensity_div", style={'display': 'none'})
             ]
@@ -630,13 +630,40 @@ ref_miscleavage_dist = dbc.Card(
 )
 
 
+ref_metrics_comp = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.Div(
+                    [
+                        html.H4("Experiment metrics overview"),
+                        # html.Div(
+                        #     [
+
+                        #     ],
+                        #     style={'display': 'flex', "align-items": "center"} 
+                        # ),
+                    ],
+                    style={'display': 'flex', "align-items": "center", "justify-content": "space-between"}
+                ),
+                html.Hr(),
+                html.Div(dcc.Graph(id="reference_metrics_scores_fig"), id="reference_metrics_scores_div", style={'display': 'none'})
+            ],
+            style={"display": "block", "flex-wrap": "wrap"}
+        )
+    ],
+    color="light",
+    style={"margin": "0rem 0rem 0.5rem 1rem", "height": "28rem"}
+)
+
+
 ref_confidence_dist_bar = dbc.Card(
     [
         dbc.CardBody(
             [
                 html.Div(
                     [
-                        html.H4("Confidence Thresholds Barplot"),
+                        html.H4("Confidence thresholds barplot"),
                         html.Div(
                             [
                                 html.Div(
@@ -679,7 +706,7 @@ ref_confidence_dist_bar = dbc.Card(
         )
     ],
     color="light",
-    style={"margin": "0rem 0rem 0.5rem 1rem", "height": "30rem"}
+    style={"margin": "1rem 0rem 0.5rem 1rem", "height": "30rem"}
 )
 
 
@@ -738,27 +765,42 @@ ref_benchmark = [
         [
             html.Div(
                 [
-                    html.P("Reference dataset:", className="me-4 mb-0 fs-6"),
-                    dcc.Dropdown(
-                        [],
-                        id="ref_statistics_dropdown",
-                        style={"width": "15rem"}
-                    )
+                    html.Div(
+                        [
+                            html.P("Reference dataset:", className="me-4 mb-0 fs-6"),
+                            dcc.Dropdown(
+                                [],
+                                id="ref_statistics_dropdown",
+                                style={"width": "15rem"}
+                            )
+                        ],
+                        className="d-flex align-items-center mx-2"
+                    ),
+                    html.B("or", className="mx-4 mb-0 fs-6"),
+                    html.P("import custom dataset:", className="mx-2 mb-0 fs-6"),
+                    dcc.Upload(
+                        id="custom_ref_dataset",
+                        children=dbc.Button("Import", outline=True, color="primary",
+                                            className="px-4"),
+                        className=" mx-1 py-1",
+                    ),
+                    html.I("No file...", id="custom_ref_statistics_name", className="ms-2"),
+                    dcc.Store(id="current_ref_statistics_store", data=None),
                 ],
-                className="d-flex align-items-center mx-2"
+                className="d-flex p-1 ms-4 align-items-center justify-content-start"
             ),
-            html.B("or", className="mx-4 mb-0 fs-6"),
-            html.P("import custom dataset:", className="mx-2 mb-0 fs-6"),
-            dcc.Upload(
-                id="custom_ref_dataset",
-                children=dbc.Button("Import", outline=True, color="primary",
-                                    className="px-4"),
-                className=" mx-1 py-1",
+            html.Div(
+                html.A(
+                    html.I("Guide: how to create reference dataset", 
+                           style={"font-size": "0.9vw"},
+                    ),
+                    href=GlobalConstants.docs_ref_data_prep_url, 
+                    target="_blank"), 
+                className="d-flex p-1 me-5 align-items-center justify-content-start"
             ),
-            html.I("No file...", id="custom_ref_statistics_name", className="ms-2"),
-            dcc.Store(id="current_ref_statistics_store", data=None)
         ],
-        className="d-flex p-1 ms-4 align-items-center justify-content-start"
+        className="d-flex align-items-center justify-content-between"
+
     ),
     html.Div(
         [
@@ -779,6 +821,7 @@ ref_benchmark = [
         ],
         className="d-flex pt-1 ms-5 align-items-center justify-content-start"
     ),
+    ref_metrics_comp,
     ref_confidence_dist_bar,
     ref_confidence_dist_line,
     dbc.Row(
@@ -813,47 +856,41 @@ ref_benchmark = [
 # Protein DB page
 ms_performance = html.Div(
     [
-        html.Div(
-            [
-                html.Div(
-                    mzml_import,
-                    id='mzml_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-                html.Div(
-                    features_import,
-                    id='features_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-                html.Div(
-                    psm_file_validation_import,
-                    id='db_search_psm_qa_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-                html.Div(
-                    denovo_file_validation_import,
-                    id='denovo_qa_import_box',
-                    className="ms-3 mw-25 pt-2 border shadow-sm", 
-                    style=StyleConstants.qa_import_box_style
-                ),
-            ],
-            className="d-flex mb-3 justify-content-start"
-        ),
-        dbc.Alert(
-            id="qa_data_import_alert",
-            dismissable=True,
-            is_open=False,
-            color="danger",
-            className="mt-3"
-        ),
+        # html.Div(
+        #     [
+        #         html.Div(
+        #             mzml_import,
+        #             id='mzml_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #         html.Div(
+        #             features_import,
+        #             id='features_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #         html.Div(
+        #             psm_file_validation_import,
+        #             id='db_search_psm_qa_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #         html.Div(
+        #             denovo_file_validation_import,
+        #             id='denovo_qa_import_box',
+        #             className="ms-3 mw-25 pt-2 border shadow-sm", 
+        #             style=StyleConstants.qa_import_box_style
+        #         ),
+        #     ],
+        #     className="d-flex mb-3 justify-content-start"
+        # ),
+
         dbc.Tabs(
             [            
                 dbc.Tab(
                     ref_benchmark,
-                    label="Benchmarking",
+                    label="Experiment comparison",
                     id="Reference Benchmark"
                 ),
                 # dbc.Tab(

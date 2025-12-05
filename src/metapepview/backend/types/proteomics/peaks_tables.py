@@ -69,7 +69,8 @@ class PeaksDbSearchPsm11(DbSearchMethods):
 
     @classmethod
     def get_source_file(cls, file_name: Path | str) -> str:
-        """Return raw spectral file name from peaks 11 db search path.
+        """Return raw spectral file name from peaks 11 db search path. if multiple
+        files are present in the file, only the first one is returned.
 
         Args:
             file_name (Path | str): Location of peaks 11 db search psm file.
@@ -144,7 +145,7 @@ class PeaksDbSearchPsm11(DbSearchMethods):
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset
-        source_files: List[str] = df.loc[:, 'Source File'].unique().tolist()
+        source_files: List[str] = self.get_source_files()
         
         # configure file name, if given the function argument, else the class file name
         if sample_name is None:
@@ -324,7 +325,7 @@ class PeaksDbSearchPsm10(DbSearchMethods):
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset
-        source_files: List[str] = df.loc[:, 'Source File'].unique().tolist()
+        source_files: List[str] = self.get_source_files()
         
         # configure file name, if given the function argument, else the class file name
         if sample_name is None:
@@ -471,7 +472,7 @@ class PeaksDeNovo11(DeNovoMethods):
             df = filter_crap(df, 'Sequence', crap_dataset)
 
         # fetch all spectral file names present in dataset
-        source_files: List[str] = df.loc[:, 'Source File'].dropna().unique().tolist()
+        source_files: List[str] = self.get_source_files()
         
         # configure file name, if given the function argument, else the class file name
         if sample_name is None:
@@ -657,7 +658,7 @@ class PeaksDeNovo10(DeNovoMethods):
             df = filter_crap(df, 'Sequence', crap_dataset)
         
         # fetch all spectral file names present in dataset
-        source_files: List[str] = df.loc[:, 'Source File'].dropna().unique().tolist()
+        source_files: List[str] = self.get_source_files()
         
         # configure file name, if given the function argument, else the class file name
         if sample_name is None:

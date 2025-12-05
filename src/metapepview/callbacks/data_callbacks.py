@@ -67,7 +67,7 @@ def show_samples_data(peptides_json):
             if not isinstance(trunc, str):
                 trunc = "None"
             return trunc
-        sample_df[col] = sample_df[col].apply(text_processing)
+        sample_df.loc[:, col] = sample_df[col].apply(text_processing)
 
     return (sample_df.to_dict('records'),
             [{'id': c, 'name': c} for c in table_cols],
@@ -103,7 +103,7 @@ def remove_peptide_data(datatable_data,
 
 @app.callback(
     Output("experiment_name_field", "value", allow_duplicate=True),
-    Output('experiment_name', 'data'),
+    Output('experiment_name', 'data', allow_duplicate=True),
     Input("experiment_name_field", "value"),
     State('experiment_name', 'data'),
     prevent_initial_call=True
@@ -117,12 +117,23 @@ def update_experiment_name(current_field_name, stored_data):
 
 @app.callback(
     Output("experiment_name_field", "value", allow_duplicate=True),
+    Output("experiment_name", "data", allow_duplicate=True),
     Output('peptides', 'data', allow_duplicate=True),
+    Output("mzml_data", "data", allow_duplicate=True),
+    Output("mzml_peaks_data", "data", allow_duplicate=True),
+    Output("mzml_metadata", "data", allow_duplicate=True),
+    Output("features_data", "data", allow_duplicate=True),
+    Output("features_metadata", "data", allow_duplicate=True),
+    Output("db_search_qa_data", "data", allow_duplicate=True),
+    Output("de_novo_qa_data", "data", allow_duplicate=True),
+    Output('clear_peptides_data', 'n_clicks'),
     Input('clear_peptides_data', 'n_clicks'),
     prevent_initial_call=True
 )
-def clear_peptide_data(_):
-    return None , None
+def clear_peptide_data(n_clicks):
+    if n_clicks > 0:
+        return (None,)*10 + (0,)
+    raise PreventUpdate
 
 
 @app.callback(

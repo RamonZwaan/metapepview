@@ -925,9 +925,11 @@ def ref_score_threshold_plot(stat_dict: dict,
         # get data from category df
         x_vals = cat_data['x axis'].to_numpy()
         y_vals = cat_data['value'].to_numpy()
-        
+        name_vals = cat_data['sample'].to_numpy()
+
         fig.add_trace(go.Box(x=x_vals,
                              y=y_vals,
+                             text=name_vals,
                              boxpoints='all',
                              fillcolor='rgba(255,255,255,0)',
                              line=dict(color='rgba(0,0,0,0)'),
@@ -1063,16 +1065,16 @@ def ref_intensity_dist_plot(stat_dict: dict,
         ms_int_dict = dict()
 
         # fetch data over samples
-        for data in data_dict["samples"].values():
+        for name, data in data_dict["samples"].items():
             ms_cats = data[key_field]["percentiles"]
             ms_int = data[key_field]["values"]
             
             # add data to output dict
             for cat, value in zip(ms_cats, ms_int):
                 if cat not in ms_int_dict.keys():
-                    ms_int_dict[cat] = [value]
+                    ms_int_dict[cat] = [(name, value)]
                 else:
-                    ms_int_dict[cat].append(value)
+                    ms_int_dict[cat].append((name, value))
 
         return ms_int_dict
 
@@ -1109,8 +1111,11 @@ def ref_intensity_dist_plot(stat_dict: dict,
             
         xrow = []
         yrow = []
+        name_row = []
         
-        vals = ms1_dict[key] + ms2_dict[key]
+        names = [x[0] for x in ms1_dict[key] + ms2_dict[key]]
+        vals = [x[1] for x in ms1_dict[key] + ms2_dict[key]]
+        name_row += names
         yrow += vals
         xrow += [ms1_pref + key]*len(ms1_dict[key]) + \
                 [ms2_pref + key]*len(ms2_dict[key])
@@ -1118,6 +1123,7 @@ def ref_intensity_dist_plot(stat_dict: dict,
 
         fig.add_trace(go.Box(y=yrow,
                              x=xrow,
+                             text=name_row,
                              boxpoints='all',
                              fillcolor='rgba(255,255,255,0)',
                              line=dict(color='rgba(0,0,0,0)'),
@@ -1193,18 +1199,21 @@ def ref_transmission_scatter_plot(stat_dict: dict,
 
     yrow = []
     xrow = []
+    name_row = []
 
     # based on injection time scale, get correct data
     stat_dict_param = "transmission loss" if scale_ion_injection_time is False\
         else "transmission loss ion injection time scaled"
 
-    for data in stat_dict["samples"].values():
+    for name, data in stat_dict["samples"].items():
         yrow += data[stat_dict_param]['values']
         xrow += data[stat_dict_param]['percentiles']
+        name_row += [name]*len(data[stat_dict_param]['percentiles'])
 
     fig.add_trace(go.Box(
         y=(1 / np.array(yrow))*100,
         x=xrow,
+        text=name_row,
         boxpoints='all',
         jitter=1,
         fillcolor='rgba(0,0,0,0)',
@@ -1351,9 +1360,11 @@ def ref_miscleavage_dist_plot(stat_dict: dict,
                          zerolinecolor="Black", 
                          row=1,
                          col=1)
+        
+        num_samples = stat_dict['metadata']['sample size']
         fig.update_xaxes(col=1, 
                          row=1,
-                         showticklabels=True,
+                         showticklabels=False if num_samples > 20 else True,
                          side="top", 
                          tickfont=dict(size=16))
         fig.update_xaxes(col=2, 
@@ -1370,7 +1381,7 @@ def ref_miscleavage_dist_plot(stat_dict: dict,
                      zerolinecolor="Black",
                      col=ncols,
                      row=1,
-                     showticklabels=False)
+                     showticklabels=True)
 
     fig.update_yaxes(gridcolor=GraphConstants.gridcolor, 
         gridwidth=GraphConstants.gridwidth, 
@@ -1400,7 +1411,145 @@ def ref_miscleavage_dist_plot(stat_dict: dict,
 
     return fig
 
+
+def ref_score_metrics_barplot(stat_dict: dict,
+                              sample_db_search: MetaPepDbSearch | None=None,
+                              sample_de_novo: MetaPepDeNovo | None=None,
+                              spectral_metadata: dict | None=None):
+    ncols = 6
+    plot_titles = ["MS analysis time",
+                   "# MS1 scans",
+                   "# MS2 scans",
+                   "MS2/MS1",
+                   "DB search matches",
+                   "De novo identifications"]
     
+    dict_fields = ["total rt", 
+                   "ms1 count", 
+                   "ms2 count",
+                   ["ms2 count", "ms1 count"],
+                   "db search matches", 
+                   "de novo matches"]
+
+    axis_titles = ["Retention time (min)",
+                   "# MS1 scans",
+                   "# MS2 scans",
+                   "# MS2/MS1",
+                   "# DB search matches",
+                   "# De novo identifications"]
+    
+    # initial order of samples is just order in json file
+    cats = list(stat_dict["samples"].keys())
+
+    fig = make_subplots(rows=1,
+                        cols=ncols,
+                        shared_yaxes=True,
+                        specs=[[{}]*ncols],
+                        subplot_titles=plot_titles,
+                        horizontal_spacing=0.02)
+
+    # if sample imported, get values for sample
+    sample_values = [np.nan] * ncols
+    if spectral_metadata is not None:
+        sample_values[0] = spectral_metadata.get("total retention time")
+        sample_values[1] = spectral_metadata.get("MS1 spectrum count")
+        sample_values[2] = spectral_metadata.get("MS2 spectrum count")
+        sample_values[3] = sample_values[2] / sample_values[1]
+    if sample_db_search is not None:
+        sample_values[4] = sample_db_search.data.shape[0]
+    if sample_de_novo is not None:
+        sample_values[5] = sample_de_novo.data.shape[0]
+
+    for n in range(ncols):
+        plot_title = plot_titles[n]
+        data_field = dict_fields[n]
+        axis_title = axis_titles[n]
+
+        sample_names = []
+        values = []
+
+        for sample_name, sample_data in stat_dict["samples"].items():
+            sample_names.append(sample_name)
+
+            if isinstance(data_field, str):
+                values.append(sample_data[data_field])
+            # if two fields supplied, divide first value with second
+            else:
+                values.append(
+                    sample_data[data_field[0]] / sample_data[data_field[1]]
+                )
+
+        fig.add_trace(
+            go.Bar(x=values,
+                   y=sample_names,
+                   orientation='h',
+                   marker=dict(color=GraphConstants.primary_color),
+                   showlegend=False),
+            col=n+1,
+            row=1
+        )
+        fig.update_xaxes(col=n+1,
+                         row=1,
+                         title=axis_title)
+        
+        # add sample value as line
+        if sample_values[n] == sample_values[n]:
+            fig.add_vline(type="line",
+                          x=sample_values[n],
+                          # x1=sample_values[n],
+                          #y0=0, y1=10, 
+                          # yref="paper",
+                          line=dict(
+                              width=3,
+                              color=GraphConstants.color_palette[2],
+                              dash="dash",
+                          ),
+                          # annotation_text=f"Imported sample",
+                          # annotation_position="bottom right",
+                          col=n+1,
+                          row=1
+            )
+
+        # order samples by db search matching score
+        if data_field == "db search matches":
+            cats_order = np.array(values).argsort()
+            cats = list(np.array(sample_names)[cats_order])
+
+    # Create empty trace to have annotation for the legend if sample imported
+    if any(x == x for x in sample_values):
+        fig.add_trace(
+            dict(
+                type="scatter",
+                x=[None], y=[None],
+                mode="lines",
+                line=dict(color="red", dash="dash", width=2),
+                name=f"Sample",
+                showlegend=True,
+                hoverinfo="skip"
+            )
+        )
+
+    # configure sample figure subplot
+    num_samples = stat_dict['metadata']['sample size']
+    fig.update_yaxes(col=1, row=1,
+                     showticklabels=False if num_samples > 20 else True,
+                     categoryorder='array',
+                     categoryarray=cats)
+    
+    fig.update_xaxes(gridcolor=GraphConstants.gridcolor, 
+                     gridwidth=GraphConstants.gridwidth,
+                     
+                     zerolinecolor="Black",
+                     nticks=6)
+    
+    fig.update_layout(margin=dict(l=20, r=20, t=30, b=0),
+                      paper_bgcolor='rgba(0,0,0,0)',
+                      plot_bgcolor='rgba(0,0,0,0)')
+
+    return fig
+
+
+
 def ref_score_threshold_barplot(stat_dict: dict,
                                 formats: List[str],
                                 normalize_psm: bool=False,
@@ -1436,8 +1585,15 @@ def ref_score_threshold_barplot(stat_dict: dict,
         normalize_rt,
         normalize_fill)
     
+    # only display sample if data is present for visualization options
+    if all(x is None for x in [sample_db_search, sample_de_novo]):
+        sample_data_present = False
+    elif (normalize_psm is True or normalize_rt is True) and spectral_metadata is None:
+        sample_data_present = False
+    else:
+        sample_data_present = True
 
-    if any(x is not None for x in [sample_db_search, sample_de_novo]):
+    if sample_data_present is True:
         ncols = 2
     else:
         ncols = 1
@@ -1548,6 +1704,7 @@ def ref_score_threshold_barplot(stat_dict: dict,
                          showticklabels=True,
                          side="top", 
                          tickfont=dict(size=16))
+
         fig.update_xaxes(row=2, 
                          col=1, 
                          showticklabels=False)
@@ -1561,10 +1718,13 @@ def ref_score_threshold_barplot(stat_dict: dict,
         fig.update_xaxes(domain=[sample_range + 0.02, 1], row=1, col=2)
         fig.update_xaxes(domain=[sample_range + 0.02, 1], row=2, col=2)
         
-    
+    num_samples = stat_dict['metadata']['sample size']
     fig.update_xaxes(gridcolor="rgba(0,0,0,0)",
-                     zerolinecolor="Black", col=ncols,
-                     showticklabels=False)
+                     zerolinecolor="Black", 
+                     showticklabels=False if num_samples > 20 else True,
+                     col=ncols,
+                     row=2)
+    fig.update_xaxes(showticklabels=False, col=ncols, row=1)
 
     fig.update_yaxes(gridcolor=GraphConstants.gridcolor, 
         gridwidth=GraphConstants.gridwidth, 
@@ -1579,6 +1739,8 @@ def ref_score_threshold_barplot(stat_dict: dict,
         domain=[0, 0.3],# tickvals=tickvals,
         row=2, 
         col=ncols)
+    
+
     fig.update_yaxes(title="DB Search", row=1, col=1)
     fig.update_yaxes(title="de novo", row=2, col=1)
 

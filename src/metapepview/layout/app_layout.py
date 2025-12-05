@@ -27,6 +27,8 @@ app_layout = html.Div([html.Div(new_sidebar, style=StyleConstants.sidebar_style,
                        dcc.Store(id="mzml_metadata"),
                        dcc.Store(id="features_data"),
                        dcc.Store(id="features_metadata"),
+                       dcc.Store(id="db_search_qa_data"),
+                       dcc.Store(id="de_novo_qa_data"),
                        
                        dcc.Store(id="ref_statistics", 
                                  data=import_ref_statistics()),

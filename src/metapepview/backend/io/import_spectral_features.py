@@ -8,6 +8,12 @@ from typing import Any, Callable, Dict, IO, Tuple
 import pandas as pd
 import numpy as np
 
+from metapepview.constants import StyleConstants
+from metapepview.html_templates import import_single_file
+from metapepview.backend.utils import determine_archive_format, \
+    memory_to_file_like, \
+    compress_string
+
 
 featurexml_types: Dict[str, Callable] = {
     'int': int,
@@ -16,6 +22,43 @@ featurexml_types: Dict[str, Callable] = {
 }
 
 _SCAN_NUM_PATTERN = re.compile(r"(?<=scan=)[0-9]+")
+
+
+def import_features(content: str, 
+                    filename: str, 
+                    mzml_metadata: Dict[str, Any] | None) -> Tuple[str, 
+                                                                   Dict[str, Any],
+                                                                   bool] | \
+                                                             Tuple[None,
+                                                                   None,
+                                                                   bool]:
+    """Import featurexml data uploaded to dashboard.
+
+    Args:
+        content (str): Feature data content.
+        filename (str): Features file name.
+        mzml_metadata (Dict[str, Any] | None): Metadata from mzml spectral file.
+
+    Returns:
+        Tupple[...]: Features datasets with valid indicator.
+    """
+    # only process features file after mzml file is imported
+    if mzml_metadata is None:
+        qa_box_style["background-color"] = StyleConstants.import_failed_color
+        return (None, None)
+    
+    archive_format = determine_archive_format(filename)
+    
+    print("Process feature data...")
+    try:
+        data, metadata = featurexml_to_df(memory_to_file_like(content, archive_format), 
+                                          None)
+    except Exception as err:
+        print(err)
+        return (None, None, False)
+    
+    print("Finished feature processing...")
+    return (compress_string(data.to_json()), metadata, True)
 
 
 def featurexml_to_df(file: str | Path | IO[bytes],

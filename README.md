@@ -163,7 +163,7 @@ This module allows you to analyze and compare the taxonomic composition of one o
 - *Normalize abundances*: show composition of each sample as fraction of total (100%).
 - *Allow global annotation*: where no taxonomic annotations are imported, the *de novo* taxonomy will be created using Unipept. Here, both DB search data and *de novo* data are considered.
 - *Include unannotated*: add peptides that have no classification at the specified taxonomic rank into the composition into a separate group "Undefined".
-- *Filter by Clade*: Show only taxonomies that belong to certain taxonomic group, as specified by the user.
+- *Filter by clade*: Show only taxonomies that belong to certain taxonomic group, as specified by the user.
 - *Export taxonomy*: Export taxonomic composition meta data to csv file. This usually inclues, the sample name, taxon names, taxonomic ranks, peak intensities (if available), peptide match counts. 
 
 ### *Taxonomies DB search vs de novo*: Compare taxonomic composition as obtained by DB searching and *de novo* annotation
@@ -174,7 +174,7 @@ This module compares the taxonomic composition derived from database searching w
 - *De novo only global annotation*: in *de novo* (global) taxonomy composition group, omit peptide sequences identified in DB search data from the composition processing, considering only *de novo* identified peptides.
 - *Normalize abundances*: Represent taxonomy composition of each sample as the fraction of total microbial abundance.
 - *Include unannotated*: Add peptides that have no classification at the specified taxonomy rank into the composition into a separate group "Undefined".
-- *Filter by Clade*: Show only taxonomies that belong to a taxonomic group, as specified by the user.
+- *Filter by clade*: Show only taxonomies that belong to a taxonomic group, as specified by the user.
 - *Export taxonomy*: Export taxonomy composition of samples into an easy to process csv. With sample name, taxonomy name, taxonomy rank, peak intensity (if present in data), peptide match count columns.
    
 ### *Functions*: Visualize protein expression across samples.
@@ -186,7 +186,7 @@ This module visualizes enzymatic and metabolic functions. Protein functions can 
 - *Combine multiple annotations*: some peptides may classify to multiple KEGG id's. If checked, the combination of id's is considered a separate group in the figure. If unchecked, multiple annotations will be split and counted towards each group (no peptide will be counted towards any single group twice).
 - *Include taxonomies* (Experimental): Show for each sample what taxa contribute towards each protein function expression. (Unstable at the moment).
 - *Fractional abundances*: Quantify protein function expression abundance for each sample as fraction compared to total protein quantity.
-- *Filter by Clade*: Quantify only protein functions from peptides that belong to a user specified taxonomic group.
+- *Filter by clade*: Quantify only protein functions from peptides that belong to a user specified taxonomic group.
 - *Visualize pathway map*: Given a selected KEGG pathway, select samples in the dropdown menu and by clicking *Show pathway map*, a KEGG page will be loaded showing the pathway with protein functions colored according to the corresponding sample. A color table matching sample to color will shown in the dashboard.
 
 # Referencing

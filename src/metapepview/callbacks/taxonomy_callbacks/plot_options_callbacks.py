@@ -2,6 +2,7 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
+from io import StringIO
 import pandas as pd
 
 from metapepview.server import app
@@ -48,7 +49,7 @@ def update_barplot_taxa_selector(selector_radio_value):
     Either a list of predifined pathways can be given, or a multi choose
     menu to select your own genes.
     """
-    if selector_radio_value == 1:
+    if selector_radio_value != 2:
         return True
     else:
         return False
@@ -163,8 +164,6 @@ def toggle_export_button(peptide_json):
     State('peptides', 'data'),
     State('tax_barplot_clade_selection_taxa', 'value'),
     State('tax_barplot_clade_selection_rank', 'value'),
-    State('barplot_taxa_fraction_checkbox', 'value'),
-    State('barplot_taxa_unannotated_checkbox', 'value'),
     State('barplot_taxa_allow_global_annot_checkbox', 'value'),
     prevent_initial_call=True
 )
@@ -172,8 +171,6 @@ def export_tax_composition(button_click,
                            peptide_json,
                            filter_clade,
                            clade_rank,
-                           fractional,
-                           unannotated,
                            global_annot_fallback):
     if peptide_json is None:
         raise PreventUpdate
@@ -217,4 +214,94 @@ def export_tax_composition(button_click,
         tax_comp_df.append(group_aggs) 
     tax_comp_df = pd.concat(tax_comp_df).reset_index(drop=True)
     
-    return dcc.send_data_frame(tax_comp_df.to_csv, "tax_composition.csv")
+    return dcc.send_data_frame(tax_comp_df.to_csv, "tax_composition.tsv", sep="\t")
+
+
+@app.callback(
+    Output('download_taxonomy_figure_data_csv', 'data'),
+    Input('export_taxonomy_figure_data', 'n_clicks'),
+    State('taxonomy_barplot_figure_data', 'data'),
+    prevent_initial_call=True
+)
+def export_tax_comp_fig_data(button_click, 
+                             fig_data):
+    fig_data_df = pd.read_json(
+        StringIO(fig_data))
+    return dcc.send_data_frame(fig_data_df.to_csv, "taxonomy_composition.tsv", sep="\t")
+
+@app.callback(
+    Output('export_taxonomy_figure_data', 'disabled'),
+    Input('taxonomy_barplot_figure_data', 'data'),
+)
+def activate_tax_comp_fig_button(fig_data):
+    if fig_data is None:
+        return True
+    return False
+
+
+@app.callback(
+    Output('download_taxonomy_composition_de_novo_csv', 'data'),
+    Input('export_taxonomy_eval_button', 'n_clicks'),
+    State('peptides', 'data'),
+    State("barplot_de_novo_sample_items", "value"),
+    State('barplot_taxa_quantification_column', 'value'),
+    State('global_annot_de_novo_only_checkbox', 'value'),
+    prevent_initial_call=True
+)
+def export_de_novo_tax_composition(button_click, 
+                                   peptide_json,
+                                   sample_name,
+                                   quant_method,
+                                   glob_annot_de_novo_only):
+    if peptide_json is None:
+        raise PreventUpdate
+    
+    quant_col = 'PSM Count' if quant_method == 'Match Count' else 'Area'
+    
+    # import peptide dataset
+    peptide_df = MetaPepTable.read_json(peptide_json).data
+    peptide_df = peptide_df[peptide_df['Sample Name'] == sample_name]
+
+    # reshape data: change sample name to metagenome annotation or unipept annotation
+    peptide_df, db_search_col, unipept_col = reshape_taxonomy_df_to_denovo(
+        peptide_df, 
+        glob_annot_de_novo_only
+    )
+        
+    tax_comp_df = []
+    for current_rank in GlobalConstants.standard_lineage_ranks:
+        rank_groups = (peptide_df[[current_rank + ' Name', 
+                                  'Area', 
+                                  'PSM Count', 
+                                  'Sample Name']]
+                       .groupby([current_rank + ' Name', 'Sample Name'])
+        )
+        group_aggs = rank_groups[['Area', 'PSM Count']].agg('sum')
+        group_aggs = group_aggs.rename_axis(['Taxonomy Name', 'Sample Name']).reset_index()
+        group_aggs['Taxonomy Rank'] = current_rank
+        tax_comp_df.append(group_aggs) 
+    tax_comp_df = pd.concat(tax_comp_df).reset_index(drop=True)
+
+    # arrange two sample data next to each other
+    pivot_df = tax_comp_df.pivot(index=["Taxonomy Name", "Taxonomy Rank"],
+                                 columns="Sample Name",
+                                 values=quant_col)
+    pivot_df = pivot_df.reset_index()
+
+    # if no values present in any sample name, replace with empty values    
+    if db_search_col not in pivot_df.columns: pivot_df[db_search_col] = np.nan
+    if unipept_col not in pivot_df.columns: pivot_df[unipept_col] = np.nan
+
+    # calculate ratio in final column
+    pivot_df[f"Ratio {db_search_col} / {unipept_col}"] = (pivot_df[db_search_col] / pivot_df[unipept_col]).round(decimals=3)
+    
+    # order data by rank and by total PSM (fractions) between samples
+    quant_arg_sort = (pivot_df[db_search_col].fillna(0) + 
+                      pivot_df[unipept_col].fillna(0)).argsort()[::-1]
+    pivot_df = pivot_df.loc[quant_arg_sort, :]
+    pivot_df = pivot_df.sort_values(by="Taxonomy Rank", 
+                                    key=lambda x: x.apply(GlobalConstants.standard_lineage_ranks.index)
+    )
+    pivot_df = pivot_df.reset_index(drop=True)
+
+    return dcc.send_data_frame(pivot_df.to_csv, "composition_local_vs_unipept.tsv", sep="\t")

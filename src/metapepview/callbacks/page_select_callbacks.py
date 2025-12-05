@@ -17,12 +17,12 @@ page_options = {
     'sidebar_taxonomy_button': [taxonomy_sample_analysis],
     'sidebar_taxonomy_de_novo_button': [taxonomy_de_novo_analysis],
     'sidebar_functional_button': [functional_annotation_page],
+    # 'project_page_validation_button': [ms_performance]
 }
 
 @app.callback(
     [Output(component_id='content_div', component_property='children')] +\
-    [Input(component_id=i, component_property='active') for i in page_options.keys()],
-
+    [Input(component_id=i, component_property='active') for i in page_options.keys()]
 )
 def update_tab(*args):
     page_blocks = list(page_options.values())

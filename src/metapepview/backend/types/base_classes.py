@@ -63,7 +63,7 @@ class DataValidator(Protocol):
             # try to convert columns to floats, this may fail if other ambiguous strings are present
             try:
                 input_df.loc[:, not_numeric] = input_df.loc[:, not_numeric].astype(float)
-            except ValueError:
+            except Exception as e:
                 err_msg = "Invalid format, non-numeric values encountered in numeric columns"
                 return (False, err_msg)
         

@@ -5,7 +5,6 @@ from metapepview.html_templates import *
 from metapepview.constants import GlobalConstants as gc
 
 
-
 sample_options_block = [
     html.Div(
         [
@@ -73,14 +72,33 @@ sample_options_block = [
         className="d-flex justify-content-between"
     ),
 
-    # proteomics_data,
-    # de_novo_data,
-    # taxonomic_annotation,
-    # functional_annotation,
-
     dcc.Store(id="current_taxonomy_db_loc"),
     # dcc.Store(id="valid_import_data"),
 ]
+
+
+spectral_data_options_block = [
+    html.Div(
+        [
+            html.H3("Add Experiment evaluation data"),
+            html.Div(
+            [
+                dbc.Spinner(html.Div(id="spectral_import_loading_spot", style={"width": "5rem"})),
+                html.Div(
+                    dbc.Button("Add sample", id="start_spectral_import_button",
+                            color="primary",
+                            className="px-3"),
+                    id="start_spectral_import_button_wrapper",
+                    className="me-1"
+                ),
+                html.Div(id="spectral_import_hint")
+            ],
+            className="d-flex align-items-center")
+        ],
+        className="d-flex justify-content-between"
+    )
+]
+
 
 peptide_data_block = html.Div(
     [
@@ -100,8 +118,10 @@ peptide_data_block = html.Div(
                 ),
                 html.Div(
                     [
-                        dbc.Button('Clear project', id='clear_peptides_data', className="px-3 me-2"),
-                        dbc.Button('Export project dataset as csv', id='export_peptides_csv', className="px-3 me-2"),
+                        dbc.Button('Clear project', 
+                                   id='clear_peptides_data', 
+                                   n_clicks=0,
+                                   className="px-3 me-2"),
                         dbc.Button('Export project', id='export_peptides_json', className="px-3 me-2"),
                         dcc.Upload(
                             [
@@ -125,12 +145,12 @@ peptide_data_block = html.Div(
             style={'float': 'bottom'},
             className="d-flex justify-content-between my-3 mx-3"
         ),
-        html.Hr(className="my-0 py-0"),
-        html.Div(
-            configure_metadata_format_container(),
-            style={'float': 'bottom'},
-            className="d-flex justify-content-between my-0 mx-0"
-        ),
+        # html.Hr(className="my-0 py-0"),
+        # html.Div(
+        #     configure_metadata_format_container(),
+        #     style={'float': 'bottom'},
+        #     className="d-flex justify-content-between my-0 mx-0"
+        # ),
     ],
     className="border border-1 bg-light rounded-3 shadow-sm",
 )
@@ -475,7 +495,9 @@ db_search_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "db_search_psm_upload", "db_search_psm_import_txt", "db_search_psm_valid",
+                "db_search_psm_upload", 
+                "db_search_psm_import_txt", 
+                "db_search_psm_valid",
                 format_options=gc.db_search_dropdown_options,
                 format_id="db_search_psm_format",
                 allow_multiple=True
@@ -594,6 +616,115 @@ function_map_import_block = [
 ]
 
 
+spectral_data_import_block = [
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("Spectral File (mzML)")
+                ],
+                className="d-flex justify-content-between mb-4 align-items-center"
+            ),
+            annotation_mini_importer_block(
+                "mzml_upload", "mzml_name_txt", "mzml_valid"
+            )
+        ],
+        className="mx-4 mb-3"
+    ),
+    html.Hr(className="w-100 my-0"),
+    html.Div(
+        ["No file..."],
+        id="mzml_name",
+        className="px-4 pt-3 overflow-auto",
+        style={"height": "10rem"}
+    ),
+]
+
+
+feature_data_import_block = [
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("Features (featureXML)")
+                ],
+                className="d-flex justify-content-between mb-4 align-items-center"
+            ),
+            annotation_mini_importer_block(
+                "features_upload", "features_name_txt", "features_valid"
+            )
+        ],
+        className="mx-4 mb-3"
+    ),
+    html.Hr(className="w-100 my-0"),
+    html.Div(
+        ["No file..."],
+        id="features_name",
+        className="px-4 pt-3 overflow-auto",
+        style={"height": "10rem"}
+    ),
+]
+
+
+db_search_qa_import_block = [
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("DB search"),
+                ],
+                className="d-flex justify-content-between mb-4 align-items-center"
+            ),
+            annotation_mini_importer_block(
+                "db_search_psm_qa_upload", 
+                "db_search_psm_qa_import_txt", 
+                "db_search_psm_qa_valid",
+                format_options=gc.db_search_dropdown_options,
+                format_id="db_search_psm_qa_format",
+                allow_multiple=False
+            ),
+        ],
+        className="mx-4 mb-3"
+    ),
+    html.Hr(className="w-100 my-0"),
+    html.Div(
+        ["No file..."],
+        id="db_search_psm_qa_name",
+        className="px-4 pt-3 overflow-auto",
+        style={"height": "10rem"}
+    ),
+]
+
+
+de_novo_qa_import_block = [
+    html.Div(
+        [
+            html.Div(
+                [
+                    html.H4("De novo"),
+                ],
+                className="d-flex justify-content-between mb-4 align-items-center"
+            ),
+            annotation_mini_importer_block(
+                "denovo_qa_upload", "denovo_qa_import_txt", "denovo_qa_valid",
+                format_options=gc.de_novo_dropdown_options,
+                format_id="denovo_qa_format",
+                allow_multiple=False
+            )
+        ],
+        className="mx-4 mb-3"
+    ),
+    html.Hr(className="w-100 my-0"),
+    html.Div(
+        ["No file..."],
+        id="denovo_qa_name",
+        className="px-4 pt-3 overflow-auto",
+        style={"height": "10rem"}
+    ),
+]
+
+
+
 data_import_container = configure_import_container(
     db_search_block=db_search_import_block,
     de_novo_block=de_novo_import_block,
@@ -602,9 +733,67 @@ data_import_container = configure_import_container(
 )
 
 
+spectral_data_import_container = [
+    html.Div(
+        [
+            html.Div(
+                spectral_data_import_block,
+                id="spec_data_import_box",
+                className="py-3 w-100"
+            )
+        ],
+        className="d-flex",
+        style={"width": "34%"}
+    ),
+    html.Div(
+        [
+            html.Div(className="vr"),
+            html.Div(
+                feature_data_import_block,
+                id="feature_data_import_box",
+                className="py-3 w-100 overflow-visible"
+            )
+        ],
+        className="d-flex",
+        style={"width": "34%"}
+    ),
+    html.Div(
+        [
+            html.Div(className="vr"),
+            html.Div(
+                db_search_qa_import_block,
+                id="db_search_psm_qa_import_box",
+                className="py-3 w-100 overflow-visible",
+            )
+        ],
+        className="d-flex",
+        style={"width": "34%"}
+    ),
+    html.Div(
+        [
+            html.Div(className="vr"),
+            html.Div(
+                de_novo_qa_import_block,
+                id="denovo_qa_import_box",
+                className="py-3 w-100 overflow-visible",
+            )
+        ],
+        className="d-flex",
+        style={"width": "34%"}
+    )
+]
+
+
 import_block = html.Div(
     [
         peptide_data_block,
+        dbc.Alert(
+            id="qa_data_import_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
         dbc.Alert(
             id="peptides_import_format_alert",
             dismissable=True,
@@ -634,7 +823,21 @@ import_block = html.Div(
             className="mt-3"
         ),
         dbc.Alert(
+            id="de_novo_qa_format_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
+        dbc.Alert(
             id="db_search_format_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
+        dbc.Alert(
+            id="db_search_qa_format_alert",
             dismissable=True,
             is_open=False,
             color="danger",
@@ -651,32 +854,141 @@ import_block = html.Div(
         de_novo_options_modal,
         taxonomy_map_options_modal,
         function_map_options_modal,
-        html.Div(
+        html.H3("Data importers", className="mx-3 mt-3 mb-1"),
+        html.Div(html.A(html.I("Guide: how to prepare data for import", 
+                               style={"font-size": "0.9vw"}), 
+            href=gc.docs_data_prep_url, target="_blank"), className="ms-3 py-1"),
+        dbc.Accordion(
             [
-                html.Div(
-                    sample_options_block,
-                    id="peptide_import_container",
-                    className="p-3",
-                    #style={"height": "31rem"}
+                dbc.AccordionItem(
+                    html.Div(
+                        [
+                            html.Div(
+                                spectral_data_options_block,
+                                className="p-3",
+                                #style={"height": "31rem"}
+                            ),
+                            html.Hr(className="m-0"),
+                            html.Div(
+                                spectral_data_import_container,
+                                id="spectral_data_import_container",
+                                className="d-flex",
+                            )
+                        ],
+                        # className="border border-2 my-3 bg-light rounded-3 shadow-sm",
+                        className="bg-light p-0 m-0",
+                    ),
+                    title="Import performance evaluation dataset"
                 ),
-                html.Hr(className="m-0", style={"color": "#8a8a8a"}),
-                html.Div(html.A(html.I("Guide: how to prepare data for import", 
-                            style={"font-size": "0.9vw"},
-                            ), href=gc.docs_data_prep_url, target="_blank"), className="ms-3 py-2"),
-                html.Hr(className="m-0"),
-                html.Div(
-                    data_import_container,
-                    id="data_import_container",
-                    className="d-flex",
+                dbc.AccordionItem(
+                    html.Div(
+                        [
+                            html.Div(
+                                sample_options_block,
+                                id="peptide_import_container",
+                                className="p-3",
+                                #style={"height": "31rem"}
+                            ),
+                            # html.Hr(className="m-0", style={"color": "#8a8a8a"}),
+                            html.Hr(className="m-0"),
+                            html.Div(
+                                data_import_container,
+                                id="data_import_container",
+                                className="d-flex",
+                            )
+                        ],
+                        # className="border border-2 my-3 bg-light rounded-3 shadow-sm",
+                        className="bg-light p-0 m-0",
+                    ),
+                    title="Import sample compositions/functions",
+                    className="m-0 p-0"
                 ),
-                # html.Hr(className="m-0"),
-
             ],
-            className="border border-2 my-3 bg-light rounded-3 shadow-sm",
+            always_open=False,
+            start_collapsed=True,
+            className="mt-1 mb-3"
         ),
         html.Div(
             [
-                html.H3("Samples in project", className="ps-3 pt-3"),
+                html.H3("Project data", className="ps-3 pt-3 pb-3"),
+                html.Hr(className="m-0", style={"color": "#8a8a8a"}),
+
+                html.Div(
+                    [
+                        html.H4("Performance evaluation dataset"),
+                        dbc.Button('Clear data',
+                                   n_clicks=0, 
+                                   id='clear_spectral_dataset', 
+                                   className="me-2"),
+                    ],
+                    className="d-flex px-3 pt-3 justify-content-between align-items-center"
+                ),
+
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                html.H5("Spectra: ", className="text-secondary mb-0 pb-0"),
+                                html.H6("-", 
+                                        id="mzml_store_name",
+                                        className="ms-3 mb-0 pb-0")
+                            ],
+                            className="d-flex align-items-end",
+                            style={"width": "50%"}
+                        ),
+                        html.Div(
+                            [
+                                html.H5("Features: ", className="text-secondary mb-0 pb-0"),
+                                html.I(id="feature_store_valid",
+                                       className="bi me-3 ms-3 fs-5 bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
+                                # html.H6("spec.featureXML", className="ps-4")
+                            ], 
+                            className="d-flex align-items-center",
+                            style={"width": "50%"}
+                        ),
+                        html.Div(
+                            [
+                                html.H5("DB search data: ", className="text-secondary mb-0 pb-0"),
+                                html.I(id="db_search_qa_store_valid",
+                                       className="bi me-3 ms-3 fs-5 bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
+                                html.H6(id="db_search_qa_store_format",
+                                        className="mb-0 pb-0")
+                            ], 
+                            className="d-flex align-items-center",
+                            style={"width": "50%"}
+                        ),
+                        html.Div(
+                            [
+                                html.H5("De novo data: ", className="text-secondary mb-0 pb-0"),
+                                html.I(id="de_novo_qa_store_valid",
+                                       className="bi me-3 ms-3 fs-5 bi-x-circle-fill me-3 ms-3 fs-5 text-danger"),
+                                html.H6(id="de_novo_qa_store_name",
+                                        className="mb-0 pb-0")
+                            ], 
+                            className="d-flex align-items-center",
+                            style={"width": "50%"}
+                        ),
+
+                    ],
+                    style={"background-color": "#ffffff"},
+                    className="d-flex justify-content-between align-items-center border border-2 px-3 py-2 mx-2 my-3 rounded-2",
+                ),
+
+
+                html.Div(
+                    [
+
+                        html.H4("Compositions and functions dataset"),
+                        dbc.Button('Export annotations as csv', id='export_peptides_csv', className="me-2"),
+                    ],
+                    className="d-flex px-3 pt-3 pb-2 justify-content-between align-items-center"
+                ),
+                html.Hr(className="my-0 py-0 mx-2"),
+                html.Div(
+                    configure_metadata_format_container(),
+                    style={'float': 'bottom'},
+                    className="d-flex justify-content-between my-0 mx-0"
+                ),                
                 html.Div(
                     [
                         dash_table.DataTable(
@@ -697,11 +1009,11 @@ import_block = html.Div(
                     ],
                     id="sample_table",
                     className="",
-                    style={"margin": "0rem 0rem", "padding": "0.5rem"}
+                    style={"margin": "0rem 0rem", "padding": "0rem 0.5rem 0.5rem 0.5rem"}
                 ),
             ],
             className="border border-2 my-3 bg-light rounded-3 shadow-sm",
-        ),
+        )
     ],
     id="import_block",
     style={"margin": "1rem"}
