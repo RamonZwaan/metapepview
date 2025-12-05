@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#preparing-input-data-for-metapepview" class="md-skip">
+        <a href="#preparing-input-data-for-meta-pepview" class="md-skip">
           Skip to content
         </a>
       
@@ -314,13 +314,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#important-always-consider-the-protein-id-format-when-processing-proteomics-and-annotation-data" class="md-nav__link">
+  <a href="#important-when-importing-metaproteomics-and-annotation-data-for-community-analysis-always-consider-the-protein-id-format" class="md-nav__link">
     <span class="md-ellipsis">
-      IMPORTANT: Always consider the protein ID format when processing proteomics and annotation data
+      IMPORTANT: When importing metaproteomics and annotation data for community analysis, always consider the protein ID format.
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="IMPORTANT: Always consider the protein ID format when processing proteomics and annotation data">
+    <nav class="md-nav" aria-label="IMPORTANT: When importing metaproteomics and annotation data for community analysis, always consider the protein ID format.">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -635,7 +635,7 @@
   
   
   <span class="md-ellipsis">
-    Project table
+    Project data
     
   </span>
   
@@ -1009,13 +1009,13 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#important-always-consider-the-protein-id-format-when-processing-proteomics-and-annotation-data" class="md-nav__link">
+  <a href="#important-when-importing-metaproteomics-and-annotation-data-for-community-analysis-always-consider-the-protein-id-format" class="md-nav__link">
     <span class="md-ellipsis">
-      IMPORTANT: Always consider the protein ID format when processing proteomics and annotation data
+      IMPORTANT: When importing metaproteomics and annotation data for community analysis, always consider the protein ID format.
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="IMPORTANT: Always consider the protein ID format when processing proteomics and annotation data">
+    <nav class="md-nav" aria-label="IMPORTANT: When importing metaproteomics and annotation data for community analysis, always consider the protein ID format.">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1204,24 +1204,24 @@
 
 
 
-<h1 id="preparing-input-data-for-metapepview">Preparing input data for MetaPepView</h1>
-<p>MetaPepView combines metaproteomics data (DB search, <em>de novo</em>), raw spectral data, and protein annotation data (taxonomy, functional) from several sources to provide interactive microbial community visualization and experiment evaluation. This section provides detailed information how to obtain input data for processing with MetaPepView, as well as considerations for data formatting to correctly parse and combine input data.</p>
-<h2 id="important-always-consider-the-protein-id-format-when-processing-proteomics-and-annotation-data"><img alt="⚠" class="twemoji yellow" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> IMPORTANT: Always consider the protein ID format when processing proteomics and annotation data</h2>
-<p>MetaPepView adds taxonomic and functional information to identified peptides (from <a href="./#import-db-search-matching-data">DB search matching</a>) by linking their IDs to taxonomy and function IDs from user-provided <a href="./#annotation-data">annotation files</a>. Usually, this ID is the <em>protein ID</em> from the sequence database used in DB search matching (which has to be provided in all files). The protein ID is often derived from the headers of a fasta file.</p>
+<h1 id="preparing-input-data-for-meta-pepview">Preparing input data for meta-PepView</h1>
+<p>Meta-PepView combines metaproteomics data (DB search, <em>de novo</em>), raw spectral data (mzML, featureXML), and protein annotation data (taxonomy, functional) from several sources to provide interactive microbial community visualization and experiment evaluation. This section provides detailed information how to obtain input data for processing with meta-PepView, as well as considerations for data formatting to correctly parse and combine input data.</p>
+<h2 id="important-when-importing-metaproteomics-and-annotation-data-for-community-analysis-always-consider-the-protein-id-format"><img alt="⚠" class="twemoji yellow" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/26a0.svg" title=":warning:" /> IMPORTANT: When importing metaproteomics and annotation data for community analysis, always consider the protein ID format.</h2>
+<p>Meta-PepView adds taxonomic and functional information to identified peptides (from <a href="./#import-db-search-matching-data">DB search matching</a>) by linking their IDs to taxonomy and function IDs from user-provided <a href="./#annotation-data">annotation files</a>. This ID may be the peptide sequence string, or the <em>protein ID</em> from the sequence database used in DB search matching (which has to be provided in all files). The protein ID is often derived from the headers of a fasta file.</p>
 <p>A major difficulty in data processing is maintaining consistency in protein ID extraction from the fasta header across input file sources (DB search, taxonomy, function annotation files). This is especially apparent in standardized fasta header formats.</p>
 <p>For example, the fasta header of the Uniprot entry for an alcohol dehydrogenase in yeast looks like this:</p>
 <div class="highlight"><pre><span></span><code>&gt;sp|P00331|ADH2_YEAST Alcohol dehydrogenase 2 OS=Saccharomyces cerevisiae (strain ATCC 204508 / S288c) OX=559292 GN=ADH2 PE=1 SV=3
 </code></pre></div>
-<p>The official Uniprot ID for this protein is <code>P00331</code>. Some data processing sources are informed of the Uniprot header format and will identify this protein correctly as <code>P00331</code>. However, other sources may take a general approach to get the protein ID and extract up to the first white-space, resulting in a different "ID": <code>sp|P00331|ADH2_YEAST</code>. As a result, information cannot be linked between two sources that use different extraction rules. </p>
+<p>The official Uniprot ID for this protein is <code>P00331</code>. Some data processing sources are informed of the Uniprot header format and will identify this protein correctly as <code>P00331</code>. However, other sources may take a general approach to get the protein ID and extract up to the first white-space, resulting in a different ID: <code>sp|P00331|ADH2_YEAST</code>. As a result, information cannot be linked between two sources that use different extraction rules. </p>
 <h3 id="how-to-process-protein-ids">How to process protein IDs</h3>
 <p>It is important to ensure that the protein ID is extracted in the same way for all data processing sources (<a href="./#metaproteomics-data">metaproteomics</a> and <a href="./#taxonomyfunction-annotation-data">annotation data</a>). It is recommended to extract a protein ID from the fasta header <strong>up to the first white-space</strong>. In most cases, this retains the full identifier to discern all proteins. Additionally, a manual check of the datasets is recommended to ensure that protein ID formats match between sources.</p>
-<p>Finally, if protein IDs do not match between input data sources, MetaPepView provides an option to define custom <em>regular expressions</em> to extract substrings from the protein ID values.</p>
+<p>Finally, if protein IDs do not match between input data sources, meta-PepView provides an option to define custom <em>regular expressions</em> to extract substrings from the protein ID values.</p>
 <div class="admonition example">
 <p class="admonition-title">Example</p>
 <p>The Uniprot protein ID <code>P00331</code> from the reported ID <code>sp|P00331|ADH2_YEAST</code> may be extracted with a regular expression that extracts all the text between the two "|" characters: <code>(?&lt;=\|).+(?=\|)</code>. The expression '<code>(?&lt;=\|)</code>' means: look <em>behind</em> the "|" character and extract the pattern that corresponds to the regex after the "|". The expression '<code>(?=\|)</code>' means: look <em>before</em> the "|" character and extract the pattern that corresponds to the regex before it. Finally, the middle section '<code>.+</code>' means extract any one or more characters.</p>
 </div>
 <h2 id="metaproteomics-data">Metaproteomics data</h2>
-<p>MetaPepView takes peptide identified scans as input for community processing. It supports direct import of peptide identification results from several <em>DB search matching</em> and <em>de novo</em> search tools. The general format of such datasets look like this:</p>
+<p>Meta-PepView takes peptide identified scans as input for community processing. It supports direct import of peptide identification results from several <em>DB search matching</em> and <em>de novo</em> search tools. The general format of such datasets look like this:</p>
 <table>
 <thead>
 <tr>
@@ -1279,23 +1279,23 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>MetaPepView has been tested on Thermo Fisher Scientific Orbitrap Mass spectrometers, where acquisition of spectra has been done in <em>Data-Dependent Acquisition</em> (DDA) mode. Support of other MS systems or acquisition modes is not guaranteed. </p>
+<p>Meta-PepView has been tested on Thermo Fisher Scientific Orbitrap Mass spectrometers, where acquisition of spectra has been done in <em>Data-Dependent Acquisition</em> (DDA) mode. Support of other MS systems or acquisition modes is not guaranteed. </p>
 </div>
 <h3 id="import-db-search-matching-data">Import DB search matching data</h3>
 <p>DB search matching engines identify peptide sequences from raw mass spectrometry data by matching MS2 spectra against theoretical spectra derived from a user supplied protein sequence database (as fasta). This results in a dataset of scans with matched peptide sequences, and also shows to what proteins match to the peptides. Through decoy strategies, the <em>False Discovery Rate</em> can be calculated and subsequently controlled in the output data. Many search engines do this internally, eliminating the need for pre-filtering during data processing.</p>
-<p>The following DB search engines are supported in MetaPepView:</p>
+<p>The following DB search engines are supported in meta-PepView:</p>
 <ul>
-<li><a href="https://sage-docs.vercel.app/">Sage</a>: MetaPepView supports direct import of the <code>results.sage.tsv</code> file generated by Sage.</li>
-<li><a href="https://www.bioinfor.com/peaks-11/">Peaks Studio 10/11</a>: MetaPepView supports direct import of the <code>DB search psm.csv</code> (Peaks Studio 10) or <code>db.psms.csv</code> (Peaks Studio 11) export data.</li>
-<li><a href="https://www.maxquant.org/">MaxQuant</a>: MetaPepView supports direct import of <code>evidence.txt</code> file generated by MaxQuant</li>
+<li><a href="https://sage-docs.vercel.app/">Sage</a>: Meta-PepView supports direct import of the <code>results.sage.tsv</code> file generated by Sage.</li>
+<li><a href="https://www.bioinfor.com/peaks-11/">Peaks Studio 10/11</a>: Meta-PepView supports direct import of the <code>DB search psm.csv</code> (Peaks Studio 10) or <code>db.psms.csv</code> (Peaks Studio 11) export data.</li>
+<li><a href="https://www.maxquant.org/">MaxQuant</a>: Meta-PepView supports direct import of <code>evidence.txt</code> file generated by MaxQuant</li>
 </ul>
 <h3 id="import-de-novo-identification-data">Import <em>de novo</em> identification data</h3>
 <p><em>De novo</em> search engines identify peptide sequences directly from raw mass spectrometry data without use of a protein sequence database. While it is easy to set up such an analysis as there is no need to prepare a sequence database, it also provides a peptide identification method that is not affected by potential biases that may emerge from the protein sequence database. On the other hand, a lack of spectrum matching decreases the confidence of identified peptide sequences, resulting in much fewer and potentially inaccurate peptide identifications. In addition, there is no robust decoy strategy to estimate the False Discovery Rate from the identified peptides.</p>
-<p>The following <em>de novo</em> identification engines are supported in MetaPepView:</p>
+<p>The following <em>de novo</em> identification engines are supported in meta-PepView:</p>
 <ul>
-<li><a href="https://www.bioinfor.com/peaks-11/">Peaks Studio 10/11</a>: MetaPepView supports direct import of the <code>de novo peptides.csv</code> (Peaks Studio 10) or <code>XXX.denovo.csv</code> (Peaks Studio 11) export data (<code>XXX</code> refers to the project name).</li>
-<li><a href="https://compomics.github.io/projects/searchgui">Novor (SearchGUI)</a>: MetaPepView supports direct import of <code>XXX.novor.csv</code> generated from the Novor engine in SearchGUI. NOTE: <em>de novo</em> sequencing reports from <a href="https://novor.cloud/">novor.cloud</a> are a different format and is not supported inside MetaPepView as of yet.</li>
-<li><a href="https://casanovo.readthedocs.io/en/latest/">Casanovo</a>: MetaPepView supports direct import of <code>XXX.mztab</code> <em>de novo</em> results generated from Casanovo.</li>
+<li><a href="https://www.bioinfor.com/peaks-11/">Peaks Studio 10/11</a>: Meta-PepView supports direct import of the <code>de novo peptides.csv</code> (Peaks Studio 10) or <code>XXX.denovo.csv</code> (Peaks Studio 11) export data (<code>XXX</code> refers to the project name).</li>
+<li><a href="https://compomics.github.io/projects/searchgui">Novor (SearchGUI)</a>: Meta-PepView supports direct import of <code>XXX.novor.csv</code> generated from the Novor engine in SearchGUI. NOTE: <em>de novo</em> sequencing reports from <a href="https://novor.cloud/">novor.cloud</a> are a different format and is not supported inside meta-PepView as of yet.</li>
+<li><a href="https://casanovo.readthedocs.io/en/latest/">Casanovo</a>: Meta-PepView supports direct import of <code>XXX.mztab</code> <em>de novo</em> results generated from Casanovo.</li>
 </ul>
 <h3 id="dashboard-features-per-input-format">Dashboard features per input format</h3>
 <p>Depending on the input format, some dashboard features may not be present due to the absence of some data fields in the input. The following features may be absent depending on the input format:</p>
@@ -1342,19 +1342,19 @@
 </table>
 <h2 id="taxonomyfunction-annotation-data">Taxonomy/Function annotation data</h2>
 <h3 id="import-taxonomy-annotation-data">Import taxonomy annotation data</h3>
-<p>Taxonomy annotation adds taxonomic information to the identified peptides by mapping their corresponding protein IDs or peptide sequence to taxonomy IDs (In MetaPepView, the protein ID/peptide sequence is referred to as <em>Accession</em>). Unfortunately, tools that provide taxonomy information to proteins in a well defined format are sparse. Generally, it is recommended to extract taxonomy information from <a href="https://www.uniprot.org/">Uniprot</a> by performing alignment of the UniprotKB database to a local protein fasta (for example derived from a metagenome), or by downloading a protein fasta in Uniprot format. Detailed information how to generate your own taxonomy annotation is shown in <a href="./#generating-your-own-taxonomy-annotation-data">Generating your own taxonomy annotation data</a>.</p>
-<p>However, for quick and easy taxonomy annotation. MetaPepView provides direct import of <a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a> taxonomy results. While it is designed for functional annotation, GhostKOALA also provides taxonomy information to proteins at the <em>Genus</em> level. However, as the KEGG database is smaller than Uniprot and NCBI, and taxonomy resolution is capped at <em>Genus</em> level. The taxonomy information provided from this dataset is limited and biases may be present in the composition.</p>
+<p>Taxonomy annotation adds taxonomic information to the identified peptides by mapping their corresponding protein IDs or peptide sequence to taxonomy IDs (In meta-PepView, the protein ID/peptide sequence is referred to as <em>Accession</em>). Unfortunately, tools that provide taxonomy information to proteins in a well defined format are sparse. Generally, it is recommended to extract taxonomy information from <a href="https://www.uniprot.org/">Uniprot</a> by performing alignment of the UniprotKB database to a local protein fasta (for example derived from a metagenome), or by downloading a protein fasta in Uniprot format. Detailed information how to generate your own taxonomy annotation is shown in <a href="./#generating-your-own-taxonomy-annotation-data">Generating your own taxonomy annotation data</a>.</p>
+<p>However, for quick and easy taxonomy annotation. Meta-PepView provides direct import of <a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a> taxonomy results. While it is designed for functional annotation, GhostKOALA also provides taxonomy information to proteins at the <em>Genus</em> level. However, as the KEGG database is smaller than Uniprot and NCBI, and taxonomy resolution is capped at <em>Genus</em> level. The taxonomy information provided from this dataset is limited and biases may be present in the composition.</p>
 <h4 id="taxonomy-annotation-from-ghostkoala">Taxonomy annotation from GhostKOALA</h4>
-<p>The easiest method to provide taxonomy information is by directly importing <a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a> results. To import taxonomy information from GhostKOALA results, select the format "GhostKOALA" in the taxonomy annotation box. To generate the results, start a job in the GhostKOALA dashboard, using the same protein fasta file used in <a href="./#import-db-search-matching-data">DB search matching</a>. After the job is finished, the results can be downloaded from the results page. MetaPepView expects the <em>Taxonomy data</em> results provided by GhostKOALA. This usually is stored in the file <code>user.out.top</code>.</p>
+<p>The easiest method to provide taxonomy information is by directly importing <a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a> results. To import taxonomy information from GhostKOALA results, select the format "GhostKOALA" in the taxonomy annotation box. To generate the results, start a job in the GhostKOALA dashboard, using the same protein fasta file used in <a href="./#import-db-search-matching-data">DB search matching</a>. After the job is finished, the results can be downloaded from the results page. Meta-PepView expects the <em>Taxonomy data</em> results provided by GhostKOALA. This usually is stored in the file <code>user.out.top</code>.</p>
 <p><img alt="gKOALA_results.PNG" src="../images/gKOALA_results.png" />
 <em>Results page after annotation job is finished. Download taxonomy and function information from the 'Taxonomy data' field. This downloads the <code>user.out.top</code> output file (compressed in zip archive).</em></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>GhostKOALA adds <code>user:</code> as prefix before each accession ID. This is automatically filtered out by MetaPepView. Therefore, no regular expression pattern is needed to manage the <code>user:</code> prefix.</p>
+<p>GhostKOALA adds <code>user:</code> as prefix before each accession ID. This is automatically filtered out by meta-PepView. Therefore, no regular expression pattern is needed to manage the <code>user:</code> prefix.</p>
 </div>
 <p>This dataset includes both taxonomy and function information, and can therefore also be used as <a href="./#functional-annotation">functional annotation</a> dataset.</p>
 <h4 id="generating-your-own-taxonomy-annotation-data">Generating your own taxonomy annotation data</h4>
-<p>To provide detailed taxonomy information for a microbial community, it is recommended to generate the protein-to-taxonomy-mapping yourself in GTDB or NCBI format. Here, MetaPepView expects a tabular text format (e.g. <code>csv</code>, <code>tsv</code>, etc.) that provides an accession column that matches the protein IDs/peptide sequences from the <a href="./#import-db-search-matching-data">DB search</a> dataset, and a <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI</a> or <a href="https://gtdb.ecogenomic.org/">GTDB</a> format taxonomy ID column:</p>
+<p>To provide detailed taxonomy information for a microbial community, it is recommended to generate the protein-to-taxonomy-mapping yourself in GTDB or NCBI format. Here, meta-PepView expects a tabular text format (e.g. <code>csv</code>, <code>tsv</code>, etc.) that provides an accession column that matches the protein IDs/peptide sequences from the <a href="./#import-db-search-matching-data">DB search</a> dataset, and a <a href="https://www.ncbi.nlm.nih.gov/taxonomy">NCBI</a> or <a href="https://gtdb.ecogenomic.org/">GTDB</a> format taxonomy ID column:</p>
 <table>
 <thead>
 <tr>
@@ -1404,10 +1404,10 @@
 </tr>
 </tbody>
 </table>
-<p>Ideally, the dataset should be non-redundant for protein IDs/peptide sequences, where every protein ID is only present once. However, many alignment tools provide <em>top n</em> reporting of matches, causing a single accession to be reported multiple times (often with different taxonomy IDs). If there is redundancy in accessions, MetaPepView will resolve the taxonomy ID for each accession internally. In case a single accession is linked to different taxonomy IDs, MetaPepView will compute the <a href="https://en.wikipedia.org/wiki/Most_recent_common_ancestor">Last Common Ancestor</a> taxonomy ID to which all reported taxonomies are descended from. However, if the dataset is large and has strong redundancy, this may take some time to process.  </p>
-<p>The standard format expected by MetaPepView is a <code>tsv</code> file (delimiter <code>\t</code>) with <strong>Accession</strong> (protein ID/peptide sequence) as the first column (Accession column index <code>0</code>) and taxonomy ID as second column (Taxonomy column index <code>1</code>). However, MetaPepView provides several options to read differently formatted files, as shown in <a href="../data-import/#taxonomy-annotation">Data Import section</a>.</p>
+<p>Ideally, the dataset should be non-redundant for protein IDs/peptide sequences, where every protein ID is only present once. However, many alignment tools provide <em>top n</em> reporting of matches, causing a single accession to be reported multiple times (often with different taxonomy IDs). If there is redundancy in accessions, meta-PepView will resolve the taxonomy ID for each accession internally. In case a single accession is linked to different taxonomy IDs, meta-PepView will compute the <a href="https://en.wikipedia.org/wiki/Most_recent_common_ancestor">Last Common Ancestor</a> taxonomy ID to which all reported taxonomies are descended from. However, if the dataset is large and has strong redundancy, this may take some time to process.  </p>
+<p>The standard format expected by meta-PepView is a <code>tsv</code> file (delimiter <code>\t</code>) with <strong>Accession</strong> (protein ID/peptide sequence) as the first column (Accession column index <code>0</code>) and taxonomy ID as second column (Taxonomy column index <code>1</code>). However, meta-PepView provides several options to read differently formatted files, as shown in <a href="../data-import/#taxonomy-annotation">Data Import section</a>.</p>
 <p>There are several options to customize the taxonomy annotation dataset. The accession may be set to protein ID or peptide sequence, column indices for accession and taxonomy may be customized, and a regex pattern may be given to take only a pattern from the accession (useful if a prefix needs to be removed).</p>
-<p>In addition, MetaPepView can process either <em>taxonomy IDs</em>, or <em>taxonomy names</em> in the input dataset. However, it is strongly recommended to match accessions to taxonomy IDs; In NCBI, one taxonomy ID may be assigned multiple taxonomy names (aliases), or multiple taxonomy IDs may share identical taxonomy names. On the other hand, a taxonomy ID will always represent a unique taxonomy group.</p>
+<p>In addition, meta-PepView can process either <em>taxonomy IDs</em>, or <em>taxonomy names</em> in the input dataset. However, it is strongly recommended to match accessions to taxonomy IDs; In NCBI, one taxonomy ID may be assigned multiple taxonomy names (aliases), or multiple taxonomy IDs may share identical taxonomy names. On the other hand, a taxonomy ID will always represent a unique taxonomy group.</p>
 <h5 id="how-to-obtain-accession-taxonomy-map-dataset">How to obtain accession-taxonomy map dataset</h5>
 <p>Taxonomy information from protein IDs may be obtained from the Uniprot database. Here, taxonomy IDs are easily linked to the protein ID from the fasta header:</p>
 <p><strong>UniprotKB format:</strong> (Taxonomy ID in <code>OX=...</code> field)
@@ -1429,43 +1429,43 @@ VTATGAWFATPPPITPRSTVGAGDSSLAGYVLADLDGADGAGRLARAVAYGSAAAALPGT
 RLPTPTDVHVDAVPVRSLSLPGSSALARHTS
 </code></pre></div></p>
 <p>If <a href="./#import-db-search-matching-data">DB search matching</a> is done with a Uniprot/Uniref header formatted fasta file as protein sequence database, there are several strategies to obtain a protein ID-taxonomy map. If the fasta was exported from the Uniprot website, the same dataset can be exported in <code>tsv</code> format from the website. Make sure to select the protein ID (<em>Entry</em>) and the taxonomy ID (<em>Organism (ID)</em>).</p>
-<p>Alternatively, an accession-taxonomy-map dataset (using protein IDs) may created directly from the fasta. Below is an example to extract all protein ID-tax pairs from a fasta with a single command using the <code>sed</code> tool in Bash (<strong>Only available in Linux</strong>):</p>
+<p>Alternatively, an accession-taxonomy-map dataset (using protein IDs) may created directly from the fasta. Below is an example to extract all protein ID-tax pairs from a fasta with a single command using the <code>sed</code> tool in Bash (<strong>Only available in Linux or macOS</strong>):</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># Converts UniprotKB formatted fasta to protein-taxonomy map tsv file</span>
 sed<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;s/&gt;(\S+).+OX=([0-9]+).*</span>$<span class="s2">/\1\t\2/p&quot;</span><span class="w"> </span>&lt;uniprot_data.fasta<span class="w"> </span>&gt;./prot_to_tax.tsv
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><span class="c1"># Converts Uniref formatted fasta to protein-taxonomy map tsv file</span>
 sed<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;s/&gt;(\S+).+TaxID=([0-9]+).*</span>$<span class="s2">/\1\t\2/p&quot;</span><span class="w"> </span>&lt;uniref_data.fasta<span class="w"> </span>&gt;./prot_to_tax.tsv
 </code></pre></div>
-<p>If a protein sequence database was derived from a metagenome, or from another unannotated source, the proteins should be aligned against the Uniprot/Uniref database first. It is recommended to perform alignment with <a href="https://github.com/bbuchfink/diamond">Diamond</a> against the full <a href="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/">UniprotKB (Swiss-Prot + TrEMBL)</a> or the full <a href="https://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/">Uniref100</a> database. After annotation, Diamond can provide an output file that maps protein IDs to Uniprot/Uniref IDs. These can be converted into the accession-taxonomy map dataset for MetaPepView.</p>
+<p>If a protein sequence database was derived from a metagenome, or from another unannotated source, the proteins should be aligned against the Uniprot/Uniref database first. It is recommended to perform alignment with <a href="https://github.com/bbuchfink/diamond">Diamond</a> against the full <a href="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/">UniprotKB (Swiss-Prot + TrEMBL)</a> or the full <a href="https://ftp.uniprot.org/pub/databases/uniprot/uniref/uniref100/">Uniref100</a> database. After annotation, Diamond can provide an output file that maps protein IDs to Uniprot/Uniref IDs. These can be converted into the accession-taxonomy map dataset for meta-PepView.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To obtain the output from Diamond in the correct format, configure the output format with the <code>--outfmt/-f</code> flag (see <a href="https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options">Diamond documentation</a>). For example, to get the protein ID and full fasta header (which contains the taxonomy), set output format to <code>--outfmt 6 qseqid stitle</code>. <code>qseqid</code> is the protein ID from the input fasta file, <code>stitle</code> is the full fasta header for the query DB (for example, UniprotKB/Uniref100).</p>
 </div>
 <h5 id="taxonomy-annotation-in-gtdb-format">Taxonomy annotation in GTDB format</h5>
 <p>The Genome Taxonomy Database provides an alternative phylogenetic tree to classify bacteria and archaea. While it does not cover the complete tree of life (Eukaryota are absent), it provides a more consistent dataset compared to NCBI taxonomy. For example, phylogenetic classification is based on sequence identity distances between organisms. Also, the full dataset consists only of sequences with genome representation.</p>
-<p>Providing GTDB taxonomy annotation to protein IDs is more challenging. GTDB does provide a  <a href="https://data.gtdb.ecogenomic.org/releases/latest/genomic_files_reps/">full protein sequence dataset</a>. However, the dataset is packaged as separate genome grouped fasta files. These have to be manually linked into a single protein sequence dataset. In addition, the proteins only provide NCBI genome IDs (For example: <code>GCA_034132005.1</code>) in the header. MetaPepView is able to match these genome IDs to GTDB taxonomy IDs. Therefore, the GTDB protein fasta can be used as alignment database in Diamond. From the output, protein data is matched against the genome ID and a accession-taxonomy map can be constructed.</p>
+<p>Providing GTDB taxonomy annotation to protein IDs is more challenging. While GTDB does provide a  <a href="https://data.gtdb.ecogenomic.org/releases/latest/genomic_files_reps/">full protein sequence dataset</a>, the dataset is packaged as separate genome grouped fasta files. These have to be manually linked into a single protein sequence dataset. In addition, the proteins only provide NCBI genome IDs (For example: <code>GCA_034132005.1</code>) in the header. Meta-PepView is able to match these genome IDs to GTDB taxonomy IDs. Therefore, the GTDB protein fasta can be used as alignment database in Diamond. From the output, protein data is matched against the genome ID and a accession-taxonomy map can be constructed.</p>
 <h3 id="functional-annotation">Functional annotation</h3>
-<p>The functional annotation dataset adds functional information to peptide sequences from <a href="./#import-db-search-matching-data">DB search</a> data. This can be used to quantify the expression of various functional protein groups from the dataset, or to export functional expression pathways. MetaPepView uses the KEGG functional annotation format to assign functional information to peptides.</p>
-<p>MetaPepView supports direct import of output from two common functional annotation tools: </p>
+<p>The functional annotation dataset adds functional information to peptide sequences from <a href="./#import-db-search-matching-data">DB search</a> data. This can be used to quantify the expression of various functional protein groups from the dataset, or to export functional expression pathways. Meta-PepView uses the KEGG functional annotation format to assign functional information to peptides.</p>
+<p>Meta-PepView supports direct import of output from two common functional annotation tools: </p>
 <ul>
-<li><a href="http://eggnog5.embl.de/#/app/home">EggNOG</a>: MetaPepView supports direct import of the <code>XXX.emapper.annotations</code> output file (<code>XXX</code> refers to a user specified prefix).</li>
-<li><a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a>: MetaPepView supports direct import of the <code>user.out.top</code> output file.</li>
+<li><a href="http://eggnog5.embl.de/#/app/home">EggNOG</a>: Meta-PepView supports direct import of the <code>XXX.emapper.annotations</code> output file (<code>XXX</code> refers to a user specified prefix).</li>
+<li><a href="https://www.kegg.jp/ghostkoala/">GhostKOALA</a>: Meta-PepView supports direct import of the <code>user.out.top</code> output file.</li>
 </ul>
 <h2 id="spectral-datasets">Spectral datasets</h2>
-<p>For evaluation of metaproteomics experiments, MetaPepView provides a module for visualization and analysis of spectral mass spectrometry data. For this, MetaPepView expects spectral data in <em>mzML</em> format.</p>
+<p>For evaluation of metaproteomics experiments, meta-PepView provides a module for visualization and analysis of spectral mass spectrometry data. For this, meta-PepView expects spectral data in <em>mzML</em> format.</p>
 <h3 id="spectral-data-mzml">Spectral data (mzML)</h3>
 <p><em>mzML</em> is a human and machine readable format that can be derived from several raw spectral data formats (from mass spectrometers by ThermoFisher, Bruker, <em>etc.</em>). It contains all the observed signals measured in the MS, several additional parameters and properties for each MS scan, and metadata related to the MS run. </p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For spectral data analysis, MetaPepView is designed for analysis of <em>Data-Dependent Acquisition</em> (DDA) MS experiments, and has been tested on QE Orbitrap mass spectrometers. Any spectral data from DDA tandem MS experiments should work. However, <em>Data-Independent Acquisition</em> (DIA) experiments may not be processed properly in MetaPepView.</p>
+<p>For spectral data analysis, meta-PepView is designed for analysis of <em>Data-Dependent Acquisition</em> (DDA) MS experiments, and has been tested on QE Orbitrap mass spectrometers. Any spectral data from DDA tandem MS experiments should work. However, <em>Data-Independent Acquisition</em> (DIA) experiments may not be processed properly in meta-PepView.</p>
 </div>
 <p>The recommended method to generate mzML data is by using the tool <em>MSConvert</em>, provided by <a href="https://proteowizard.sourceforge.io/download.html">ProteoWizard</a>. Peak picking on MS level 1 - 2 should be enabled for mzML generation. Peaks may be compressed with <em>zlib</em>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The browser MetaPepView is displayed in has a file size limit, above which no file import is possible. For Chromium browsers, this size is <strong>~300 MB</strong> while Firefox allows <strong>~500 MB</strong> sizes. To decrease the file size, MetaPepView can work with <em>zip</em> or <em>tar.gz</em> compressed files (mzML file should be the only file in the archive). This should allow import of large MS runs into the dashboard. In the case that the file size is still too large, the mzML file can be shrunk further by setting a <em>peak threshold</em>. By limiting the peak threshold to the 100-200 most intense peaks, great size reduction is reached with minimal loss of valuable information.</p>
+<p>The browser meta-PepView is displayed in has a file size limit, above which no file import is possible. For Chromium browsers, this size is <strong>~300 MB</strong> while Firefox allows <strong>~500 MB</strong> sizes. To decrease the file size, meta-PepView can work with <em>zip</em> or <em>tar.gz</em> compressed files (mzML file should be the only file in the archive). This should allow import of large MS runs into the dashboard. In the case that the file size is still too large, the mzML file can be shrunk further by setting a <em>peak threshold</em>. By limiting the peak threshold to the 100-200 most intense peaks, great size reduction is reached with minimal loss of valuable information.</p>
 </div>
 <h3 id="feature-data-featurexml">Feature data (featureXML)</h3>
-<p>Several spectral quality metrics rely on the grouping of raw MS signals into <em>features</em>. Features cluster all peaks (all isotopes measured over subsequent scans) that represent a single molecule. Several properties may be retrieved from the feature including the elution time (Peak width), molecule charge, and feature intensity. For feature data, MetaPepView expects a separate dataset in parallel to the mzML data in <em>featureXML</em> format. Feature data in this format can be generated by the <a href="https://openms.readthedocs.io/en/latest/index.html">OpenMS</a> platform.</p>
+<p>Several spectral quality metrics rely on the grouping of raw MS signals into <em>features</em>. Features cluster all peaks (all isotopes measured over subsequent scans) that represent a single molecule. Several properties may be retrieved from the feature including the elution time (Peak width), molecule charge, and feature intensity. For feature data, meta-PepView expects a separate dataset in parallel to the mzML data in <em>featureXML</em> format. Feature data in this format can be generated by the <a href="https://openms.readthedocs.io/en/latest/index.html">OpenMS</a> platform.</p>
 <p>To generate a feature dataset, the <em>FeatureFinderCentroided</em> function provided by OpenMS is used. Installation of OpenMS for Windows/macOS/Linux is described in the <a href="https://openms.readthedocs.io/en/latest/index.html">OpenMS documentation</a>. For Linux (Ubuntu), OpenMS can be easily installed from the <em>apt</em> package manager:</p>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>OpenMS
 </code></pre></div>

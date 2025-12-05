@@ -415,7 +415,7 @@
   
   
   <span class="md-ellipsis">
-    Project table
+    Project data
     
   </span>
   
@@ -513,6 +513,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Community composition
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -524,6 +537,43 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#community-composition-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      Community composition module
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taxonomic-drop-off-profiling-peptide-uniqueness-in-taxonomy-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      Taxonomic drop-off: Profiling peptide uniqueness in taxonomy group
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -794,6 +844,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#community-composition-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      Community composition module
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taxonomic-drop-off-profiling-peptide-uniqueness-in-taxonomy-group" class="md-nav__link">
+    <span class="md-ellipsis">
+      Taxonomic drop-off: Profiling peptide uniqueness in taxonomy group
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -809,31 +885,33 @@
 
 
 <h1 id="community-composition-visualization">Community composition visualization</h1>
-<p>MetaPepView provides two modules for taxonomy visualization of microbial communities: <em>Community composition</em> and <em><a href="../evaluate-taxonomy/">Evaluate community composition</a></em>. <em>Community composition</em> is the main module for taxonomy composition analysis. It allows visualization of taxonomy composition and comparison of compositions between all samples within the project.</p>
+<p>Meta-PepView provides two modules for taxonomy visualization of microbial communities: <em>Community composition</em> and <em><a href="../evaluate-taxonomy/">Evaluate community composition</a></em>. <em>Community composition</em> is the main module for taxonomy composition analysis. It allows visualization of taxonomy composition and comparison of compositions between all samples within the project.</p>
 <p>Additional parts of the <em>Community composition</em> module, as well as the <em>Evaluate community composition</em> module, focus on evaluation of taxonomy composition correctness and identification of potential quantification biases.</p>
-<h1 id="community-composition-module"><em>Community composition</em> module</h1>
+<h2 id="community-composition-module"><em>Community composition</em> module</h2>
 <p>The <em>Community composition</em> module visualizes taxonomy compositions for all samples in the project. Taxonomy abundances are quantified based on peptide spectrum match (PSM) counts or summed signal intensities provided from the metaproteomics data. In addition, there are a range of options to rescale/normalize abundances, to change the taxonomy level to visualize, and to zoom into a particular taxonomy group. Composition can be visualized either as stacked bar chart or heatmap format.</p>
 <p><img alt="Taxonomies_module.PNG" src="../images/Taxonomies_module.PNG" /></p>
-<p>A range of options are provided to modify the visualization:</p>
+<p>A range of options are provided to modify the visualization, these are acessed through the options menu left from the plot:</p>
 <ul>
 <li><strong>Select taxa</strong>: Select specific taxonomies to display (Only if <em>Taxa display type</em> is set to <em>Custom taxa</em>)</li>
-<li><strong>Taxa display type</strong>: Specify what taxonomies to display: <em>Top 10/20</em> abundant taxonomies, or user specified <em>Custom taxa</em> (Taxa provided in <em>Select taxa</em>)</li>
+<li><strong>Display taxa</strong>: Specify what taxonomies to display: <em>Top 10/20</em> abundant taxonomies, or user specified <em>Custom taxa</em> (Taxa provided in <em>Select taxa</em>)</li>
 <li><strong>Display rank</strong>: Select taxonomy level to display.</li>
 <li><strong>Quantification</strong>: Quantify taxonomy groups as summed PSM counts or as summed signal intensities.</li>
 <li><strong>Normalize abundances</strong>: Check to display taxonomies as fraction of total composition per sample.</li>
 <li><strong>Include unannotated</strong>: Add peptides without annotation (at specified taxonomy rank) as separate "Undefined" category in the composition.</li>
-<li><strong>Allow global annotation</strong>: Supplement peptide sequences without taxonomy annotation from the user supplied taxonomy map, with potential Unipept matched taxonomy annotation. Requires the <em>Annotate peptides to Unipept</em> option to be checked for some samples in the <em>Taxonomy annotation</em> settings from the import module.</li>
-<li><strong>Filter by Clade</strong>: Select a specific taxonomy group to visualize; Specify a <em>Root taxonomy</em> group belonging to the selected <em>Clade rank</em> level, and only "offspring" taxonomy groups belonging to the root taxonomy will be visualized. Note: <em>Display rank</em> should be at a lower level than the <em>Clade rank</em>.</li>
-<li><strong>Export taxonomy</strong>: Download a CSV file of taxonomy abundances at every rank (level) from all samples for manual processing. Abundance format depends on selected options. </li>
+<li><strong>Include Unipept annotation</strong>: Supplement peptide sequences without taxonomy annotation from the user supplied taxonomy map, with potential Unipept matched taxonomy annotation. Requires the <em>Annotate peptides to Unipept</em> option to be checked for some samples in the <em>Taxonomy annotation</em> settings from the import module.</li>
+<li><strong>Enable side-by-side plot</strong>: Add an additional plot (facet plot) of the compositions. Enabling this option gives separate quantification options for the facet plot. This allows direct evaluation of compositions from different quantification settings.</li>
+<li><strong>Clade filter</strong>: Select a specific taxonomy group to visualize; Specify a <em>Root taxonomy</em> group belonging to the selected <em>Clade rank</em> level, and only "offspring" taxonomy groups belonging to the root taxonomy will be visualized. Note: <em>Display rank</em> should be at a lower level than the <em>Clade rank</em>.</li>
+<li><strong>Export complete compositions</strong>: Download a CSV file of taxonomy abundances at every rank (level) from all samples for manual processing. Abundance format depends on selected options. </li>
 </ul>
+<p>An additional option, <strong>Export figure data</strong>, on the upper right of the page allows export of the data that is displayed in the figure.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The main method how <em>Allow global annotation</em> supplements extra taxonomy information to the composition is by including taxonomy annotation from <em>de novo</em> identified peptides to the composition. If the user provided taxonomy map represents the protein accessions from metaproteomics DB search data well, (almost) all DB search peptides are expected to have at least some taxonomy annotation. Thus, taxonomy information can only be extended by including <em>de novo</em> identified peptides that were annotated from Unipept.</p>
 <p><em>Allow global annotation</em> is usually not recommended to check for regular taxonomy profiling. As combination of DB search annotation and Unipept annotation with <em>de novo</em> peptides may introduce biases. Also, if DB search matching was done with good quality protein databases, this option is expected to have minimal effect on the composition (Except for a strong increase in "Undefined" fraction).</p>
 <p>Cases where this option may be useful is: Include samples to the taxonomy visualization for which no DB search data and/or taxonomy map data was provided, only Unipept annotation. In addition, for bad quality protein databases used for DB search matching, this option may provide a significant fraction of extra taxonomy information.</p>
 </div>
-<h2 id="profiling-peptide-uniqueness-in-taxonomy-group-taxonomic-drop-off">Profiling peptide uniqueness in taxonomy group: Taxonomic drop-off</h2>
-<p>MetaPepView provides several tools to identify/evaluate potential biases in the observed community composition, these are mainly described in the <a href="../evaluate-taxonomy/">Evaluate community composition</a> section. However, one tool for evaluation of taxonomy bias is present in the <em>Community composition</em> module: the <em>drop-off</em> analysis.</p>
+<h2 id="taxonomic-drop-off-profiling-peptide-uniqueness-in-taxonomy-group">Taxonomic drop-off: Profiling peptide uniqueness in taxonomy group</h2>
+<p>Meta-PepView provides several tools to identify/evaluate potential biases in the observed community composition, these are mainly described in the <a href="../evaluate-taxonomy/">Evaluate community composition</a> section. However, one tool for evaluation of taxonomy bias is present in the <em>Community composition</em> module: the <em>drop-off</em> analysis.</p>
 <p>The taxonomy drop-off provides an estimate of peptide uniqueness for a taxonomy group relative to the total community. Peptide uniqueness has a large impact on the quantification of a taxonomy group, as only peptides unique to that group can be assigned to it and included in quantification. Non-unique peptides (assigned to multiple taxonomies) will be assigned to a higher-level <em>Last Common Ancestor</em> (LCA) taxonomy. Therefore, taxa with few unique peptide sequences will see only a small fraction of its proteome be counted towards its abundance. </p>
 <p>The fraction of unique peptides may differ greatly between taxonomy groups. For example, because of presence/absence of closely related taxa in the community. This can translate into a bias in observed taxonomy abundance, where taxa with fewer unique peptides will be underrepresented in the community. To estimate this bias, we can compare the peptide drop-off observed for the lineage of the taxonomy group to the average drop-off from the taxonomy root down to the rank (level) of the taxonomy group. For a single taxonomy group (and a single sample), we can observe this drop-off by clicking the taxonomy category (a single colored bar) in the stacked bar chart. Then, a drop-off chart will appear.</p>
 <p><img alt="Drop_off_module.PNG" src="../images/Drop_off_module.PNG" /></p>

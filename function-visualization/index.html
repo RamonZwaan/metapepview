@@ -415,7 +415,7 @@
   
   
   <span class="md-ellipsis">
-    Project table
+    Project data
     
   </span>
   
@@ -809,14 +809,14 @@
 
 
 <h1 id="community-function-visualization">Community function visualization</h1>
-<p>MetaPepView provides the <em>community functions</em> module for visualization of protein functions. This module is available for all samples for which functional annotation data is supplemented from EggNOG or KEGG format. The module quantifies <a href="https://www.kegg.jp/">KEGG</a> terms from multiple samples for comparative functional analysis. In addition, the KEGG Pathway and BRITE database is integrated in the dashboard for browsing and visualization of various types of functional groups.</p>
+<p>Meta-PepView provides the <em>community functions</em> module for visualization of protein functions. This module is available for all samples for which functional annotation data is supplemented from EggNOG or KEGG format. The module quantifies <a href="https://www.kegg.jp/">KEGG</a> terms from multiple samples for comparative functional analysis. In addition, the KEGG Pathway and BRITE database is integrated in the dashboard for browsing and visualization of various types of functional groups.</p>
 <p><img alt="Function_module.PNG" src="../images/Function_module.PNG" /></p>
 <p>The quantification of KEGG terms between samples is visualized in a grouped barplot. All samples in the project for which a functional annotation source was provided during import are shown. When opening the module, initially, the top 20 most abundant (averaged over all samples) KEGG KO terms, quantified by PSM counts, are displayed. Left from the graph, a range of options is provided to visualize specific functional groups, display different grouping types, and to scale the quantifications:</p>
 <ul>
 <li><strong>KEGG ID display format</strong>: Format of the functional groups to display per sample (categories on x-axis).</li>
 <li><strong>Select groups</strong>: For displaying only a specific functional group, filter by:<ul>
-<li><em>Pathway</em>: display KEGG terms belonging to certain pathway, selection from <em>Select pathway</em> and/or <em>Select module</em> menu's</li>
-<li><em>BRITE</em>: display KEGG terms belonging to BRITE hierarchy group, selection from <em>Select BRITE group</em> menu.</li>
+<li><em>Pathway</em>: display KEGG terms belonging to certain pathway, selection from <strong>Select pathway</strong> and/or <strong>Select module</strong> menu's</li>
+<li><em>BRITE</em>: display KEGG terms belonging to BRITE hierarchy group, selection from <strong>Select BRITE group</strong> menu.</li>
 <li><em>Manual</em>: Manually select KEGG terms to display.</li>
 </ul>
 </li>
@@ -826,13 +826,14 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>When displaying KO terms, peptides may only have multiple annotations if multiple proteins were matched. When EC or Module terms are displayed, a single KO may match to multiple EC or Module terms. After translation of KO term to EC or Module term('s), MetaPepView will combine them in the same method when <em>Combine multiple annotations</em> is checked. However, in cases of peptides with multiple KO terms (due to multiple protein matches), MetaPepView will ensure that a peptide sequence will not be counted double within a single EC or Module term.
+<p>When displaying KO terms, peptides may only have multiple annotations if multiple proteins were matched. When EC or Module terms are displayed, a single KO may match to multiple EC or Module terms. After translation of KO term to EC or Module term('s), meta-PepView will combine them in the same method when <em>Combine multiple annotations</em> is checked. However, in cases of peptides with multiple KO terms (due to multiple protein matches), meta-PepView will ensure that a peptide sequence will not be counted double within a single EC or Module term.
 Therefore, while redundancy is present when <em>Combine multiple annotations</em> is unchecked due to potential counting a single peptide towards multiple groups, peptides will only be counted once within a single term.</p>
 </div>
 <ul>
 <li><strong>Include taxonomies</strong>: Supplement functional annotation chart with taxonomy information. This shows which taxa contribute to the functional term expression. Taxonomy names can be displayed by hovering over the bars in the chart.</li>
 <li><strong>Fractional abundances</strong>: Quantify functional terms as fraction of the total expressed functional terms.</li>
-<li><strong>Filter by Clade</strong>: Filter expressed functional terms to only those from a specified taxonomy group; Specify a <em>Root taxonomy</em> group belonging to the selected <em>Clade rank</em> level, and only terms from that taxonomy are displayed.</li>
+<li><strong>Clade filter</strong>: Filter expressed functional terms to only those from a specified taxonomy group; Specify a <em>Root taxonomy</em> group belonging to the selected <em>Clade rank</em> level, and only terms from that taxonomy are displayed.</li>
+<li><strong>Export complete functions</strong>: Export all KEGG terms present in the dataset with the filter and quantification options applied.</li>
 <li><strong>Visualize pathway map</strong>: Export KEGG KO terms to a pathway map provided by KEGG. Select samples to visualize in the map in <em>Select Samples</em> and export the data to the map with the <em>Show pathway map</em> button. This directs you to the KEGG website. Thus, an internet connection is required.</li>
 </ul>
 

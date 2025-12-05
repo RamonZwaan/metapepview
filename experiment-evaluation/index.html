@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#spectral-data-analysis-and-experiment-benchmarking" class="md-skip">
+        <a href="#spectral-data-analysis-and-experiment-performance-evaluation" class="md-skip">
           Skip to content
         </a>
       
@@ -415,7 +415,7 @@
   
   
   <span class="md-ellipsis">
-    Project table
+    Project data
     
   </span>
   
@@ -669,23 +669,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-import" class="md-nav__link">
+  <a href="#experiment-comparison" class="md-nav__link">
     <span class="md-ellipsis">
-      Data import
+      Experiment comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experiment comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experiment-performance-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Experiment performance metrics
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#benchmarking" class="md-nav__link">
-    <span class="md-ellipsis">
-      Benchmarking
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Benchmarking">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#confidence-thresholds-barplot" class="md-nav__link">
@@ -980,23 +980,23 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-import" class="md-nav__link">
+  <a href="#experiment-comparison" class="md-nav__link">
     <span class="md-ellipsis">
-      Data import
+      Experiment comparison
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Experiment comparison">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#experiment-performance-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Experiment performance metrics
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#benchmarking" class="md-nav__link">
-    <span class="md-ellipsis">
-      Benchmarking
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Benchmarking">
-      <ul class="md-nav__list">
         
           <li class="md-nav__item">
   <a href="#confidence-thresholds-barplot" class="md-nav__link">
@@ -1142,24 +1142,25 @@
 
 
 
-<h1 id="spectral-data-analysis-and-experiment-benchmarking">Spectral data analysis and experiment benchmarking</h1>
-<p>MetaPepView provides a separate module for visualization of (meta)proteomics experimental performance parameters, including benchmarking of experiments against a dataset of metaproteomics experiments. This visualization toolbox is present in the <em>Experiment performance evaluation</em> module. Here, MS spectral data can be imported in <a href="../prepare-input-data/#spectral-data-mzml"><em>mzML</em> format</a>, additional <em>feature</em> information may be added in <a href="../prepare-input-data/#feature-data-featurexml"><em>featureXML</em> format</a>, and spectral data may be supplemented with DB search and <em>de novo</em> (meta)proteomics data (<a href="../data-import/#import-components">several formats supported</a>). This allows visualization of spectral quality parameters, as well as to link these parameters to peptide identification rates.</p>
+<h1 id="spectral-data-analysis-and-experiment-performance-evaluation">Spectral data analysis and experiment performance evaluation</h1>
+<p>Meta-PepView provides a separate module for visualization of (meta)proteomics experimental performance parameters, including comparison and benchmarking of experiments against a dataset of metaproteomics experiments. This visualization toolbox is present in the <em>Experiment performance evaluation</em> module. This module uses the <em>performance evaluation dataset</em>, loaded into <a href="../project-table/">the project</a>, which contains spectral data and metaproteomics data from a single sample. This allows visualization of spectral quality parameters, as well as to link these parameters to peptide identification rates.</p>
 <p><img alt="QA_module.PNG" src="../images/QA_module.PNG" /></p>
-<p>The Quality control module is structured in several tabs. The <em>Benchmarking</em> tab provides visualizations to compare (benchmark) an imported experiment with a experimental benchmark dataset, the <em>Experimental quality</em> tab provides visualizations connecting spectral quality to peptide identification performance.</p>
-<h2 id="data-import">Data import</h2>
-<p>On the top of the module page, importers for the spectral data (<em>mzML</em>), feature data (<em>featureXML</em>), DB search data and <em>de novo</em> data are provided. Data imported here will be visualized in the module. Part of the datasets may be omitted on import. However, some visualizations that require the missing datasets will not be displayed. For DB search and <em>de novo</em> data, it should be ensured that they were derived from the same MS run as the <em>mzML</em> and <em>featureXML</em> file. MetaPepView will only combine data that are from the same MS run.</p>
-<h2 id="benchmarking">Benchmarking</h2>
-<p>The benchmarking tab provides a set of visualizations that compare a single experiment against a dataset of experiments. MetaPepView provides two standard datasets, shown under the <em>Reference dataset</em> dropdown menu, for testing purposes. However, it is good practice to <a href="../build-reference-dataset/">generate your own benchmark datasets</a> with suitable samples and MS conditions. </p>
-<p>A new benchmark dataset can be imported from the <em>import custom dataset</em> importer. A CLI tool "mpv-buildref" is provided to build a new benchmark dataset. When providing a root directory (which should contain all <em>mzML</em> files, together with DB search and <em>de novo</em> data), as well as format settings, this tool will generate a summary file that contains performance parameters for all experiments that can be imported into the module.</p>
+<p>The Quality control module is structured in several tabs. The <em>Experiment comparison</em> tab provides visualizations to compare (benchmark) an imported experiment with a experimental reference dataset, the <em>Experimental quality</em> tab provides visualizations connecting spectral quality to peptide identification performance.</p>
+<h2 id="experiment-comparison">Experiment comparison</h2>
+<p>The <em>experiment comparison</em> tab provides a set of visualizations that compare a single experiment against a dataset of experiments. Meta-PepView provides a few standard datasets, shown under the <em>Reference dataset</em> dropdown menu, for testing purposes. However, it is good practice to <a href="../build-reference-dataset/">generate your own reference datasets</a> with suitable samples and MS conditions. </p>
+<p>A new reference dataset can be imported from the <em>import custom dataset</em> importer. A CLI tool "mpv-buildref" is provided to build a new reference dataset. When providing a root directory (which should contain all <em>mzML</em> files, together with DB search and <em>de novo</em> data), as well as format settings, this tool will generate a summary file that contains performance parameters for all experiments that can be imported into the module.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To prevent biases in proteomics data processing between samples, MetaPepView  will only benchmark experiments against the reference dataset if the DB search and <em>de novo</em> input data are in the same format for both dataset. The formats for the benchmark dataset is displayed after import into the dashboard.</p>
-<p>This format constraint is also present for the benchmark dataset. If a custom dataset is constructed, all DB search and <em>de novo</em> files should be in the same format across all experiments.</p>
+<p>To prevent biases in proteomics data processing between samples, meta-PepView  will only compare experiments against the reference dataset if the DB search and <em>de novo</em> input data are in the same format for both dataset. The formats for the reference dataset is displayed after import into the dashboard.</p>
+<p>This format constraint is also present for the reference dataset. If a custom dataset is constructed, all DB search and <em>de novo</em> files should be in the same format across all experiments.</p>
 </div>
 <p><img alt="QA_benchmark_module.PNG" src="../images/QA_benchmark_module.png" /></p>
 <p>An overview of the available evaluation graphs is shown below.</p>
+<h3 id="experiment-performance-metrics">Experiment performance metrics</h3>
+<p>On top of the page, general performance metrics are displayed for all experiments in the reference dataset. These include: MS analysis time, number of MS1 and MS2 scans, number of MS2 scans per MS1 scan, as well as the number of DB search and <em>de novo</em> identifications. If a separate experiment is imported in the <em>performance evaluation dataset</em>, it will be overlayed in the graphs to compare against the reference dataset.</p>
+<p><img alt="reference_dataset_quality_metrics.PNG" src="../images/reference_dataset_quality_metrics.png" /></p>
 <h3 id="confidence-thresholds-barplot">Confidence thresholds barplot</h3>
-<p>Quick profiling of the output quality from a (meta)proteomics experiment can be performed by comparing the number (or fraction) of peptide identifications above predefined confidence thresholds. The thresholds from a single experiment (left bar) can be compared to the experiments from the benchmark dataset (right bars). The graph allows scaling of the y-axis by peptide counts, fraction matches above thresholds of total scans, and the average number of matches above thresholds per minute (scaled by total retention time). For <em>de novo</em> identifications (bottom bars), either all identifications may be shown, or they may be filtered to only show <em>de novo</em> peptides not identified from DB search.</p>
+<p>Quick profiling of the output quality from a (meta)proteomics experiment can be performed by comparing the number (or fraction) of peptide identifications above predefined confidence thresholds. The thresholds from a single experiment (left bar) can be compared to the experiments from the reference dataset (right bars). The graph allows scaling of the y-axis by peptide counts, fraction matches above thresholds of total scans, and the average number of matches above thresholds per minute (scaled by total retention time). For <em>de novo</em> identifications (bottom bars), either all identifications may be shown, or they may be filtered to only show <em>de novo</em> peptides not identified from DB search.</p>
 <p>While the graph allows quick observation of identification performance between experiments, certain patterns may imply issues in the experimental/analysis conditions:</p>
 <ul>
 <li>A low fraction of high confidence peptide identifications compared to lower confidences may imply lower spectral quality from the raw MS data. This should also be reflected in a low number of <em>de novo</em> identifications.</li>
@@ -1167,21 +1168,21 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The numbers/fractions of DB search matches and <em>de novo</em> identifications that may be considered acceptable vary greatly between the type of samples and analysis conditions. Therefore, it is important that the benchmark dataset comprise experiments similar to the analysed sample.</p>
+<p>The numbers/fractions of DB search matches and <em>de novo</em> identifications that may be considered acceptable vary greatly between the type of samples and analysis conditions. Therefore, it is important that the reference dataset comprise experiments similar to the analysed sample.</p>
 </div>
 <p><img alt="QA_bench_bars.jpg" src="../images/QA_bench_bars.jpg" /></p>
 <h3 id="peptide-confidence-scatterplot">Peptide confidence scatterplot</h3>
-<p>An alternative method to observe the number of peptide identifications of an experiment (red markers) against the benchmark dataset (blue dots) is through a scatterplot. This graph shows the number (or fraction) of peptide identifications above predefined thresholds from DB search matching (left groups), <em>de novo</em> identifications (middle groups), and <em>de novo</em> only (d-only) identifications (right groups). Peptide identifications may be normalized by fraction of total MS2 scans, or by total retention time (count per minute).</p>
+<p>An alternative method to observe the number of peptide identifications of an experiment (red markers) against the reference dataset (blue dots) is through a scatterplot. This graph shows the number (or fraction) of peptide identifications above predefined thresholds from DB search matching (left groups), <em>de novo</em> identifications (middle groups), and <em>de novo</em> only (d-only) identifications (right groups). Peptide identifications may be normalized by fraction of total MS2 scans, or by total retention time (count per minute).</p>
 <p><img alt="QA_bench_scatter.PNG" src="../images/QA_bench_scatter.PNG" /></p>
 <h3 id="confidence-ranked-distribution">Confidence ranked distribution</h3>
-<p>The distribution of peptide identification confidence between an experiment (red line) and the benchmark dataset (gray area for 95% confidence interval) can be observed in the ranked distribution plot. Here, peptide identifications are sorted on the x-axis by confidence (y-axis). The distribution (x-axis) can be shown as top-n matches, or normalized as fraction of total matches, or fraction of MS2 matches. The distribution of either DB search or <em>de novo</em> identifications may be plotted.</p>
+<p>The distribution of peptide identification confidence between an experiment (red line) and the reference dataset (gray area for 95% confidence interval) can be observed in the ranked distribution plot. Here, peptide identifications are sorted on the x-axis by confidence (y-axis). The distribution (x-axis) can be shown as top-n matches, or normalized as fraction of total matches, or fraction of MS2 matches. The distribution of either DB search or <em>de novo</em> identifications may be plotted.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>DB search and <em>de novo</em> tools often only report peptides above a confidence threshold, unless <em>x-axis normalization</em> is set to <em>Total matches</em>, the distribution of the benchmark dataset will be skewed as more experiments reach the confidence threshold (the end of the dataset). This should be taken into account when analysing the further end of the x-axis.</p>
+<p>DB search and <em>de novo</em> tools often only report peptides above a confidence threshold, unless <em>x-axis normalization</em> is set to <em>Total matches</em>, the distribution of the reference dataset will be skewed as more experiments reach the confidence threshold (the end of the dataset). This should be taken into account when analysing the further end of the x-axis.</p>
 </div>
 <p><img alt="conf_rank_dist.png" src="../images/conf_rank_dist.png" /></p>
 <h3 id="scan-intensity-distribution">Scan intensity distribution</h3>
-<p>One metric for spectral quality evaluation is the distribution of MS scan intensities. Here, this is plotted as the median, 90'th percentile, and 99'th percentile intensity of MS1 and MS2 scan. An experimental sample (red marker) may be compared against the benchmark dataset (blue dots). </p>
+<p>One metric for spectral quality evaluation is the distribution of MS scan intensities. Here, this is plotted as the median, 90'th percentile, and 99'th percentile intensity of MS1 and MS2 scan. An experimental sample (red marker) may be compared against the reference dataset (blue dots). </p>
 <p>Several factors may influence the intensity distribution of scans. For example, low MS1 intensities may imply that low amount of sample was submitted to the MS. Low MS2 intensity (relative to MS1) may imply low ion transmission efficiency (large loss of signal during fragmentation). Finally, strange patterns between median and <em>x</em> percentile groups may indicate presence of pollutants, or sparse elution of peptides. </p>
 <p><img alt="QA_benbch_ints.PNG" src="../images/QA_benbch_ints.PNG" /></p>
 <h3 id="ion-transmission">Ion Transmission</h3>

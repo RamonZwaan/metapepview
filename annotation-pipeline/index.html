@@ -411,7 +411,7 @@
   
   
   <span class="md-ellipsis">
-    Project table
+    Project data
     
   </span>
   
@@ -811,9 +811,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#convert-source-specific-metaproteomics-format-into-metapepview-format" class="md-nav__link">
+  <a href="#convert-source-specific-metaproteomics-format-into-meta-pepview-format" class="md-nav__link">
     <span class="md-ellipsis">
-      Convert source specific metaproteomics format into MetaPepView format
+      Convert source specific metaproteomics format into meta-PepView format
     </span>
   </a>
   
@@ -902,9 +902,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#convert-source-specific-metaproteomics-format-into-metapepview-format" class="md-nav__link">
+  <a href="#convert-source-specific-metaproteomics-format-into-meta-pepview-format" class="md-nav__link">
     <span class="md-ellipsis">
-      Convert source specific metaproteomics format into MetaPepView format
+      Convert source specific metaproteomics format into meta-PepView format
     </span>
   </a>
   
@@ -965,7 +965,7 @@
 </li>
 <li>Import database search file(s) <strong>if present</strong><ol>
 <li>If <strong>Merge DB search</strong> is True (all DB search files are one sample):<ol>
-<li>Load all DB search files to <code>MetaPepDbSearch</code> (<a href="./#convert-source-specific-metaproteomics-format-into-metapepview-format">Load metapep DB search</a>) format and store in list, filter out crap peptides if specified for all files</li>
+<li>Load all DB search files to <code>MetaPepDbSearch</code> (<a href="./#convert-source-specific-metaproteomics-format-into-meta-pepview-format">Load metapep DB search</a>) format and store in list, filter out crap peptides if specified for all files</li>
 <li>Concatenate <code>MetaPepDbSearch</code> tables (one per DB search file)</li>
 <li>Check during concatenation that source files (raw spectrum file) are unique across objects, otherwise, peptides may be counted double</li>
 <li><a href="./#process-data-into-new-sample">Create new sample dataset</a> for concatenated <code>MetaPepDbSearch</code> file.</li>
@@ -973,7 +973,7 @@
 </li>
 <li>If <strong>Merge DB search</strong> is False (each DB search file is its own sample):<ol>
 <li>loop through DB search files:<ol>
-<li>Load an DB search file and process into <code>MetaPepDbSearch</code> (see <a href="./#convert-source-specific-metaproteomics-format-into-metapepview-format">Load metapep DB search</a>) (filter crap if specified)</li>
+<li>Load an DB search file and process into <code>MetaPepDbSearch</code> (see <a href="./#convert-source-specific-metaproteomics-format-into-meta-pepview-format">Load metapep DB search</a>) (filter crap if specified)</li>
 <li><a href="./#process-data-into-new-sample">Create new sample dataset</a> for single <code>MetaPepDbSearch</code> file.</li>
 <li>Append <code>MetaPepTable</code> into list and iterate to next DB search file.</li>
 </ol>
@@ -985,7 +985,7 @@
 </li>
 <li>If no DB search files supplied but only <em>de novo</em> file: Build <code>MetaPepTable</code> (see <code>build_metapep_table()</code> level) for sample with only <em>de novo</em> data and taxonomy mapping. Append sample to existing <code>MetaPepTable</code> and return it.</li>
 </ol>
-<h3 id="convert-source-specific-metaproteomics-format-into-metapepview-format">Convert source specific metaproteomics format into MetaPepView format</h3>
+<h3 id="convert-source-specific-metaproteomics-format-into-meta-pepview-format">Convert source specific metaproteomics format into meta-PepView format</h3>
 <ol>
 <li>Load correct DB search class based on DB search/<em>de novo</em> format (e.g. Sage).</li>
 <li>Read data in class and add sample name to it.</li>
