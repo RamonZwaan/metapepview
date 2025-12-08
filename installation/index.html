@@ -305,7 +305,7 @@
         <li class="md-nav__item">
   <a href="#run-meta-pepview-inside-a-docker-container" class="md-nav__link">
     <span class="md-ellipsis">
-      Run meta-PepView inside a Docker container.
+      Run meta-PepView inside a Docker container
     </span>
   </a>
   
@@ -906,7 +906,7 @@
         <li class="md-nav__item">
   <a href="#run-meta-pepview-inside-a-docker-container" class="md-nav__link">
     <span class="md-ellipsis">
-      Run meta-PepView inside a Docker container.
+      Run meta-PepView inside a Docker container
     </span>
   </a>
   
@@ -934,6 +934,10 @@
 <h3 id="install-meta-pepview-with-pipx-or-pip">Install meta-PepView with <code>pipx</code> (or <code>pip</code>)</h3>
 <p>The full meta-PepView application (including the <a href="../build-reference-dataset/"><em>mpv-buildref</em></a> command line utility) can be installed on any PC system with <code>pip</code>. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of <a href="../build-reference-dataset/">experimental reference datasets</a>. </p>
 <p>It is recommended to install meta-PepView with <a href="https://pipx.pypa.io/stable/">pipx</a>. It works similar to <code>pip</code>, but is designed for installation of applications as opposed to libraries. When installing a package, <code>pipx</code> provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line. When using <code>pip</code>, it is recommended to install meta-PepView in a separate environment (<a href="https://docs.python.org/3/library/venv.html">virtual environment</a> or <a href="https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html">conda</a>)</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the instructions below, meta-PepView is installed by pip(x) by fetching the code from the GitHub repository. For this, git needs to be <a href="https://git-scm.com/install/linux">installed on the PC</a>.</p>
+</div>
 <h4 id="installation-with-pipx">Installation with <code>pipx</code></h4>
 <p>First, make sure <a href="https://www.python.org/">python</a> (3.11 or higher) is installed.
 Once python is installed, install <a href="https://pipx.pypa.io/stable/installation/">pipx</a> on the command line/terminal.</p>
@@ -977,7 +981,7 @@ or in a <a href="https://docs.conda.io/en/latest/">conda environment</a>.</p>
 <p>To uninstall metapepview:
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>uninstall<span class="w"> </span>metapepview
 </code></pre></div></p>
-<h3 id="run-meta-pepview-inside-a-docker-container">Run meta-PepView inside a Docker container.</h3>
+<h3 id="run-meta-pepview-inside-a-docker-container">Run meta-PepView inside a Docker container</h3>
 <p>To run the dashboard inside a container, make sure Docker (or another OCI compliant manager) is installed on the system.</p>
 <p>First, build a <a href="https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/">Docker image</a> using the Dockerfile template from the meta-PepView GitHub:</p>
 <div class="admonition note">

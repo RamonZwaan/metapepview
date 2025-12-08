@@ -912,7 +912,7 @@
 <em>Public database download menu</em></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If meta-PepView is running inside a <a href="../installation/#run-in-docker">Docker container</a>, downloaded databases will only persist during the lifetime of the container. To ensure that databases will be preserved across container instances, the storage directory can be mounted to a directory on the host computer or a <a href="https://docs.docker.com/engine/storage/volumes/">volume</a> using the <code>-v</code> flag when creating a new container:
+<p>If meta-PepView is running inside a <a href="../installation/#run-meta-pepview-inside-a-docker-container">Docker container</a>, downloaded databases will only persist during the lifetime of the container. To ensure that databases will be preserved across container instances, the storage directory can be mounted to a directory on the host computer or a <a href="https://docs.docker.com/engine/storage/volumes/">volume</a> using the <code>-v</code> flag when creating a new container:
 <div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">8050</span>:8050<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;ref_db_volume:/home/.metapepview&quot;</span><span class="w"> </span>metapepview
 </code></pre></div></p>
 </div>
