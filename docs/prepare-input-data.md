@@ -4,7 +4,7 @@ Meta-PepView combines metaproteomics data (DB search, *de novo*), raw spectral d
 
 ## :warning:{ .yellow } IMPORTANT: When importing metaproteomics and annotation data for community analysis, always consider the protein ID format.
 
-Meta-PepView adds taxonomic and functional information to identified peptides (from [[prepare-input-data#import DB search matching data|DB search matching]]) by linking their IDs to taxonomy and function IDs from user-provided [[prepare-input-data#Annotation data|annotation files]]. This ID may be the peptide sequence string, or the *protein ID* from the sequence database used in DB search matching (which has to be provided in all files). The protein ID is often derived from the headers of a fasta file.
+Meta-PepView adds taxonomic and functional information to identified peptides (from [[prepare-input-data#import DB search matching data|DB search matching]]) by linking their IDs to taxonomy and function IDs from user-provided [[prepare-input-data#Taxonomy/Function annotation data|annotation files]]. This ID may be the peptide sequence string, or the *protein ID* from the sequence database used in DB search matching (which has to be provided in all files). The protein ID is often derived from the headers of a fasta file.
 
 A major difficulty in data processing is maintaining consistency in protein ID extraction from the fasta header across input file sources (DB search, taxonomy, function annotation files). This is especially apparent in standardized fasta header formats.
 

@@ -1,4 +1,4 @@
-Meta-PepView provides a few pre-built reference datasets to [[experiment-evaluation#Benchmarking|benchmark]] experiments against. However, it is recommended to create an in-house reference database consisting of comparable metaproteomics experiments i.e., samples obtained from similar types of biomaterial, as well as consistent analytical instruments. Meta-PepView provides a command line utility *mpv-buildref*, that allows construction of custom reference datasets for import into the dashboard. This utility extracts metrics from the spectral and (meta)proteomics datasets to provide a consise dataset for the complete range of experiments.
+Meta-PepView provides a few pre-built reference datasets to [[experiment-evaluation#Experiment comparison|benchmark]] experiments against. However, it is recommended to create an in-house reference database consisting of comparable metaproteomics experiments i.e., samples obtained from similar types of biomaterial, as well as consistent analytical instruments. Meta-PepView provides a command line utility *mpv-buildref*, that allows construction of custom reference datasets for import into the dashboard. This utility extracts metrics from the spectral and (meta)proteomics datasets to provide a consise dataset for the complete range of experiments.
 
 *mpv-buildref* only requires a single root directory location from the user, as well as a few options to manage formatting. *mpv-buildref* will parse all files inside the provided root directory, collect all relevant datasets, and combine all datasets into their respective experiments.
 
@@ -12,7 +12,7 @@ $ mpv-buildref -d peaks11 -n peaks11 -o output.json *root_dir*
 
 When running inside Docker, the root directory containing the experiments needs to be mounted to the container file system. Then, the container mount point can be called as the root container when calling *mpv-buildref*. In addition, the output location should be inside a directory (in the container), that is mounted to a host direcory. This may be a separate mount point, or the output location may be inside the root container provided as input:
 
-*After [[installation#Run in Docker|Creating the image]]*:
+*After [[installation#Run meta-PepView inside a Docker container|Creating the image]]*:
 ```Bash
 $ docker run -it -v "/host/path/to/root_dir:/home/root_dir" metapepview mpv-buildref -d peaks11 -n peaks11 -o /home/root_dir/output.json */home/root_dir*
 ```

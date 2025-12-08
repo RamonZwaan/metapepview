@@ -10,6 +10,9 @@ The full meta-PepView application (including the [[build-reference-dataset|*mpv-
 
 It is recommended to install meta-PepView with [pipx](https://pipx.pypa.io/stable/). It works similar to `pip`, but is designed for installation of applications as opposed to libraries. When installing a package, `pipx` provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line. When using `pip`, it is recommended to install meta-PepView in a separate environment ([virtual environment](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html))
 
+!!! note
+    In the instructions below, meta-PepView is installed by pip(x) by fetching the code from the GitHub repository. For this, git needs to be [installed on the PC](https://git-scm.com/install/linux).
+
 #### Installation with `pipx`
 
 First, make sure [python](https://www.python.org/) (3.11 or higher) is installed.
@@ -79,7 +82,7 @@ To uninstall metapepview:
 pip uninstall metapepview
 ```
 
-### Run meta-PepView inside a Docker container.
+### Run meta-PepView inside a Docker container
 
 To run the dashboard inside a container, make sure Docker (or another OCI compliant manager) is installed on the system.
 

@@ -28,7 +28,7 @@ The presence status of public databases is shown at the bottom of the sidebar. F
 *Public database download menu*
 
 !!! note
-    If meta-PepView is running inside a [[installation#Run in Docker.|Docker container]], downloaded databases will only persist during the lifetime of the container. To ensure that databases will be preserved across container instances, the storage directory can be mounted to a directory on the host computer or a [volume](https://docs.docker.com/engine/storage/volumes/) using the `-v` flag when creating a new container:
+    If meta-PepView is running inside a [[installation#Run meta-PepView inside a Docker container|Docker container]], downloaded databases will only persist during the lifetime of the container. To ensure that databases will be preserved across container instances, the storage directory can be mounted to a directory on the host computer or a [volume](https://docs.docker.com/engine/storage/volumes/) using the `-v` flag when creating a new container:
     ```Bash
     docker run -p 8050:8050 -v "ref_db_volume:/home/.metapepview" metapepview
     ```
