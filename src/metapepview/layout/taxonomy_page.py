@@ -173,14 +173,7 @@ clade_filter = [
         [
             dbc.Col(html.B("Clade rank"), style={"text-align": 'left'}),
             dbc.Col(dcc.Dropdown(
-                ['Root',
-                 'Superkingdom',
-                 'Phylum',
-                 'Class',
-                 'Order',
-                 'Family',
-                 'Genus',
-                 'Species'],
+                ['Root'] + gc.standard_lineage_ranks,
                 id='tax_barplot_clade_selection_rank',
                 style={"width": "15rem"}
                 )

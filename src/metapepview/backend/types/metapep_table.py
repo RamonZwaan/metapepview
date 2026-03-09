@@ -52,7 +52,7 @@ class MetaPepTable(DataValidator):
         De Novo Source File
     
     Taxonomy annotation 
-    (lineage = [superkingdom, phylum, class, order, family, genus, species]):
+    (lineage = [domain, phylum, class, order, family, genus, species]):
         Taxonomy Id
         Taxonomy Name
         {lineage} Id
