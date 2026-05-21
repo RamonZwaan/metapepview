@@ -152,6 +152,7 @@ class GlobalConstants:
 
 
     db_search_dropdown_options = [
+        {'label': 'Peaks 13', 'value': 'Peaks 13'},
         {'label': 'Peaks 11', 'value': 'Peaks 11'},
         {'label': 'Peaks 10', 'value': 'Peaks 10'},
         {'label': 'MaxQuant', 'value': 'MaxQuant'},
@@ -159,6 +160,7 @@ class GlobalConstants:
         {'label': 'Sage', 'value': 'Sage'}
         ]
     de_novo_dropdown_options = [
+        {'label': 'Peaks 13', 'value': 'Peaks 13'},
         {'label': 'Peaks 11', 'value': 'Peaks 11'},
         {'label': 'Peaks 10', 'value': 'Peaks 10'},
         {'label': 'Novor (SearchGUI)', 'value': 'Novor'},

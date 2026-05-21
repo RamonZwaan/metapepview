@@ -66,8 +66,7 @@ class MetaPepTable(DataValidator):
 
     Functional annotation:
         KEGG KO
-        CAZy
-        GO
+        [custom columns depending on format]
         
     Metapep Metadata fields:
         Taxonomy Annotation
@@ -457,8 +456,8 @@ class MetaPepDbSearch(DataValidator):
     PEPTIDE_GROUP_NAME = 'PSM Count'
     
     REQUIRED_FIELDS = ['Peptide', 'Sequence', 'RT', 'Scan', 'm/z', 'Charge', 'ppm',
-              'Length', 'Confidence', 'Area', 'Mass', 'Accession', 'PTM', 
-              'Source File']
+                       'Length', 'Confidence', 'Area', 'Mass', 'Accession', 'PTM', 
+                       'Source File']
     NUMERIC_FIELDS = ['RT', 'Scan', 'm/z', 'Charge', 'ppm', 'Length', 
                       'Confidence', 'Area', 'Mass']
     

@@ -11,7 +11,7 @@ from metapepview.backend.utils import regex_over_column
 
 T = TypeVar('T', bound='FunctionDbMapper')
 
-class FunctionDbMapper(Protocol):
+class FunctionDbMapper(DataValidator, Protocol):
     NANFILL: ClassVar[str | float]
     LIST_DELIM: ClassVar[str]
 
@@ -61,7 +61,7 @@ class FunctionDbMapper(Protocol):
 
 
 
-class EggnogMapper(FunctionDbMapper, DataValidator):
+class EggnogMapper(FunctionDbMapper):
     
     REQUIRED_FIELDS: List[str] = ['query', 'evalue', 'eggNOG_OGs', 'COG_category',
                                   'Preferred_name', 'EC', 'KEGG_ko', 'CAZy']
@@ -113,7 +113,7 @@ class EggnogMapper(FunctionDbMapper, DataValidator):
         df["KEGG_ko"] = df["KEGG_ko"].str.replace(r"ko:", "")
         
         # filter columns away to conserve space
-        df = df[['query', 'evalue', 'eggNOG_OGs', 'COG_category', 'Preferred_name', 'EC', 'KEGG_ko', 'CAZy']]
+        df = df[cls.REQUIRED_FIELDS]
         
         return cls.from_dataframe(df, acc_regex)
     
@@ -146,7 +146,7 @@ class EggnogMapper(FunctionDbMapper, DataValidator):
         return cls(acc_dict, input_df)
     
 
-class KeggMapper(FunctionDbMapper, DataValidator):
+class KeggMapper(FunctionDbMapper):
     REQUIRED_FIELDS: List[str] = ['query', 'KEGG_ko']
     NUMERIC_FIELDS: List[str] = []
     
@@ -172,7 +172,7 @@ class KeggMapper(FunctionDbMapper, DataValidator):
         kegg_df = pd.read_csv(file_buffer,
                               sep='\t',
                               engine="python",
-                              names=["query", "KEGG_ko"])
+                              names=cls.REQUIRED_FIELDS)
         return cls.from_dataframe(kegg_df, acc_regex)
     
     
@@ -192,7 +192,7 @@ class KeggMapper(FunctionDbMapper, DataValidator):
                                                          no_match_to_nan=False)
 
         # drop rows without accession and without kegg ko
-        input_df = input_df.dropna(subset=['query', 'KEGG_ko'])
+        input_df = input_df.dropna(subset=cls.REQUIRED_FIELDS)
         
         # set query as index, while keeping query column in dataset
         input_df = input_df.set_index('query', drop=False)
@@ -204,7 +204,7 @@ class KeggMapper(FunctionDbMapper, DataValidator):
         return cls(acc_dict, input_df)    
 
 
-class GhostkoalaMapper(FunctionDbMapper, DataValidator, AccessionTaxaMapMethods):
+class GhostkoalaMapper(FunctionDbMapper, AccessionTaxaMapMethods):
     REQUIRED_FIELDS: List[str] = ['query', 'KEGG_ko', 'Genus', 'GHOSTX score']
     NUMERIC_FIELDS: List[str] = ['GHOSTX score']
     

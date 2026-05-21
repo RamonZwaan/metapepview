@@ -21,6 +21,7 @@ functional_db_importers: Dict[str, Type[FunctionDbMapper]] = {
 
 
 db_search_importers: Dict[str, Type[DbSearchMethods]] = {
+    'Peaks 13': PeaksDbSearchPsm13,
     'Peaks 11': PeaksDbSearchPsm11,
     'Peaks 10': PeaksDbSearchPsm10,
     'MaxQuant': MaxQuantDbSearch,
@@ -29,6 +30,7 @@ db_search_importers: Dict[str, Type[DbSearchMethods]] = {
 }
 
 de_novo_importers: Dict[str, Type[DeNovoMethods]] = {
+    'Peaks 13': PeaksDeNovo13,
     'Peaks 11': PeaksDeNovo11,
     'Peaks 10': PeaksDeNovo10,
     'Novor': NovorDeNovo,
