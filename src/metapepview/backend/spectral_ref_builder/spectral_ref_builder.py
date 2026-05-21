@@ -635,9 +635,9 @@ def build_ref_data(
     print("parse root directory for data files...")
     file_loc_dict = fetch_file_locations(ref_options)
     
-    mzml_count = len([x["mzml"] for x in file_loc_dict.values() if x is not None])
-    db_search_count = len([x["db search"] for x in file_loc_dict.values() if x is not None])
-    de_novo_count = len([x["de novo"] for x in file_loc_dict.values() if x is not None])
+    mzml_count = len([x["mzml"] for x in file_loc_dict.values() if x["mzml"] is not None])
+    db_search_count = len([x["db search"] for x in file_loc_dict.values() if x["db search"] is not None])
+    de_novo_count = len([x["de novo"] for x in file_loc_dict.values() if x["de novo"] is not None])
 
     print(f"found {len(file_loc_dict.keys())} experiments:")
     print(f"{mzml_count} mzML files")

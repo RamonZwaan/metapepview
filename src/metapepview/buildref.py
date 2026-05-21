@@ -100,9 +100,9 @@ def main():
         transmission_loss_percentiles = [int(x) for x in args.transmission_loss_percentiles.split()]
     except ValueError:
         sys.exit(f"error: invalid value for --transmission-loss-percentiles: {args.db_search_thresholds}. It must contain a string of spaced numbers, e.g. '50 80 90'")
-
+    
     # assign correct db search format from input
-    match args.db_search_format:
+    match args.db_search_format.lower():
         case 'peaks10':
             db_search_format = 'Peaks 10'
         case 'peaks11':
@@ -115,7 +115,7 @@ def main():
             sys.exit("Invalid de novo format provided.")
 
     # assign correct db search format from input
-    match args.de_novo_format:
+    match args.de_novo_format.lower():
         case 'peaks10':
             de_novo_format = 'Peaks 10'
         case 'peaks11':

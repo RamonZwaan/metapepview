@@ -186,9 +186,12 @@ def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
         max_len = max(max_len, score_rank.shape[0])
 
     # compute error bars
-    rank_mat = np.array([x + (max_len - len(x))*[0] for x in rank_mat])
-    mean_array = rank_mat.mean(axis=0)
-    std_array = rank_mat.std(axis=0)
+    if len(rank_mat) > 0:
+        rank_mat = np.array([x + (max_len - len(x))*[0] for x in rank_mat])
+        mean_array = rank_mat.mean(axis=0)
+        std_array = rank_mat.std(axis=0)
+    else:
+        mean_array, std_array = np.array([]), np.array([])
     
     return (mean_array, std_array)
 
@@ -298,8 +301,11 @@ def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
         
     rank_mat = np.array(rank_mat)
     # compute mean and error bars
-    mean_array = np.nanmean(rank_mat, axis=0)
-    std_array = np.nanstd(rank_mat, axis=0)
+    if rank_mat.shape[0] > 0:
+        mean_array = np.nanmean(rank_mat, axis=0)
+        std_array = np.nanstd(rank_mat, axis=0)
+    else:
+        mean_array, std_array = np.array([]), np.array([])
     
     return (mean_array, std_array, np.array(max_x_axis))
 
