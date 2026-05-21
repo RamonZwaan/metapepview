@@ -357,6 +357,14 @@ def functional_annotation(peptides: pd.DataFrame,
     """Annotate psm data with functional annotation dataset.
     """     
     acc_delim = GlobalConstants.peptides_accession_delimiter
+
+    # initialize_columns
+    for column in function_db.df.columns:
+        if (column not in peptides.columns) and (column in function_db.NUMERIC_FIELDS):
+            peptides.loc[:, column] = pd.Series(dtype="float64")
+        elif column not in peptides.columns:
+            peptides.loc[:, column] = pd.Series(dtype="object")
+
     for i, acc_list in enumerate(peptides["Accession"].str.split(acc_delim)):
         # some peptides in psm dataset may have no accession annotation, these cannot be functionally annotated
         if acc_list is None:
@@ -365,14 +373,6 @@ def functional_annotation(peptides: pd.DataFrame,
         func_data = accession_list_to_function(acc_list,
                                                function_db,
                                                combine=combine)
-
-        # For first value, check if columns exist. If not, initialize them with correct dtype        
-        if i == 0:
-            for column in func_data.index:
-                if column not in peptides.columns and column == "evalue":
-                    peptides.loc[:, column] = pd.Series(dtype="float64")
-                elif column not in peptides.columns:
-                    peptides.loc[:, column] = pd.Series(dtype="object")
         
         # check if series is returned, then add to dataset
         if isinstance(func_data, pd.Series):
@@ -419,8 +419,8 @@ def build_metapep_table(metapep_db_search: MetaPepDbSearch | None,
             # perform functional annotation
             try:
                 peptides = functional_annotation(peptides,
-                                                functional_mapper,
-                                                combine=options.func_annot_combine)
+                                                 functional_mapper,
+                                                 combine=options.func_annot_combine)
             except:
                 raise AnnotationError("Failed functional annotation of db search peptides.")
         else:

@@ -67,6 +67,8 @@ def show_samples_data(peptides_json):
             if not isinstance(trunc, str):
                 trunc = "None"
             return trunc
+        if sample_df[col].dtype != "object":
+            sample_df[col] = sample_df[col].astype("object")
         sample_df.loc[:, col] = sample_df[col].apply(text_processing)
 
     return (sample_df.to_dict('records'),
