@@ -82,7 +82,7 @@ def process_kegg_groups(
     if include_taxa is True:
         cols_filter_df = [ycol, "Sample Name", "Taxonomy Name", "KEGG_ko"]              # use to filter unrelevant columns
         cols_group_peptides = ["Peptide Index", ycol, "Taxonomy Name", "Sample Name"]   # use to merge protein names by peptide sequence
-        cols_group_names = ["Protein Name", "Taxonomy Name", "Sample Name"]                                   # use to group and count psm's by function and taxonomy
+        cols_group_names = ["Protein Name", "Taxonomy Name", "Sample Name"]             # use to group and count psm's by function and taxonomy
         
         # set empty taxonomy values to undefined
         if peptide_df["Taxonomy Name"].dtype != "object":

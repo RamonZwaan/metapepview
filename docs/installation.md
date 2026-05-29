@@ -13,6 +13,9 @@ It is recommended to install meta-PepView with [pipx](https://pipx.pypa.io/stabl
 !!! note
     In the instructions below, meta-PepView is installed by pip(x) by fetching the code from the GitHub repository. For this, git needs to be [installed on the PC](https://git-scm.com/install/linux).
 
+!!! warning
+    Scientific libraries such as NumPy and SciPy may not be supported right away for the newest Python versions. Or if they do, they may not provide [wheels](https://packaging.python.org/en/latest/specifications/binary-distribution-format/) for these configurations yet. In that case, C/C++ build tools have to be installed to be able to build the libraries. If pip/conda fails to install meta-PepView, try to install it in an older python version (e.g. 3.13 instead of 3.14).
+
 #### Installation with `pipx`
 
 First, make sure [python](https://www.python.org/) (3.11 or higher) is installed.
@@ -55,6 +58,7 @@ metapepview
 The dashboard can be accessed in the web browser (URL: `http://localhost:8050`).
 
 To uninstall meta-PepView:
+
 ```Bash
 pipx uninstall metapepview
 ```
