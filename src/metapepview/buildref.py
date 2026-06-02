@@ -35,12 +35,12 @@ def main():
     parser.add_argument('-d', 
                         '--db-search-format', 
                         required=True,
-                        choices=['peaks10', 'peaks11', 'maxquant', 'sage']
+                        choices=['peaks10', 'peaks11', 'peaks13', 'maxquant', 'sage']
                         )
     parser.add_argument('-n', 
                         '--de-novo-format', 
                         required=True,
-                        choices=['peaks10', 'peaks11', 'novor', 'casanovo']
+                        choices=['peaks10', 'peaks11', 'peaks13', 'novor', 'casanovo']
                         )
     parser.add_argument('-o', 
                         '--output', 
@@ -107,6 +107,8 @@ def main():
             db_search_format = 'Peaks 10'
         case 'peaks11':
             db_search_format = 'Peaks 11'
+        case 'peaks13':
+            db_search_format = 'Peaks 13'
         case 'maxquant':
             db_search_format = 'MaxQuant'
         case 'sage':
@@ -120,6 +122,8 @@ def main():
             de_novo_format = 'Peaks 10'
         case 'peaks11':
             de_novo_format  = 'Peaks 11'
+        case 'peaks13':
+            de_novo_format  = 'Peaks 13'
         case 'novor':
             de_novo_format = 'Novor'
         case 'casanovo':
