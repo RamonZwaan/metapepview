@@ -1,0 +1,11 @@
+include chunk_upload/chunk_upload.min.js
+include chunk_upload/chunk_upload.min.js.map
+include chunk_upload/async-*.js
+include chunk_upload/async-*.js.map
+include chunk_upload/*-shared.js
+include chunk_upload/*-shared.js.map
+include chunk_upload/metadata.json
+include chunk_upload/package-info.json
+include README.md
+include LICENSE
+include package.json

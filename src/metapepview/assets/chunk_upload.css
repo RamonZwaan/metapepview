@@ -1,0 +1,9 @@
+.chunk-upload-box {
+    border: 1px dashed #000000;
+    border-radius: 5px;
+    padding: 5px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+

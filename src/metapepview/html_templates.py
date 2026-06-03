@@ -11,6 +11,8 @@ from typing import Any, Sequence, List, Optional, Tuple, Dict
 from metapepview.backend.io import *
 from metapepview.constants import GlobalConstants as gc, StyleConstants
 
+from chunk_upload.ChunkUpload import ChunkUpload
+
 
 def importer_block(
     title: str,
@@ -89,7 +91,8 @@ def annotation_mini_importer_block(
     valid_state_id: str,
     format_options: List[str] | List[Dict[str, str]] | None=None,
     format_id: str | None=None,
-    allow_multiple: bool=False) -> html.Div:
+    allow_multiple: bool=False,
+    use_chunk_upload: bool=False) -> html.Div:
     """Create dash component template for importer blocks at small size.
 
     Args:
@@ -102,6 +105,10 @@ def annotation_mini_importer_block(
             Defaults to None.
         format_id (str | None, optional): Dash component id for format dropdown
             menu. Defaults to None.
+        allow_multiple (bool, optional): Allow upload of multiple files into
+            component.
+        use_chunk_upload (bool, optional): Use the custom chunk upload component
+            designed for upload of large (>100 MB) files.
 
     Returns:
         Any: List[Any]: Dash component block.
@@ -139,9 +146,30 @@ def annotation_mini_importer_block(
         'borderWidth': '1px',
         'borderStyle': 'dashed',
         'borderRadius': '5px',
+        'padding': '5px',
         'textAlign': 'center',
     }
-    if allow_multiple == True:
+
+    if use_chunk_upload is True:
+        return html.Div([
+            html.Div(
+                [
+                    header_block,
+                    format_dropdown,
+                    format_name
+                ],
+                style={"height": dropdown_height},
+                className="d-flex align-items-center justify-content-between my-3"
+            ),
+            ChunkUpload(
+                id=upload_id,
+                # className="my-2 mx-1",
+            ),
+            dcc.Store(id=valid_state_id, data=None)
+        ],
+        )
+
+    elif allow_multiple is True:
         filenames_feedback = html.Div([
                 'Drag and Drop or ',
                 html.A("Select Files", style={'cursor': 'pointer', 'fontWeight': 'bold'})
@@ -173,7 +201,7 @@ def annotation_mini_importer_block(
                 filenames_feedback,
                 size="sm"
             ),
-            className="my-2 mx-1 py-1",
+            className="my-2 mx-1",
             style=upload_style,
             multiple=allow_multiple
         ),

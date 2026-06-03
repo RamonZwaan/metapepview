@@ -30,6 +30,8 @@ class GlobalConstants:
     # 3: Default mode, all functions present
     func_level = 3
 
+    upload_folder = (Path.home() / ".metapepview" / "uploads").as_posix()
+
     # URL for documentation
     docs_url = "https://ramonzwaan.github.io/metapepview/"
     docs_data_prep_url = "https://ramonzwaan.github.io/metapepview/prepare-input-data/"

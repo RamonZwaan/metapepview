@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 
 from metapepview.html_templates import *
 from metapepview.constants import GlobalConstants as gc
-
+from chunk_upload import ChunkUpload
 
 sample_options_block = [
     html.Div(
@@ -626,7 +626,7 @@ spectral_data_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "mzml_upload", "mzml_name_txt", "mzml_valid"
+                "mzml_upload", "mzml_name_txt", "mzml_valid", use_chunk_upload=True
             )
         ],
         className="mx-4 mb-3"
@@ -912,7 +912,6 @@ import_block = html.Div(
             [
                 html.H3("Project data", className="ps-3 pt-3 pb-3"),
                 html.Hr(className="m-0", style={"color": "#8a8a8a"}),
-
                 html.Div(
                     [
                         html.H4("Performance evaluation dataset"),

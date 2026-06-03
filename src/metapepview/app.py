@@ -25,6 +25,7 @@ from metapepview.callbacks.import_callbacks.spectral_import_callbacks import *
 from metapepview.callbacks.sidebar_callbacks import *
 
 
+
 def main():
     """Entrypoint to start MetaPepView dashboard.
     """

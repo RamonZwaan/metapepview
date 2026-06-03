@@ -43,21 +43,24 @@ def show_db_psm_search_qa_name(contents,
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
         cont_buf = memory_to_stringio(cont, archv)
 
-        if mzml_metadata is None:
-            return validate_db_search(cont_buf, file_format)
-        else:
-            try:
-                db_search_obj = load_metapep_db_search(cont_buf,
-                                                    name,
-                                                    file_format)
-            except Exception as err:
-                return False, err
+        return validate_db_search(cont_buf, file_format)
 
-            source_name = mzml_metadata["raw file name"] 
-            if source_name not in db_search_obj.source_files:
-                msg = "mzml and DB search not from same experiment."
-                return False, msg
-        return True, None
+        # mzml_metadata does not relate to currently loaded mzml for import
+        # if mzml_metadata is None:
+        #     return validate_db_search(cont_buf, file_format)
+        # else:
+        #     try:
+        #         db_search_obj = load_metapep_db_search(cont_buf,
+        #                                             name,
+        #                                             file_format)
+        #     except Exception as err:
+        #         return False, err
+
+        #     source_name = mzml_metadata["raw file name"] 
+        #     if source_name not in db_search_obj.source_files:
+        #         msg = "mzml and DB search not from same experiment."
+        #         return False, msg
+        # return True, None
     
     (valid_data, 
      name, 
@@ -102,21 +105,24 @@ def show_denovo_search_qa_name(contents,
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
         cont_buf = memory_to_stringio(cont, archv)
 
-        if mzml_metadata is None:
-            return validate_de_novo(cont_buf, file_format)
-        else:
-            try:
-                de_novo_obj = load_metapep_de_novo(cont_buf,
-                                                   name,
-                                                   file_format)
-            except Exception as err:
-                return False, err
+        return validate_de_novo(cont_buf, file_format)
+        
+        # mzml_metadata does not relate to currently loaded mzml for import
+        # if mzml_metadata is None:
+        #     return validate_de_novo(cont_buf, file_format)
+        # else:
+        #     try:
+        #         de_novo_obj = load_metapep_de_novo(cont_buf,
+        #                                            name,
+        #                                            file_format)
+        #     except Exception as err:
+        #         return False, err
 
-            source_name = mzml_metadata["raw file name"] 
-            if source_name not in de_novo_obj.source_files:
-                msg = "mzml and de novo data not from same experiment."
-                return False, msg
-        return True, None
+        #     source_name = mzml_metadata["raw file name"] 
+        #     if source_name not in de_novo_obj.source_files:
+        #         msg = "mzml and de novo data not from same experiment."
+        #         return False, msg
+        # return True, None
     
 
     (valid_data, 
@@ -137,10 +143,13 @@ def show_denovo_search_qa_name(contents,
 
 @app.callback(
     Output("mzml_name", "children"),
-    Input("mzml_upload", "filename")
+    Input("mzml_upload", "file_info")
 )
-def show_mzml(filename):
-    return filename
+def show_mzml(file_path):
+    if (file_path is not None) and (Path(file_path).is_file()):
+        return truncate_end(Path(file_path).name, 30)
+    else:
+        return None
 
 
 @app.callback(
@@ -154,16 +163,16 @@ def show_features(filename):
 @app.callback(
     Output('start_spectral_import_button', 'disabled'),
     Output('spectral_import_hint', 'children'),
-    Input('mzml_upload', 'contents'),
+    Input('mzml_upload', 'file_info'),
     Input("db_search_psm_qa_valid", "data"),
     Input("denovo_qa_valid", "data"),
 )
-def inactivate_spectral_import_button(mzml_content,
+def inactivate_spectral_import_button(mzml_file_path,
                                       db_search_valid,
                                       de_novo_valid):
     tooltip_target = "start_spectral_import_button_wrapper"
 
-    if mzml_content is None:
+    if mzml_file_path is None:
         tooltip = dbc.Tooltip("Import spectral dataset (mzML)",
                               target=tooltip_target,
                               placement="bottom",
@@ -203,8 +212,7 @@ def inactivate_spectral_import_button(mzml_content,
     Output("qa_data_import_alert", "children", allow_duplicate=True),
     Output("qa_data_import_alert", "is_open", allow_duplicate=True),
     Input("start_spectral_import_button", "n_clicks"),
-    State("mzml_upload", "contents"),
-    State("mzml_upload", "filename"),
+    State("mzml_upload", "file_info"),
     State("features_upload", "contents"),
     State("features_upload", "filename"),
     State("db_search_psm_qa_upload", "contents"),
@@ -216,8 +224,7 @@ def inactivate_spectral_import_button(mzml_content,
     prevent_initial_call=True
 )
 def store_spectral_dataset(btn, 
-                           mzml_content, 
-                           mzml_filename,
+                           mzml_file_path,
                            features_content, 
                            features_filename,
                            db_search_content,
@@ -229,7 +236,7 @@ def store_spectral_dataset(btn,
     loading_status = None
 
     # only update if valid data uploaded
-    if mzml_content is None:
+    if (mzml_file_path is None) or (not Path(mzml_file_path).is_file()):
         raise PreventUpdate    
 
     empty_data = (None,)*8
@@ -238,8 +245,10 @@ def store_spectral_dataset(btn,
     (mzml_data, 
      mzml_peaks, 
      mzml_metadata,
-     mzml_valid) = import_mzml(mzml_content, mzml_filename)
+     mzml_valid) = import_mzml(Path(mzml_file_path), Path(mzml_file_path).name)
     
+    #TODO: Add check that DB search and de novo is related to raw mzml file
+
     # require mzml data for any information to be stored
     if mzml_valid is False or any(x is False for x in [db_search_valid, de_novo_valid]):
         if mzml_valid is False:
@@ -372,7 +381,7 @@ def show_imported_spectra(mzml_metadata,
         de_novo_format = "-"
 
 
-    return (spectra_name,
+    return (truncate_end(spectra_name, 30),
             failed_icon if features is None else success_icon,
             failed_icon if db_search is None else success_icon,
             db_search_format,

@@ -13,7 +13,8 @@ import numpy as np
 from metapepview.backend.utils import spectrum_id_to_scan_number, \
     determine_archive_format, \
     memory_to_file_like, \
-    compress_string
+    compress_string, \
+    extract_in_memory_archive
 
 
 # regex patterns
@@ -22,7 +23,7 @@ _PEAKS_COUNT_PATTERN = re.compile(r"(?<=defaultArrayLength=)[0-9]+")
 
 
 
-def import_mzml(content: str,
+def import_mzml(mzml_file: Path,
                 filename: str) -> Tuple[str, 
                                         str, 
                                         Dict[str, Any],
@@ -34,7 +35,7 @@ def import_mzml(content: str,
     """Import mzml file uploaded to dashboard and return data and metadata.
 
     Args:
-        content (str): mzml content.
+        content (Path): mzml content.
         filename (str): mzml file name.
 
     Returns:
@@ -59,7 +60,12 @@ def import_mzml(content: str,
     archive_format = determine_archive_format(filename)
     
     try:
-        data, metadata = mzml_to_df(memory_to_file_like(content, archive_format),
+        if archive_format is not None:
+            mzml_content = extract_in_memory_archive(mzml_file,
+                                                     archive_format)
+        else:
+            mzml_content = mzml_file
+        data, metadata = mzml_to_df(mzml_content,
                                     fields)
         
         numeric_fields = [
