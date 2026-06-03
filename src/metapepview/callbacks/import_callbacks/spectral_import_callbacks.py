@@ -307,9 +307,12 @@ def store_spectral_dataset(btn,
         alert_open = False
         alert_msg = None
 
+    # store mzml_peaks on server, store key to data in store
+    app.server.data_store["mzml_peaks_data"] = mzml_peaks
+
     return (loading_status,
             mzml_data,
-            mzml_peaks,
+            True,
             mzml_metadata,
             feature_data,
             feature_metadata,
@@ -334,6 +337,7 @@ def store_spectral_dataset(btn,
 )
 def clear_spectral_data(n_clicks):
     if n_clicks > 0:
+        app.server.data_store["mzml_peaks_data"] = None
         return (None,)*7# + (0,)
     raise PreventUpdate
 

@@ -229,6 +229,12 @@ def show_tic_over_rt(dataset,
                      secondary_param,
                      peak_int_cutoff,
                      metapep_confidence_cutoff):
+    # get mzml peaks
+    if peaks is True:
+        mzml_peaks = app.server.data_store.get("mzml_peaks_data")
+    else:
+        mzml_peaks = None
+
     if peak_int_cutoff is None:
         peak_int_cutoff = 0
     if metapep_confidence_cutoff is None:
@@ -269,7 +275,7 @@ def show_tic_over_rt(dataset,
 
     # Obtain TIC + RT for all MS1 spectra
     fig = tic_over_rt_plot(dataset,
-                           peaks,
+                           mzml_peaks,
                            features,
                            mzml_metadata['compression type'],
                            mzml_metadata['binary type'],
@@ -470,6 +476,15 @@ def show_frag_eff(mzml_content,
                   de_novo,
                   mz_cutoff,
                   ident_frac):
+    # get mzml peaks
+    if peaks is True:
+        mzml_peaks = app.server.data_store.get("mzml_peaks_data")
+    else:
+        mzml_peaks = None
+
+    if mz_cutoff is None:
+        mz_cutoff = 0
+
     # only update once mzxml is uploaded
     if mzml_content is None:
         raise PreventUpdate
@@ -493,7 +508,7 @@ def show_frag_eff(mzml_content,
    
     
     fig = ms1_int_over_ms2_int(mzml_content,
-                               peaks,
+                               mzml_peaks,
                                db_search_psm,
                                de_novo,
                                min_mz=mz_cutoff,

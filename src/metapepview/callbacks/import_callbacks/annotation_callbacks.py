@@ -773,6 +773,12 @@ def download_annotated_dataset_json(n_clicks,
                                     db_search_qa_data,
                                     de_novo_qa_data,
                                     experiment_name):
+    # get mzml peaks
+    if mzml_peaks is True:
+        mzml_peaks_content = app.server.data_store.get("mzml_peaks_data")
+    else:
+        mzml_peaks_content = None
+
     # at least one of annotation data or spectral data should be present
     if peptide_json is None and mzml_data is None:
         return None
@@ -787,7 +793,7 @@ def download_annotated_dataset_json(n_clicks,
     project_dict = {
         "peptides": peptide_json,# peptides_obj.to_json(),
         "mzml_data": mzml_data,
-        "mzml_peaks": mzml_peaks,
+        "mzml_peaks": mzml_peaks_content,
         "mzml_metadata": mzml_metadata,
         "features_data": features_data,
         "features_metadata": features_metadata,
@@ -836,7 +842,7 @@ def process_peptides_data(project_data,
     try:
         json_dict = json.loads(data_str)
     except:
-        return None, None, "Failed to parse data as json.", True
+        return empty_project + ("Failed to parse data as json.", True)
     
     # experiment name taken from filename except last suffix
     file_name = "".join(file_name.split('.')[:-1])
@@ -858,11 +864,18 @@ def process_peptides_data(project_data,
             return empty_project + (err_msg, True)
 
     # process spectral data
-
+    
+    # store peaks data in store dict server side
+    if json_dict.get("mzml_peaks") is not None:
+        app.server.data_store["mzml_peaks_data"] = json_dict.get("mzml_peaks")
+        mzml_peaks_data = True
+    else:
+        mzml_peaks_data = False
+    
 
     return (metapep_table_data,
             json_dict.get("mzml_data"),
-            json_dict.get("mzml_peaks"),
+            mzml_peaks_data,
             json_dict.get("mzml_metadata"),
             json_dict.get("features_data"),
             json_dict.get("features_metadata"),
