@@ -14,10 +14,11 @@ from metapepview.constants import *
     Output("barplot_de_novo_sample_items", "options"),
     Input('peptides', 'data')
 )
-def update_barplot_sample_selector(peptide_json):
+def update_barplot_sample_selector(peptide_json_loaded):
     """Update sample to visualize in the db search vs de novo
     taxonomy comparison.
     """
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         return []
     
@@ -78,7 +79,11 @@ def update_heatmap_taxa_selector(selector_radio_value):
     Input('tax_barplot_clade_selection_taxa', 'value'),
     Input('tax_barplot_clade_selection_rank', 'value'),
 )
-def update_barplot_custom_taxa_items_options(peptide_json, tax_rank, filter_clade, clade_rank):
+def update_barplot_custom_taxa_items_options(peptide_json_loaded, 
+                                             tax_rank, 
+                                             filter_clade, 
+                                             clade_rank):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         return ([], [])
     
@@ -100,7 +105,9 @@ def update_barplot_custom_taxa_items_options(peptide_json, tax_rank, filter_clad
     Input('peptides', 'data'),
     Input('tax_barplot_clade_selection_rank', 'value')
 )
-def update_barplot_clade_selection_options(peptide_json, tax_rank):
+def update_barplot_clade_selection_options(peptide_json_loaded, tax_rank):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
+
     if peptide_json is None:
         return ([], [], True, True)
     
@@ -119,7 +126,9 @@ def update_barplot_clade_selection_options(peptide_json, tax_rank):
     Input('peptides', 'data'),
     Input('heatmap_taxa_rank_items', 'value')
 )
-def update_heatmap_custom_taxa_items_options(peptide_json, tax_rank):
+def update_heatmap_custom_taxa_items_options(peptide_json_loaded, tax_rank):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
+
     if peptide_json is None:
         return ([], [])
     peptide_df = MetaPepTable.read_json(peptide_json).data
@@ -151,7 +160,8 @@ def toggle_bar_graph(bar_click, heat_click):
     Output('export_taxonomy_button', 'disabled'),
     Input('peptides', 'data')
 )
-def toggle_export_button(peptide_json):
+def toggle_export_button(peptide_json_loaded):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         return True
     else:
@@ -168,10 +178,11 @@ def toggle_export_button(peptide_json):
     prevent_initial_call=True
 )
 def export_tax_composition(button_click, 
-                           peptide_json,
+                           peptide_json_loaded,
                            filter_clade,
                            clade_rank,
                            global_annot_fallback):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         raise PreventUpdate
     
@@ -249,10 +260,11 @@ def activate_tax_comp_fig_button(fig_data):
     prevent_initial_call=True
 )
 def export_de_novo_tax_composition(button_click, 
-                                   peptide_json,
+                                   peptide_json_loaded,
                                    sample_name,
                                    quant_method,
                                    glob_annot_de_novo_only):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         raise PreventUpdate
     

@@ -17,6 +17,7 @@ from metapepview.layout.app_layout import *
 from metapepview.layout.func_annot_page import *
 
 from metapepview.backend import *
+from metapepview.backend.utils import *
 from metapepview.backend.type_operations import *
 from metapepview.backend.plots import tic_over_rt_plot, \
     ms2_from_signal_arrays, \
@@ -58,11 +59,12 @@ def hide_tic_over_rt_options(secondary_param):
     Input("db_search_qa_data", "data"),
     Input("de_novo_qa_data", "data"),
 )
-def show_metric_values(mzml_df, 
+def show_metric_values(mzml_df_loaded, 
                        mzml_metadata,
                        features_metadata,
                        db_search_psm,
                        de_novo):
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
 
     if mzml_metadata is None:
         mzml_metadata = dict()
@@ -217,7 +219,7 @@ def show_metric_values(mzml_df,
     Input("tic_sec_param_int_cutoff", "value"),
     Input("tic_sec_param_conf_cutoff", "value"),
 )
-def show_tic_over_rt(dataset,
+def show_tic_over_rt(mzml_df_loaded,
                      peaks,
                      mzml_metadata,
                      features,
@@ -229,11 +231,9 @@ def show_tic_over_rt(dataset,
                      secondary_param,
                      peak_int_cutoff,
                      metapep_confidence_cutoff):
-    # get mzml peaks
-    if peaks is True:
-        mzml_peaks = app.server.data_store.get("mzml_peaks_data")
-    else:
-        mzml_peaks = None
+    # get mzml data
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+    mzml_peaks = get_dataset_from_server_store(app, "mzml_peaks_data")
 
     if peak_int_cutoff is None:
         peak_int_cutoff = 0
@@ -241,10 +241,10 @@ def show_tic_over_rt(dataset,
         metapep_confidence_cutoff = 0
     
     # only update once mzml is uploaded
-    if dataset is None:
+    if mzml_df is None:
         raise PreventUpdate
-    dataset = decompress_string(dataset)
-    dataset = pd.read_json(StringIO(dataset))
+    mzml_df = decompress_string(mzml_df)
+    mzml_df = pd.read_json(StringIO(mzml_df))
     
     if features is not None:
         features = decompress_string(features)
@@ -271,10 +271,10 @@ def show_tic_over_rt(dataset,
     # get information from mzml
     if prot_data is not None and\
         prot_data.data["RT"].isnull().all():
-        prot_data = rt_from_spectral_data(prot_data, dataset)
+        prot_data = rt_from_spectral_data(prot_data, mzml_df)
 
     # Obtain TIC + RT for all MS1 spectra
-    fig = tic_over_rt_plot(dataset,
+    fig = tic_over_rt_plot(mzml_df,
                            mzml_peaks,
                            features,
                            mzml_metadata['compression type'],
@@ -303,19 +303,21 @@ def show_tic_over_rt(dataset,
     Input("mz_over_rt_int_cutoff", "value"),
     Input("mz_over_rt_ident_frac", "value")
 )
-def show_mz_over_rt(mzml_content,
+def show_mz_over_rt(mzml_df_loaded,
                     mzml_metadata,
                     db_search_psm,
                     de_novo,
                     int_cutoff,
                     ident_val):
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+
     # only update once mzxml is uploaded
-    if mzml_content is None:
+    if mzml_df is None:
         raise PreventUpdate
     
-    mzml_content = decompress_string(mzml_content)
+    mzml_df = decompress_string(mzml_df)
     
-    mzml_content = pd.read_json(StringIO(mzml_content))
+    mzml_df = pd.read_json(StringIO(mzml_df))
     
     # add identification data based on selected option and delivered datasets
     if ident_val == "DB search" and db_search_psm is not None:
@@ -331,7 +333,7 @@ def show_mz_over_rt(mzml_content,
     
 
 
-    fig = mz_over_rt_plot(mzml_content, db_search_obj, de_novo_obj, int_cutoff)
+    fig = mz_over_rt_plot(mzml_df, db_search_obj, de_novo_obj, int_cutoff)
     fig.update_layout(autosize=True)
     graph = dcc.Graph(figure=fig, id="tic_over_rt_fig", style={'height': '100%'})
     return (graph, {"display": 'block', 'height': '19rem'})
@@ -419,20 +421,22 @@ def update_ident_dropdown_ms1_ms2(db_search_psm,
     Input("scan_int_dist_alc_cutoff", "value"),
     Input("int_dist_fig_norm_bars", "value"),
 )
-def show_tic_dist(mzml_content,
+def show_tic_dist(mzml_df_loaded,
                   mzml_metadata,
                   db_search_psm,
                   de_novo,
                   ms_level,
                   alc_cutoff,
                   norm_bars):
-    # only update once mzxml is uploaded
-    if mzml_content is None:
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+
+    # only update once mzml is uploaded
+    if mzml_df is None:
         raise PreventUpdate
     
-    mzml_content = decompress_string(mzml_content)
+    mzml_df = decompress_string(mzml_df)
     
-    mzml_content = pd.read_json(StringIO(mzml_content))
+    mzml_df = pd.read_json(StringIO(mzml_df))
     
     # add identification data based on selected option and delivered datasets
     if db_search_psm is not None:
@@ -447,7 +451,7 @@ def show_tic_dist(mzml_content,
         de_novo = None
     
     
-    fig = scan_tic_dist_plot(mzml_content, 
+    fig = scan_tic_dist_plot(mzml_df, 
                              int(ms_level), 
                              db_search_psm, 
                              de_novo, 
@@ -469,30 +473,28 @@ def show_tic_dist(mzml_content,
     Input("ms1_over_ms2_mz_cutoff", "value"),
     Input("ms1_over_ms2_ident_frac", "value")
 )
-def show_frag_eff(mzml_content,
+def show_frag_eff(mzml_df_loaded,
                   peaks,
                   metadata,
                   db_search_psm,
                   de_novo,
                   mz_cutoff,
                   ident_frac):
-    # get mzml peaks
-    if peaks is True:
-        mzml_peaks = app.server.data_store.get("mzml_peaks_data")
-    else:
-        mzml_peaks = None
+    # get mzml data
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+    mzml_peaks = get_dataset_from_server_store(app, "mzml_peaks_data")
 
     if mz_cutoff is None:
         mz_cutoff = 0
 
     # only update once mzxml is uploaded
-    if mzml_content is None:
+    if mzml_df is None:
         raise PreventUpdate
     
-    mzml_content = decompress_string(mzml_content)
+    mzml_df = decompress_string(mzml_df)
     # peaks = decompress_string(peaks)
     
-    mzml_content = pd.read_json(StringIO(mzml_content))
+    mzml_df = pd.read_json(StringIO(mzml_df))
    
     # add identification data based on selected option and delivered datasets
     if ident_frac == "DB search" and db_search_psm is not None:
@@ -507,7 +509,7 @@ def show_frag_eff(mzml_content,
         de_novo = None
    
     
-    fig = ms1_int_over_ms2_int(mzml_content,
+    fig = ms1_int_over_ms2_int(mzml_df,
                                mzml_peaks,
                                db_search_psm,
                                de_novo,
@@ -793,19 +795,21 @@ def show_score_threshold_dist(ref_data,
     Input("mzml_data", "data"),
 )
 def show_intensity_dist(ref_data,
-                        mzml_content):
+                        mzml_df_loaded):
     if ref_data is None:
         raise PreventUpdate
     
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+
     # only update once mzml is uploaded
-    if mzml_content is not None:
-        mzml_content = decompress_string(mzml_content)
-        mzml_content = pd.read_json(StringIO(mzml_content))
+    if mzml_df is not None:
+        mzml_df = decompress_string(mzml_df)
+        mzml_df = pd.read_json(StringIO(mzml_df))
 
     # directly extract sample based on option key
     ref_dict = json.loads(ref_data)
     
-    fig = ref_intensity_dist_plot(stat_dict=ref_dict, spectral_data=mzml_content)
+    fig = ref_intensity_dist_plot(stat_dict=ref_dict, spectral_data=mzml_df)
     
     graph = dcc.Graph(figure=fig,
                       id="reference_intensity_fig",
@@ -854,20 +858,22 @@ def show_miscleavage_dist(ref_data,
     Input("scale_ion_injection_time", "value")
 )
 def show_transmission_dist(ref_data,
-                           mzml_content,
+                           mzml_df_loaded,
                            scale_ion_inj):
     if ref_data is None:
         raise PreventUpdate
     
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+
     # only update once mzml is uploaded
-    if mzml_content is not None:
-        mzml_content = decompress_string(mzml_content)
-        mzml_content = pd.read_json(StringIO(mzml_content))
+    if mzml_df is not None:
+        mzml_df = decompress_string(mzml_df)
+        mzml_df = pd.read_json(StringIO(mzml_df))
     
     # directly extract sample based on option key
     ref_dict = json.loads(ref_data)
     
-    fig = ref_transmission_scatter_plot(ref_dict, mzml_content, scale_ion_inj)
+    fig = ref_transmission_scatter_plot(ref_dict, mzml_df, scale_ion_inj)
     
     graph = dcc.Graph(figure=fig,
                       id="reference_transmission_fig",

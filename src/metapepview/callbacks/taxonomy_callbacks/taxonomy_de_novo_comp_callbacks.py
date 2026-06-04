@@ -41,7 +41,7 @@ from metapepview.constants import *
     Input('global_annot_de_novo_only_checkbox', 'value')
 )
 def update_de_novo_taxa_graph(page_active,
-                              peptide_json,
+                              peptide_json_loaded,
                               sample_name,
                               bar_graph,
                               tax_ids,
@@ -56,6 +56,7 @@ def update_de_novo_taxa_graph(page_active,
     if page_active is False:
         raise PreventUpdate
     
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Import PSM and protein db datasets...")

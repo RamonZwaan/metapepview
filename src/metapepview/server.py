@@ -16,13 +16,6 @@ for item in Path(UPLOAD_FOLDER).iterdir():
     shutil.rmtree(item) if item.is_dir() else item.unlink()
 
 
-# In-memory session registry, match file to component_id
-component_files = {}
-upload_sessions = {}
-
-# store 
-data_store = {}
-
 def register_upload_endpoints(app):
     server = app.server
 

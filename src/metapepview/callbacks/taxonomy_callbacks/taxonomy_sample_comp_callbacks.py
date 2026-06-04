@@ -50,7 +50,7 @@ def toggle_tax_facet_collapse(switch_value):
     Input('facet_barplot_taxa_allow_global_annot_checkbox', 'value')
 )
 def update_taxa_graph(page_active,
-                      peptide_json,
+                      peptide_json_loaded,
                       bar_graph,
                       tax_ids,
                       filter_clade,
@@ -70,6 +70,7 @@ def update_taxa_graph(page_active,
     if page_active is False:
         raise PreventUpdate
 
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Import PSM and protein db datasets...")
@@ -209,7 +210,7 @@ def update_taxa_graph(page_active,
 )
 def update_taxonomy_dropoff_graph(clickData,
                                   page_active,
-                                  peptide_json,
+                                  peptide_json_loaded,
                                   tax_rank,
                                   quant_method,
                                   global_annot_fallback,
@@ -218,6 +219,8 @@ def update_taxonomy_dropoff_graph(clickData,
                                   normalize_bars,
                                   dropoff_root_rank,
                                   ):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
+
     if page_active is False \
         or clickData is None \
         or tax_rank is None \

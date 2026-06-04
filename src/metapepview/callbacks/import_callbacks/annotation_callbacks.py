@@ -476,7 +476,7 @@ def db_search_accession_parser(parser_option, current_value):
     prevent_initial_call=True
 )
 def process_manual_annotation(n_clicks,
-                              current_peptides,
+                              peptide_json_loaded,
                               current_metadata,
                               sample_name,
                               merge_psms,
@@ -515,8 +515,11 @@ def process_manual_annotation(n_clicks,
     alert_content = None
     alert_open = False
     loading_status = None
+
+    current_peptides = get_dataset_from_server_store(app, "peptides")
+    current_peptides_loaded = check_dataset_in_server_store(app, "peptides")
     
-    no_update = (current_peptides, 
+    no_update = (current_peptides_loaded, 
                  current_metadata, 
                  loading_status, 
                  data_import_container, 
@@ -553,7 +556,7 @@ def process_manual_annotation(n_clicks,
         except:
             alert_msg = "Failed to extract DB search data. Ensure the archive only contains valid DB search files in consistent format."
             alert_open = True
-            return (current_peptides, 
+            return (current_peptides_loaded,
                     current_metadata, 
                     loading_status, 
                     data_import_container, 
@@ -572,7 +575,7 @@ def process_manual_annotation(n_clicks,
         except:
             alert_msg = "Failed to extract de novo data. Ensure the archive only contains valid de novo files in consistent format."
             alert_open = True
-            return (current_peptides, 
+            return (current_peptides_loaded, 
                     current_metadata, 
                     loading_status, 
                     data_import_container, 
@@ -590,7 +593,7 @@ def process_manual_annotation(n_clicks,
         except:
             alert_msg = "Failed to parse project data..."
             alert_open = True
-            return (current_peptides, 
+            return (current_peptides_loaded, 
                     current_metadata, 
                     loading_status, 
                     data_import_container, 
@@ -610,7 +613,7 @@ def process_manual_annotation(n_clicks,
     except:
         alert_msg = "Failed to parse db search filenames..."
         alert_open = True
-        return (current_peptides, 
+        return (current_peptides_loaded, 
                 current_metadata, 
                 loading_status, 
                 data_import_container, 
@@ -667,7 +670,7 @@ def process_manual_annotation(n_clicks,
                                          options)
     except AnnotationError as err:
         alert_open = True
-        return (current_peptides, 
+        return (current_peptides_loaded, 
                 current_metadata, 
                 loading_status, 
                 data_import_container, 
@@ -676,7 +679,7 @@ def process_manual_annotation(n_clicks,
     except Exception as err:
         alert_msg = "Failed annotation due to unexpected problem: {err}"
         alert_open = True
-        return (current_peptides, 
+        return (current_peptides_loaded, 
                 current_metadata, 
                 loading_status, 
                 data_import_container, 
@@ -690,7 +693,7 @@ def process_manual_annotation(n_clicks,
         except Exception as e:
             alert_msg = f"Failed to add sample to project table: {e}"
             alert_open = True
-            return (current_peptides, 
+            return (current_peptides_loaded, 
                     current_metadata, 
                     loading_status, 
                     data_import_container, 
@@ -702,7 +705,7 @@ def process_manual_annotation(n_clicks,
     except:
         alert_msg = "failed to store project table..."
         alert_open = True
-        return (current_peptides, 
+        return (current_peptides_loaded, 
                 current_metadata, 
                 loading_status, 
                 data_import_container, 
@@ -710,7 +713,7 @@ def process_manual_annotation(n_clicks,
                 alert_open)
         
         
-    return (new_peptides_dump,
+    return (add_dataset_to_server_store(app, "peptides", new_peptides_dump),
             current_metadata,
             loading_status,
             data_import_container,
@@ -731,8 +734,9 @@ def global_taxonomy_annotation_only():
     prevent_initial_call=True
 )
 def download_annotated_dataset_csv(n_clicks,
-                                   peptide_json,
+                                   peptide_json_loaded,
                                    experiment_name):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         return
 
@@ -763,9 +767,9 @@ def download_annotated_dataset_csv(n_clicks,
     prevent_initial_call=True
 )
 def download_annotated_dataset_json(n_clicks,
-                                    peptide_json,
+                                    peptide_json_loaded,
                                     # pept_metadata,
-                                    mzml_data,
+                                    mzml_df_loaded,
                                     mzml_peaks,
                                     mzml_metadata,
                                     features_data,
@@ -773,14 +777,13 @@ def download_annotated_dataset_json(n_clicks,
                                     db_search_qa_data,
                                     de_novo_qa_data,
                                     experiment_name):
-    # get mzml peaks
-    if mzml_peaks is True:
-        mzml_peaks_content = app.server.data_store.get("mzml_peaks_data")
-    else:
-        mzml_peaks_content = None
+    # get mzml data
+    mzml_df = get_dataset_from_server_store(app, "mzml_data")
+    mzml_peaks_content = get_dataset_from_server_store(app, "mzml_peaks_data")
+    peptide_json = get_dataset_from_server_store(app, "peptides")
 
     # at least one of annotation data or spectral data should be present
-    if peptide_json is None and mzml_data is None:
+    if peptide_json is None and mzml_df is None:
         return None
 
     if experiment_name is None:
@@ -792,7 +795,7 @@ def download_annotated_dataset_json(n_clicks,
 
     project_dict = {
         "peptides": peptide_json,# peptides_obj.to_json(),
-        "mzml_data": mzml_data,
+        "mzml_data": mzml_df,
         "mzml_peaks": mzml_peaks_content,
         "mzml_metadata": mzml_metadata,
         "features_data": features_data,
@@ -854,7 +857,8 @@ def process_peptides_data(project_data,
         if not valid:
             return empty_project + (err_msg, True)
         else:
-            return (data_str,) + (None,)*7 + (file_name, None, False)
+            pept_loaded = add_dataset_to_server_store(app, "peptides", data_str)
+            return (pept_loaded,) + (None,)*7 + (file_name, None, False)
 
     # process annotation peptides data
     metapep_table_data = json_dict["peptides"]
@@ -866,15 +870,15 @@ def process_peptides_data(project_data,
     # process spectral data
     
     # store peaks data in store dict server side
-    if json_dict.get("mzml_peaks") is not None:
-        app.server.data_store["mzml_peaks_data"] = json_dict.get("mzml_peaks")
-        mzml_peaks_data = True
-    else:
-        mzml_peaks_data = False
-    
+    mzml_data = add_dataset_to_server_store(app, 
+                                            "mzml_data", 
+                                            json_dict.get("mzml_data"))
+    mzml_peaks_data = add_dataset_to_server_store(app, 
+                                                  "mzml_peaks_data", 
+                                                  json_dict.get("mzml_peaks"))
 
-    return (metapep_table_data,
-            json_dict.get("mzml_data"),
+    return (add_dataset_to_server_store(app, "peptides", metapep_table_data),
+            mzml_data,
             mzml_peaks_data,
             json_dict.get("mzml_metadata"),
             json_dict.get("features_data"),

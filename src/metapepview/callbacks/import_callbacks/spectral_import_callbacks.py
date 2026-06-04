@@ -307,12 +307,17 @@ def store_spectral_dataset(btn,
         alert_open = False
         alert_msg = None
 
-    # store mzml_peaks on server, store key to data in store
-    app.server.data_store["mzml_peaks_data"] = mzml_peaks
+    # store mzml data on server, store key to data in store
+    mzml_peaks_stored = add_dataset_to_server_store(app, 
+                                                    "mzml_peaks_data", 
+                                                    mzml_peaks)
+    mzml_data_stored = add_dataset_to_server_store(app, 
+                                                   "mzml_data", 
+                                                   mzml_data)
 
     return (loading_status,
-            mzml_data,
-            True,
+            mzml_data_stored,
+            mzml_peaks_stored,
             mzml_metadata,
             feature_data,
             feature_metadata,
@@ -337,7 +342,8 @@ def store_spectral_dataset(btn,
 )
 def clear_spectral_data(n_clicks):
     if n_clicks > 0:
-        app.server.data_store["mzml_peaks_data"] = None
+        remove_dataset_from_server_store(app, "mzml_peaks_data")
+        remove_dataset_from_server_store(app, "mzml_data")
         return (None,)*7# + (0,)
     raise PreventUpdate
 

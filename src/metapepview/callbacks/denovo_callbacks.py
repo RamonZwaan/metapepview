@@ -17,13 +17,14 @@ import pandas as pd
     Input('de_novo_fraction_alc_cutoff', 'value'),
     Input('de_novo_fraction_radio', 'value')
 )
-def denovo_only_fraction(peptide_json,
+def denovo_only_fraction(peptide_json_loaded,
                          score_cutoff=80,
                          show_fraction=False):
     """Obtain for each sample the fraction of sequences found through
     de novo processing not identified by db search.
 
     """
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     
     score_cutoff = float(score_cutoff)
     

@@ -178,7 +178,9 @@ def enable_pathway_selector(kegg_group_type):
     Output("pathway_normalize_sample", "disabled"),
     Input("peptides", "data")
 )
-def update_pathway_sample_normalization(peptide_json):
+def update_pathway_sample_normalization(peptide_json_loaded):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
+
     if peptide_json is None:
         return [], True
     
@@ -221,7 +223,7 @@ def disable_module_dropdown(kegg_db, kegg_display_format):
     Input('tax_barplot_clade_selection_rank', 'value'),
     State('kegg_db_class_data', 'data')
 )
-def update_pathway_barplot(peptide_json, 
+def update_pathway_barplot(peptide_json_loaded, 
                            kegg_group_method,
                            kegg_format,
                            predifined_brite_group,
@@ -236,6 +238,8 @@ def update_pathway_barplot(peptide_json,
                            filter_clade,
                            clade_rank,
                            kegg_db):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
+
     # set y axis column based on quantification method
     if quant_method == "Match Count":
         ycol = "PSM Count"
@@ -341,10 +345,11 @@ def update_pathway_barplot(peptide_json,
     Output("kegg_export_samples", "options"),
     Input('peptides', 'data')
 )
-def update_kegg_export_sample_selector(peptide_json):
+def update_kegg_export_sample_selector(peptide_json_loaded):
     """Update sample to visualize in the db search vs de novo
     taxonomy comparison.
     """
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         return []
     
@@ -372,7 +377,7 @@ def update_kegg_export_sample_selector(peptide_json):
     Input('tax_barplot_clade_selection_rank', 'value'),
     State('kegg_db_class_data', 'data')
 )
-def construct_pathway_url(peptide_json, 
+def construct_pathway_url(peptide_json_loaded, 
                           kegg_group_method,
                           selected_samples,
                           predifined_pathway,
@@ -384,6 +389,8 @@ def construct_pathway_url(peptide_json,
             "Import KEGG dataset (see sidebar)",
             className="fst-italic ms-5")]
         return None, True, table_block, None
+
+    peptide_json = get_dataset_from_server_store(app, "peptides")
 
     if peptide_json is None:
         table_block = [html.P(
@@ -474,7 +481,8 @@ def construct_pathway_url(peptide_json,
     Output('export_functions_button', 'disabled'),
     Input('peptides', 'data')
 )
-def toggle_export_button(peptide_json):
+def toggle_export_button(peptide_json_loaded):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         return True
     else:
@@ -501,7 +509,7 @@ def toggle_export_button(peptide_json):
     prevent_initial_call=True
 )
 def export_func_composition(button_click, 
-                            peptide_json, 
+                            peptide_json_loaded, 
                             kegg_group_method,
                             kegg_format,
                             predifined_brite_group,
@@ -526,6 +534,8 @@ def export_func_composition(button_click,
         kegg_db = KeggDatabase.read_json(kegg_db)
     else:
         raise PreventUpdate
+    
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     if peptide_json is None:
         raise PreventUpdate
     metapep_obj = MetaPepTable.read_json(peptide_json)

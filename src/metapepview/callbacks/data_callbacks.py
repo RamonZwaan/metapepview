@@ -19,10 +19,11 @@ from metapepview.constants import GlobalConstants as gc
     Output('peptides_function_db_format', 'children'),
     Input('peptides', 'data')
 )
-def show_samples_data(peptides_json):
+def show_samples_data(peptide_json_loaded):
     """Display sample of protein db data into datatable and display format
     information.
     """
+    peptide_json = get_dataset_from_server_store(app, "peptides")
     table_cols = deepcopy(gc.experiment_sample_table_cols)
 
     # remove unrelevant columns from table depending on dashboard function level
@@ -36,7 +37,7 @@ def show_samples_data(peptides_json):
         table_cols.remove("De Novo Imported")
 
     # display message to import data if no peptides dataset is present
-    if peptides_json is None:
+    if peptide_json is None:
         return (None,
                 [{'id': c, 'name': c} for c in table_cols],
                 "-",
@@ -44,7 +45,7 @@ def show_samples_data(peptides_json):
                 "-",
                 "-")
 
-    peptides_obj = MetaPepTable.read_json(peptides_json)
+    peptides_obj = MetaPepTable.read_json(peptide_json)
     peptides_df = peptides_obj.data
 
     db_search_format = peptides_obj.db_search_format
@@ -86,11 +87,12 @@ def show_samples_data(peptides_json):
     prevent_initial_call=True
 )
 def remove_peptide_data(datatable_data,
-                        peptides_json):
-    if peptides_json is None:
+                        peptide_json_loaded):
+    peptide_json = get_dataset_from_server_store(app, "peptides")
+    if peptide_json is None:
         raise PreventUpdate
 
-    metapep_obj = MetaPepTable.read_json(peptides_json)
+    metapep_obj = MetaPepTable.read_json(peptide_json)
     metapep_samples = metapep_obj.sample_names
 
     samples_datatable = [row.get('Sample Name') for row in datatable_data]
@@ -100,7 +102,9 @@ def remove_peptide_data(datatable_data,
 
     metapep_obj = metapep_obj.remove_samples(filter_samples)
 
-    return metapep_obj.to_json()
+    stored = add_dataset_to_server_store(app, "peptides", metapep_obj.to_json())
+
+    return stored
 
 
 @app.callback(
@@ -134,6 +138,9 @@ def update_experiment_name(current_field_name, stored_data):
 )
 def clear_peptide_data(n_clicks):
     if n_clicks > 0:
+        remove_dataset_from_server_store(app, "mzml_data")
+        remove_dataset_from_server_store(app, "mzml_peaks_data")
+        remove_dataset_from_server_store(app, "peptides")
         return (None,)*10 + (0,)
     raise PreventUpdate
 

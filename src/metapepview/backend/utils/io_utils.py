@@ -18,6 +18,8 @@ import tarfile
 from zipfile import ZipFile
 import zlib
 
+from dash import Dash
+
 
 def csv_to_dict(file_loc: Path | IO[str],
                 keys_col: int = 0,
@@ -397,3 +399,66 @@ def check_file_presence(
         any_present = False
         
     return (all_present, any_present)
+
+
+def add_dataset_to_server_store(app: Dash,
+                                store_id: str,
+                                content: Any) -> bool:
+    """Add datasets into data storage object in dash server.
+
+    Args:
+        app (Dash): Dash object.
+        store_id (str): ID name for dcc.Store. Serves as key to dataset storage.
+        content (Any): Dataset to store.
+
+    Returns:
+        bool: True if dataset is stored on server.
+    """
+    if (content is None) or (content == ""):
+        return False
+    else:
+        app.server.data_store[store_id] = content
+        return True
+
+
+def check_dataset_in_server_store(app: Dash,
+                                  store_id: str) -> bool:
+    """Check presence of a (non empty) dataset in server storage.
+
+    Args:
+        app (Dash): Dash object.
+        store_id (str): ID name for dcc.Store. Serves as key to dataset storage.
+
+    Returns:
+        bool: True if dataset is stored on server.
+    """
+    content = app.server.data_store.get(store_id)
+    if (content is None) or (content == ""):
+        return False
+    else:
+        return True
+
+
+def get_dataset_from_server_store(app: Dash,
+                                  store_id: str) -> Any:
+    """Get dataset stored server side.
+
+    Args:
+        app (Dash): Dash object.
+        store_id (str): ID name for dcc.Store. Serves as key to dataset storage.
+
+    Returns:
+        Any: Dataset stored in dcc store.
+    """
+    return app.server.data_store.get(store_id)
+
+
+def remove_dataset_from_server_store(app: Dash,
+                                     store_id: str):
+    """Remove dataset from server storage object
+
+    Args:
+        app (Dash): Dash object.
+        store_id (str): ID name for dcc.Store. Serves as key to dataset storage.
+    """
+    app.server.data_store[store_id] = None
