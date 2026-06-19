@@ -230,6 +230,8 @@ def substitute_lineage_with_global_lineage(peptide_df: pd.DataFrame,
     # lineage columns
     glob_tax_fields = GlobalConstants.metapep_table_global_taxonomy_lineage
     mg_tax_fields = GlobalConstants.metapep_table_taxonomy_lineage
+    mg_tax_names = GlobalConstants.metapep_table_lineage_names
+    glob_tax_names = GlobalConstants.metapep_table_global_lineage_names
     
     # if true, supplement any peptide without local annotation with global annotation
     if supplement_prot_db_annotation is True:
@@ -238,9 +240,14 @@ def substitute_lineage_with_global_lineage(peptide_df: pd.DataFrame,
     else:
         no_tax_annot_idx = peptide_df[peptide_df["Taxonomy Annotation"] == False].index
 
+    # If no DB search data, lineage names may be processed as float with only nan
+    # therefore, cast tax name colums to string
+    peptide_df[mg_tax_names] = peptide_df[mg_tax_names].astype("string")
+    peptide_df[glob_tax_names] = peptide_df[glob_tax_names].astype("string")
+
     peptide_df.loc[no_tax_annot_idx, 
-                    mg_tax_fields] = peptide_df.loc[no_tax_annot_idx, 
-                                                    glob_tax_fields].values
+                   mg_tax_fields] = peptide_df.loc[no_tax_annot_idx, 
+                                                   glob_tax_fields].values
     
     # add de novo matches to psm count only if no db search was observed
     peptide_df.loc[no_tax_annot_idx, 

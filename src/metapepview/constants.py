@@ -138,14 +138,19 @@ class GlobalConstants:
                               'Scan',
                               'Source File']
 
-    metapep_table_taxonomy_lineage = [i + ' Id' for i in standard_lineage_ranks] + \
-                                     [i + ' Name' for i in standard_lineage_ranks]
+    metapep_table_lineage_ids = [i + ' Id' for i in standard_lineage_ranks]
+    metapep_table_lineage_names = [i + ' Name' for i in standard_lineage_ranks]
+    metapep_table_taxonomy_lineage = metapep_table_lineage_ids + \
+                                     metapep_table_lineage_names
+                                     
     metapep_table_taxonomy_fields = ['Taxonomy Id',
                                      'Taxonomy Name'] + \
                                     metapep_table_taxonomy_lineage
 
-    metapep_table_global_taxonomy_lineage = [i + f' Id (global search)' for i in standard_lineage_ranks] + \
-                                            [i + f' Name (global search)' for i in standard_lineage_ranks]
+    metapep_table_global_lineage_ids = [i + ' Id (global search)' for i in standard_lineage_ranks]
+    metapep_table_global_lineage_names = [i + ' Name (global search)' for i in standard_lineage_ranks]
+    metapep_table_global_taxonomy_lineage = metapep_table_global_lineage_ids + \
+                                            metapep_table_global_lineage_names
     metapep_table_global_taxonomy_fields = [
         'Global LCA', 'Global LCA Rank'] + \
         metapep_table_global_taxonomy_lineage
