@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 
 db_search_file_name: Dict[DbSearchSource, str] = {
+    'Peaks 13': "db.psms.csv",
     'Peaks 11': "db.psms.csv",
     'Peaks 10': "DB search psm.csv",
     'MaxQuant': "evidence.txt",
@@ -13,6 +14,7 @@ db_search_file_name: Dict[DbSearchSource, str] = {
 }
 
 de_novo_file_name: Dict[DeNovoSource, str] = {
+    'Peaks 13': "*.denovo.csv",
     'Peaks 11': "*.denovo.csv",
     'Peaks 10': "de novo peptides.csv",
     'Novor': "*.novor.csv",
