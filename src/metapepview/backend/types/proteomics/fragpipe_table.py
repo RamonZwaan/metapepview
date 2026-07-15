@@ -7,64 +7,77 @@ from typing import List, Sequence, Type, Self, IO
 from metapepview.backend.types.proteomics.proteomics_base_classes import DbSearchMethods
 from metapepview.constants import *
 from metapepview.backend.types.metapep_table import MetaPepDbSearch
-from metapepview.backend.utils import filter_crap, wrangle_peptides
+from metapepview.backend.utils import filter_crap, wrangle_peptides, mz_diff_to_ppm
 
 
-class SageDbSearch(DbSearchMethods):
-    """Sage database search psm table.
-    Below is a summary of table columns within the format.
+class FragPipeDbSearch(DbSearchMethods):
+    """FragPipe database search psm table.
+    Below is a summary of table columns when default parameters are specified
+    for DB search. Some columns may have been supplemented from post processing
+    modules within FragPipe.
+
     Hyperscore is taken as confidence parameter.
     
     Fields:
-        peptide
-        proteins (; delimited)
-        num_proteins
-        filename
-        scannr
-        rank
-        label
-        expmass
-        calcmass
-        charge
-        peptide_len
-        missed_cleavages
-        isotope_error
-        precursor_ppm
-        fragment_ppm
-        hyperscore
-        delta_next
-        delta_best
-        rt
-        aligned_rt
-        predicted_rt
-        delta_rt_model
-        matched_peaks
-        longest_b
-        longest_y
-        longest_y_pct
-        matched_intensity_pct
-        scored_candidates
-        poisson
-        sage_discriminant_score
-        posterior_error
-        spectrum_q
-        peptide_q
-        protein_q
-        ms2_intensity
+    Spectrum	
+    Spectrum File	
+    Peptide	
+    Modified Peptide	
+    Extended Peptide	
+    Prev AA	
+    Next AA	
+    Peptide Length	
+    Charge	
+    Retention	
+    Observed Mass	
+    Calibrated Observed Mass	
+    Observed M/Z	
+    Calibrated Observed M/Z	
+    Calculated Peptide Mass	
+    Calculated M/Z	
+    Delta Mass	
+    SpectralSim	
+    RTScore	
+    Expectation	
+    Hyperscore	
+    Nextscore	
+    Probability	
+    Qvalue	
+    Number of Enzymatic Termini	
+    Number of Missed Cleavages	
+    Protein Start	
+    Protein End	
+    Intensity	
+    Assigned Modifications	
+    Observed Modifications	
+    Purity	
+    Is Decoy	
+    Is Contaminant	
+    Is Unique	
+    Protein	
+    Protein ID	
+    Entry Name	
+    Gene	
+    Protein Description	
+    Mapped Genes	
+    Mapped Proteins
     """
     
     # expected columns within input data
-    REQUIRED_FIELDS = ["peptide", "hyperscore", "expmass", "peptide_len",
-                       "rank", "label", "precursor_ppm", "charge", "rt", 
-                       "scannr", "filename", "proteins"]
+    REQUIRED_FIELDS = ["Peptide", "Modified Peptide", "Intensity",
+                       "Hyperscore", "Observed Mass", "Observed M/Z",
+                       "Calculated M/Z", "Peptide Length", "Delta Mass", 
+                       "Charge", "Retention", "Spectrum", "Spectrum File", 
+                       "Protein", "Is Decoy", "Is Contaminant"]
     
     # columns expected to be numeric
-    NUMERIC_FIELDS = ["hyperscore", "expmass", "peptide_len", "precursor_ppm", 
-                      "charge", "rt"]
+    NUMERIC_FIELDS = ["Hyperscore", "Intensity", "Observed Mass", 
+                      "Observed M/Z", "Calculated M/Z", "Peptide Length", 
+                      "Delta Mass", "Charge", "Retention"]
     
     ACCESSION_DELIMITER = ';'
 
-    DATA_FORMAT = 'Sage'
+    DATA_FORMAT = 'FragPipe'
     CONFIDENCE_FORMAT = 'Hyperscore'
     
     
@@ -137,7 +150,7 @@ class SageDbSearch(DbSearchMethods):
         """Return raw spectral file name from Sage db search file.
 
         Args:
-            file_name (Path | str): Location of Sage db search psm file.
+            file_name (Path | str): Location of FragPipe db search psm file.
             delimiter (str, Optional): value delimiter used in tabular file.
                 Defaults to '\t'.
 
@@ -153,7 +166,8 @@ class SageDbSearch(DbSearchMethods):
             line_cells = line.split(delimiter)
 
             # get source column
-            return Path(line_cells[3]).stem
+            source_idx = header.index["Spectrum File"]
+            return Path(line_cells[source_idx]).stem
 
 
     def get_source_files(self) -> Sequence[str]:
@@ -163,7 +177,7 @@ class SageDbSearch(DbSearchMethods):
         Returns:
             Sequence[str]: All raw spectral file names in dataset.
         """
-        source_file_col = self.data['filename']
+        source_file_col = self.data['Spectrum File']
         source_files: List[str] =  source_file_col\
             .dropna()\
             .drop_duplicates()\
@@ -188,24 +202,20 @@ class SageDbSearch(DbSearchMethods):
             MetaPepDbSearch: Db search data table in Metapep db search format.
         """
         # drop unrelevant columns and rename columns to metapep format  
-        df = self.data[["peptide", "hyperscore", "expmass", "peptide_len", 
-                        "precursor_ppm", "charge", "rt", "scannr", "rank", 
-                        "label", "filename", "proteins"]]\
+        df = self.data[self.REQUIRED_FIELDS]\
             .rename(columns={
-                'peptide': 'Peptide',
-                'rt': 'RT',
-                'charge': 'Charge',
-                'precursor_ppm': 'ppm',
-                'peptide_len': 'Length',
-                'hyperscore': 'Confidence', 
-                'expmass': 'Mass',
-                'proteins': 'Accession',
-                'filename': 'Source File'
+                'Retention': 'RT',
+                'Peptide Length': 'Length',
+                'Hyperscore': 'Confidence', 
+                'Intensity': 'Area',
+                'Observed M/Z': 'm/z',
+                'Observed Mass': 'Mass',
+                'Protein': 'Accession',
+                'Modified Peptide': 'PTM',
+                'Spectrum File': 'Source File'
                 })
-        # Keep only best match per scan and filter out decoy sequences
-        df = df[df['rank'] == 1]
-        df = df[df['label'] == 1]
-        df.drop(['rank', 'label'], axis=1)
+        # filter out decoy or contamination sequences
+        df = df[(df["Is Decoy"] == False) & (df["Is Contaminant"] == False)]
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
         df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
@@ -214,20 +224,17 @@ class SageDbSearch(DbSearchMethods):
         df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
+
+        df.loc[:, "ppm"] = df[['Calculated M/Z', 'm/z']].apply(
+            lambda x: mz_diff_to_ppm(x['Calculated M/Z'],
+                                     x['m/z']),
+            axis=1
+        )
+        df.drop('Calculated M/Z', axis=1)
         
         # extract scan number from 'scannr' column
-        df['Scan'] = df['scannr'].str.extract(r"((?<=scan=)\d+$)")
-        df.drop('scannr', axis=1)
-        
-        # compute m/z from measured mass + protons divided by charge
-        h_mass = PhysicalConstants.proton_mass
-        df['m/z'] = (df['Mass'] + df['Charge'] * h_mass) / df['Charge']
-        
-        # TODO: Extract PTM data from peptide column
-        df['PTM'] = np.nan
-
-        # precursor peak intensity is not supplied in Sage output
-        df['Area'] = np.nan
+        df['Scan'] = df['Spectrum'].str.extract(r"((?<=\.)\d+(?=\.))", expand=False)
+        df.drop('Spectrum', axis=1)
         
         # filter out peptides from cRAP dataset
         if crap_dataset is not None:

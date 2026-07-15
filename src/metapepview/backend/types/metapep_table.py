@@ -430,7 +430,7 @@ class MetaPepDbSearch(DataValidator):
     from the same input source and belong to a single sample.
     
     Global metadata:
-        DATA_SOURCE     {'Peaks 11', 'Peaks 10', 'MaxQuant', 'ProteomeDiscoverer'}
+        DATA_SOURCE     {'Peaks 13', 'Peaks 11', 'Peaks 10', 'MaxQuant', 'Sage', 'FragPipe'}
         CONFIDENCE_FORMAT   {'-10lgp', 'p'}
         SAMPLE_NAME
     

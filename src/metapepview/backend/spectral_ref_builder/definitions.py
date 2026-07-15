@@ -9,6 +9,7 @@ db_search_file_name: Dict[DbSearchSource, str] = {
     'Peaks 11': "db.psms.csv",
     'Peaks 10': "DB search psm.csv",
     'MaxQuant': "evidence.txt",
+    'FragPipe': "psm.tsv",
     # 'ProteomeDiscoverer': ...,
     'Sage': "*.sage.tsv",
 }

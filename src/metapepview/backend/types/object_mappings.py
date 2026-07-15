@@ -25,7 +25,8 @@ db_search_importers: Dict[str, Type[DbSearchMethods]] = {
     'Peaks 11': PeaksDbSearchPsm11,
     'Peaks 10': PeaksDbSearchPsm10,
     'MaxQuant': MaxQuantDbSearch,
-    'Sage': SageDbSearch
+    'Sage': SageDbSearch,
+    'FragPipe': FragPipeDbSearch
     #'ProteomeDiscoverer': ...
 }
 

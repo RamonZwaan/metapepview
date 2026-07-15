@@ -7,8 +7,18 @@ from typing import Literal
 # Literal types
 
 # db search format options
-DbSearchSource = Literal['Peaks 13', 'Peaks 11', 'Peaks 10', 'MaxQuant', 'ProteomeDiscoverer', 'Sage']
-DeNovoSource = Literal['Peaks 13', 'Peaks 11', 'Peaks 10', 'Novor', 'Casanovo']
+DbSearchSource = Literal['Peaks 13', 
+                         'Peaks 11', 
+                         'Peaks 10', 
+                         'MaxQuant', 
+                         'FragPipe',
+                         #'ProteomeDiscoverer', 
+                         'Sage']
+DeNovoSource = Literal['Peaks 13', 
+                       'Peaks 11', 
+                       'Peaks 10', 
+                       'Novor', 
+                       'Casanovo']
 
 # de novo format options
 DbSearchConfFormat = Literal['-10lgp', 'Hyperscore']

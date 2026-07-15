@@ -2,6 +2,7 @@ from metapepview.backend.types.metapep_table import *
 from metapepview.backend.types.proteomics.peaks_tables import *
 from metapepview.backend.types.proteomics.maxquant_table import *
 from metapepview.backend.types.proteomics.sage_table import *
+from metapepview.backend.types.proteomics.fragpipe_table import *
 from metapepview.backend.types.proteomics.novor_table import *
 from metapepview.backend.types.proteomics.casanovo_table import *
 from metapepview.backend.types.proteomics.proteomics_base_classes import *

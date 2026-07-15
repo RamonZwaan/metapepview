@@ -35,12 +35,21 @@ def main():
     parser.add_argument('-d', 
                         '--db-search-format', 
                         required=True,
-                        choices=['peaks10', 'peaks11', 'peaks13', 'maxquant', 'sage']
+                        choices=['peaks10', 
+                                 'peaks11', 
+                                 'peaks13', 
+                                 'maxquant',
+                                 'fragpipe', 
+                                 'sage']
                         )
     parser.add_argument('-n', 
                         '--de-novo-format', 
                         required=True,
-                        choices=['peaks10', 'peaks11', 'peaks13', 'novor', 'casanovo']
+                        choices=['peaks10', 
+                                 'peaks11', 
+                                 'peaks13', 
+                                 'novor', 
+                                 'casanovo']
                         )
     parser.add_argument('-o', 
                         '--output', 
@@ -113,8 +122,10 @@ def main():
             db_search_format = 'MaxQuant'
         case 'sage':
             db_search_format = 'Sage'
+        case 'fragpipe':
+            db_search_format = 'FragPipe'
         case _:
-            sys.exit("Invalid de novo format provided.")
+            sys.exit("Invalid DB search format provided.")
 
     # assign correct db search format from input
     match args.de_novo_format.lower():
