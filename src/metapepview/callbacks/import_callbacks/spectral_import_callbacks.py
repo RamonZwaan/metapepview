@@ -219,6 +219,7 @@ def inactivate_spectral_import_button(mzml_file_path,
     State("db_search_psm_qa_format", "value"),
     State("db_search_psm_qa_valid", "data"),
     State("denovo_qa_upload", "contents"),
+    State("denovo_qa_upload", "filename"),
     State("denovo_qa_format", "value"),
     State("denovo_qa_valid", "data"),
     prevent_initial_call=True
@@ -231,6 +232,7 @@ def store_spectral_dataset(btn,
                            db_search_format,
                            db_search_valid, 
                            de_novo_content,
+                           de_novo_name,
                            de_novo_format,
                            de_novo_valid):
     loading_status = None
@@ -288,7 +290,7 @@ def store_spectral_dataset(btn,
         db_search_store = None
     if de_novo_content is not None:
         de_novo_data = load_metapep_de_novo(de_novo_content,
-                                            "sample",
+                                            de_novo_name,
                                             de_novo_format)
 
         if mzml_metadata["raw file name"] not in de_novo_data.source_files:

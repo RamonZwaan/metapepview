@@ -538,6 +538,12 @@ class PeaksDeNovo13(DeNovoMethods):
     def __init__(self,
                  data: pd.DataFrame,
                  file_name: str | None = None):
+        # newer versions of Peaks 13 omit "Source File" from dataset
+        if ("Source File" not in data.columns) and (file_name is not None):
+            data["Source File"] = file_name.split(".")[0] + ".raw"
+        elif "Source File" not in data.columns:
+            data["Source File"] = None
+
         success, msg = self.validate_input(data)
 
         if success is False:
