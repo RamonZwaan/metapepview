@@ -32,7 +32,7 @@ class CasanovoDeNovo(DeNovoMethods):
         "exp_mass_to_charge",
         "calc_mass_to_charge",
         "spectra_ref",
-        "opt_ms_run[1]_aa_scores"]
+        "opt_global_aa_scores"]
     NUMERIC_FIELDS = ["search_engine_score[1]", 
                       "retention_time", 
                       "charge", 
@@ -57,6 +57,7 @@ class CasanovoDeNovo(DeNovoMethods):
         if success is False:
             raise ValueError(msg)
         
+        data = data.rename(columns={"opt_ms_run[1]_aa_scores": "opt_global_aa_scores"})
         data = data[self.REQUIRED_FIELDS]
         
         self._data = data
