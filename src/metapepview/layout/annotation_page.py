@@ -180,7 +180,7 @@ db_search_options_modal = dbc.Modal(
                         html.B("Confidence threshold:", 
                                className="align-self-center",
                                style={"width": "18rem"}),
-                        dbc.Input(value=30, min=0, id="db_search_psm_score_threshold", size="sm", type="number", style={"width": "4rem"}),
+                        dbc.Input(value=0, min=0, id="db_search_psm_score_threshold", size="sm", type="number", style={"width": "4rem"}),
                     ],
                     className="d-flex justify-content-start mt-3 mb-3"
                 ),
@@ -229,7 +229,7 @@ de_novo_options_modal = dbc.Modal(
                         html.B("Confidence threshold:", 
                                className="align-self-center",
                                style={"width": "18rem"}),
-                        dbc.Input(value=30, min=0, id="de_novo_score_threshold", size="sm", type="number", style={"width": "4rem"}),
+                        dbc.Input(value=0, min=0, id="de_novo_score_threshold", size="sm", type="number", style={"width": "4rem"}),
                     ],
                     className="d-flex justify-content-start mb-3"
                 ),
