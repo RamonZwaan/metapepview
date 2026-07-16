@@ -68,17 +68,19 @@ class FragPipeDbSearch(DbSearchMethods):
                        "Hyperscore", "Observed Mass", "Observed M/Z",
                        "Calculated M/Z", "Peptide Length", "Delta Mass", 
                        "Charge", "Retention", "Spectrum", "Spectrum File", 
-                       "Protein", "Is Decoy", "Is Contaminant"]
+                       "Protein", "Is Decoy", "Is Contaminant", "Mapped Proteins"]
     
     # columns expected to be numeric
     NUMERIC_FIELDS = ["Hyperscore", "Intensity", "Observed Mass", 
                       "Observed M/Z", "Calculated M/Z", "Peptide Length", 
                       "Delta Mass", "Charge", "Retention"]
     
-    ACCESSION_DELIMITER = ';'
+    ACCESSION_DELIMITER = ', '
 
     DATA_FORMAT = 'FragPipe'
     CONFIDENCE_FORMAT = 'Hyperscore'
+
+    ONLY_RAZOR_PROTEIN = False
     
     
     def __init__(self, 
@@ -201,6 +203,16 @@ class FragPipeDbSearch(DbSearchMethods):
         Returns:
             MetaPepDbSearch: Db search data table in Metapep db search format.
         """
+        df = self.data.copy(deep=True)
+
+        # FragPipe reports the protein ID with highest evidence as determined by 
+        # ProteinProphet. Other proteins are stored in 'Mapped Proteins'
+        if self.ONLY_RAZOR_PROTEIN is True:
+            df["Protein"] = (df["Protein"] + 
+                            ", " + 
+                            df["Mapped Proteins"].fillna("")).str.removesuffix(", ")
+            df.drop('Mapped Proteins', axis=1)
+
         # drop unrelevant columns and rename columns to metapep format  
         df = self.data[self.REQUIRED_FIELDS]\
             .rename(columns={
@@ -214,6 +226,7 @@ class FragPipeDbSearch(DbSearchMethods):
                 'Modified Peptide': 'PTM',
                 'Spectrum File': 'Source File'
                 })
+
         # filter out decoy or contamination sequences
         df = df[(df["Is Decoy"] == False) & (df["Is Contaminant"] == False)]
         
@@ -239,7 +252,7 @@ class FragPipeDbSearch(DbSearchMethods):
         # filter out peptides from cRAP dataset
         if crap_dataset is not None:
             df = filter_crap(df, 'Sequence', crap_dataset)
-        
+
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
             df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
