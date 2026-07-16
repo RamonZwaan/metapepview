@@ -36,6 +36,7 @@ def process_tax_abundance(peptide_dataset: pd.DataFrame,
     
     # divide psm's by sum of psm's per sample name
     if fractional_abundance is True:
+        comp_df[ycol] = comp_df[ycol].astype(dtype="float64")
         comp_df.loc[:, ycol] /= comp_df.groupby(by=[xcol])[ycol].transform('sum')
 
     return (comp_df, ycol)
