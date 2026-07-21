@@ -26,6 +26,7 @@ theme:
 
 nav:
   - Introduction: index.md
+  - Troubleshooting info: troubleshooting.md
   - Installation: installation.md
   - Getting started: getting-started.md
   - Prepare input data: prepare-input-data.md

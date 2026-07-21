@@ -22,7 +22,7 @@ To get a description of the tool and its options, run it with the `--help` optio
 ```Bash
 $ mpv-buildref --help
 
-usage: buildref [-h] -d {peaks10,peaks11,maxquant,sage} 
+usage: buildref [-h] -d {peaks10,peaks11,maxquant,sage,fragpipe} 
                 -n {peaks10,peaks11,novor,casanovo} [-o OUTPUT] 
                 [-D DB_SEARCH_THRESHOLDS] [-N DE_NOVO_THRESHOLDS] 
                 [-I INTENSITY_PERCENTILES] [-T TRANSMISSION_LOSS_PERCENTILES]
@@ -39,7 +39,7 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -d, --db-search-format {peaks10,peaks11,maxquant,sage}
+  -d, --db-search-format {peaks10,peaks11,maxquant,sage,fragpipe}
   -n, --de-novo-format {peaks10,peaks11,novor,casanovo}
   -o, --output OUTPUT
   -D, --db-search-thresholds DB_SEARCH_THRESHOLDS
@@ -74,6 +74,7 @@ For correct parsing of proteomics datasets, it is recommended to take the follow
     - peaks10:   *"DB search psm.csv"*
     - maxquant:   *"evidence.txt"*
     - sage':       *"\*.sage.tsv"*
+    - fragpipe:   *"PSM.tsv"*
 
     **de novo**
 

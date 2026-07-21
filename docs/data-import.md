@@ -17,9 +17,10 @@ This page highlights considerations for importing and combining multiple input s
 
 Metaproteomics data from DB search matching of mass spectrometry data is imported in the *DB search* field. This field expects a dataset of peptide sequence identified scans (one row corresponds to a single spectrum match). Meta-PepView supports several DB search output formats:
 
-- [Peaks Studio 10/11](https://www.bioinfor.com/peaks-11/)
+- [Peaks Studio 10/11/13](https://www.bioinfor.com/peaks-11/)
 - [MaxQuant](https://www.maxquant.org/)
 - [Sage](https://sage-docs.vercel.app/)
+- [FragPipe](https://fragpipe.nesvilab.org/)
 
 More information about the expected input format can be found [[prepare-input-data#Import DB search matching data|here]].
 
