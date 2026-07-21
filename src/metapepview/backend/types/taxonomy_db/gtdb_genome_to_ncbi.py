@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Dict, Self
 
@@ -70,7 +72,4 @@ class GtdbGenomeToNcbi:
         genome_to_ncbi_dict = dict(metadata_df.values)
         
         return cls(genome_to_ncbi_dict)
-        
-        
-        
         

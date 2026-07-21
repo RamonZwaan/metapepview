@@ -1,5 +1,6 @@
-import io
+from __future__ import annotations
 
+import io
 from ftplib import FTP
 import tarfile
 import zipfile

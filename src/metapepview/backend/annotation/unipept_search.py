@@ -1,6 +1,7 @@
 """This module contains functions to match de novo peptide sequences
 to the unipept database.
 """
+from __future__ import annotations
 
 import pandas as pd
 import numpy as np

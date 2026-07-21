@@ -5,8 +5,8 @@ The base class will ensure that all derived classes share the same
 interface so that new database types will integrate into existing
 functions without code rewrites.
 """
-
 from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from typing import Tuple, List, Any, overload, TypeVar, Sequence
 

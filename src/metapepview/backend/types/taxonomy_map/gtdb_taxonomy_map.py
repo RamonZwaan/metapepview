@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import IO, Self, Any, Sequence
 import pandas as pd
 import numpy as np

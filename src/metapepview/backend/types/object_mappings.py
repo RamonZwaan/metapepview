@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Dict, Type
 
 from metapepview.backend.types import *

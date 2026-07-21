@@ -2,8 +2,9 @@
 It is meant for functions that are in dependency hierarchy above the 'types'
 objects. This separates it from 'utils's functions, which comprise only basic
 functions at the bottom of the hierarchy."""
+from __future__ import annotations
 
-from typing import IO, Dict, Callable, Type, Union
+from typing import IO, Dict, Callable, Type, TypeAlias, Union
 from copy import deepcopy
 
 from metapepview.backend.utils import custom_groupby, re_find_list

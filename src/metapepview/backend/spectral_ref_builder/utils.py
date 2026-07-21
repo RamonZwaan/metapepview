@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Dict, Literal, overload
 from pathlib import Path
 import pandas as pd

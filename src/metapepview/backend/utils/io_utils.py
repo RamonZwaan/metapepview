@@ -6,6 +6,7 @@ MetaPepView provides imported data as binary string data. To process import data
 done. The functions here allow quick passing of raw data provided by the 
 dcc.Upload component to provide file-like or text-like data for further processing
 """
+from __future__ import annotations
 
 import base64
 import pandas as pd

@@ -3,6 +3,7 @@
 Author: Ramon van der Zwaan
 Date: 03-04-2023
 """
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Dict, List, Tuple, overload, Literal, TypeVar, Sequence

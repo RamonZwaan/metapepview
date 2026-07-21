@@ -1,6 +1,9 @@
-from typing import List
+from __future__ import annotations
 
+from typing import List
 import pandas as pd
+
+from metapepview.backend.types.kegg_database import KeggDatabase
 
 
 def calculate_frac_abundance(peptide_df: pd.DataFrame,
@@ -66,7 +69,7 @@ def get_top_functions(peptide_df: pd.DataFrame,
 
 def process_kegg_groups(
         peptide_df: pd.DataFrame,
-        kegg_db: "KeggDatabase",
+        kegg_db: KeggDatabase,
         ycol: str,
         include_taxa: bool,
         kegg_group_method: str,

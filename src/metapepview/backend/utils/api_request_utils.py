@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from time import sleep
 from pathlib import Path
 from typing import List, Tuple, Dict, Any

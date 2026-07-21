@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from pathlib import Path
 from collections import defaultdict
@@ -44,8 +46,7 @@ def import_features(content: str,
     """
     # only process features file after mzml file is imported
     if mzml_metadata is None:
-        qa_box_style["background-color"] = StyleConstants.import_failed_color
-        return (None, None)
+        return (None, None, False)
     
     archive_format = determine_archive_format(filename)
     

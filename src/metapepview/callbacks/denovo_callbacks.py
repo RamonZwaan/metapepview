@@ -4,10 +4,8 @@ import dash_bootstrap_components as dbc
 from metapepview.server import app
 
 from metapepview.backend import *
-from metapepview.backend.plots import taxonomic_abundance_barplot, taxonomic_abundance_heatmap, de_novo_fraction_barplot
+from metapepview.backend.plots import de_novo_fraction_barplot
 
-import base64
-import io
 import pandas as pd
 
 

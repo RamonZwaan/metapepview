@@ -2,6 +2,7 @@
 This module contains functions that convert a variety of input formats into
 custom Metapepview data formats.
 """
+from __future__ import annotations
 
 import pandas as pd
 from typing import IO, Type, Dict, TypeVar, Callable, List

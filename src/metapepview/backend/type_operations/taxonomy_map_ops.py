@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from metapepview.backend.types import AccessionTaxaMapGtdb,\
     AccessionTaxaMapNcbi,\
     AccessionTaxaMap,\

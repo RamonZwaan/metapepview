@@ -1,16 +1,24 @@
+from __future__ import annotations
 from importlib import resources
 from pathlib import Path
 import re
-from typing import List, Literal, Dict, Tuple
+from typing import List, Literal, TypeAlias, Dict, Tuple
 import plotly.express as px
 
 from metapepview import data
 
 # type literals
 
-RankType = Literal['Domain', 'Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species']
-AbundanceMetricType = Literal['Match Count', 'Area']
-KeggDbs = Literal['pathway', 'brite', 'module', 'ko', 'enzyme']
+RankType: TypeAlias = Literal['Domain', 
+                              'Kingdom', 
+                              'Phylum', 
+                              'Class', 
+                              'Order', 
+                              'Family', 
+                              'Genus', 
+                              'Species']
+AbundanceMetricType: TypeAlias = Literal['Match Count', 'Area']
+KeggDbs: TypeAlias = Literal['pathway', 'brite', 'module', 'ko', 'enzyme']
 
 
 class PhysicalConstants:

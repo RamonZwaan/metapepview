@@ -1,6 +1,7 @@
 """This module defines separate functions that are used by the class objects,
 but are not part of the class methods itself.
 """
+from __future__ import annotations
 
 from typing import Type, TypeVar, Dict, Any
 import pandas as pd

@@ -14,9 +14,6 @@ from metapepview.backend.types import *
 from metapepview.backend.type_operations import *
 from metapepview.backend.utils import *
 
-from metapepview.constants import GlobalConstants as gc
-
-
 
 @app.callback(
     Output('db_search_psm_qa_valid', 'data'),

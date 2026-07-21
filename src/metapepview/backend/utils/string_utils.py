@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import List, Any, Sequence, Pattern
 import re
 from itertools import chain

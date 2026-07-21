@@ -4,7 +4,7 @@ Spectral data can be derived from mzML, mzXML, or raw formats.
 
 Unused data is filtered out during import.
 """
-
+from __future__ import annotations
 
 from metapepview.backend.types.base_classes import DataValidator, DataIO
 

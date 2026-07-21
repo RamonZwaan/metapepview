@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from metapepview.backend.types import TaxonomyDbFormat, TaxonomyDatabase
 from metapepview.backend.utils import *
 from metapepview.backend.types.object_mappings import taxonomy_db_importers

@@ -1,6 +1,7 @@
 """This module contains helper functions related to pandas df processing,
 Here, string processing is omitted as it is part of the string_utils
 """
+from __future__ import annotations
 
 from typing import List, Tuple, Dict, Any
 from copy import deepcopy

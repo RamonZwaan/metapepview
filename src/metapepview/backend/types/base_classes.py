@@ -2,6 +2,7 @@
 This module defines base classes that implement shared behavior for the
 type classes defined elsewhere.
 """
+from __future__ import annotations
 
 from typing import List, Tuple, TypeVar, Type, IO, Self, Protocol
 from pathlib import Path

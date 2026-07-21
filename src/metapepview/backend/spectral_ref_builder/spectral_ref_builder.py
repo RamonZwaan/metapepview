@@ -1,4 +1,6 @@
 # ms functions
+from __future__ import annotations
+
 from typing import List, Dict, Any
 from pathlib import Path
 import pandas as pd

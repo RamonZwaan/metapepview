@@ -2,8 +2,6 @@ from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ct
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
-import pandas as pd
-
 from metapepview.server import app
 
 # import layout elements

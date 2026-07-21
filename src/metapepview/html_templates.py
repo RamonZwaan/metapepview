@@ -3,6 +3,7 @@ Contains functions that create html blocks for sections that are consistent
 in format.
 """
 
+from __future__ import annotations
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 

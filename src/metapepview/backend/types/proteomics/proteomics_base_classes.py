@@ -2,6 +2,7 @@
 This module defines base classes that implement behavior of proteomics
 classes.
 """
+from __future__ import annotations
 
 from typing import Protocol
 from abc import abstractmethod

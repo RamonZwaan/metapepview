@@ -4,6 +4,7 @@ dashboard. All proteomics input formats are converted into Metapepview format
 prior to taxonomic/functional/QC processing to ensure common behavior between
 any input type.
 """
+from __future__ import annotations
 
 import io
 import pandas as pd
