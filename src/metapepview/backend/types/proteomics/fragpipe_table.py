@@ -69,8 +69,8 @@ class FragPipeDbSearch(DbSearchMethods):
     REQUIRED_FIELDS = ["Peptide", "Modified Peptide", "Intensity",
                        "Hyperscore", "Observed Mass", "Observed M/Z",
                        "Calculated M/Z", "Peptide Length", "Delta Mass", 
-                       "Charge", "Retention", "Spectrum", "Spectrum File", 
-                       "Protein", "Is Decoy", "Is Contaminant", "Mapped Proteins"]
+                       "Charge", "Retention", "Spectrum", "Is Decoy", 
+                       "Is Contaminant", "Protein", "Mapped Proteins"]
     
     # columns expected to be numeric
     NUMERIC_FIELDS = ["Hyperscore", "Intensity", "Observed Mass", 
@@ -170,8 +170,8 @@ class FragPipeDbSearch(DbSearchMethods):
             line_cells = line.split(delimiter)
 
             # get source column
-            source_idx = header.index["Spectrum File"]
-            return Path(line_cells[source_idx]).stem
+            source_idx = header.index["Spectrum"]
+            return line_cells[source_idx].split(".")[0]
 
 
     def get_source_files(self) -> Sequence[str]:
@@ -181,11 +181,11 @@ class FragPipeDbSearch(DbSearchMethods):
         Returns:
             Sequence[str]: All raw spectral file names in dataset.
         """
-        source_file_col = self.data['Spectrum File']
+        source_file_col = self.data['Spectrum']
         source_files: List[str] =  source_file_col\
+            .str.extract(r"([^\.]+)", expand=False)\
             .dropna()\
             .drop_duplicates()\
-            .apply(lambda x: Path(x).stem)\
             .tolist()
 
         return source_files
@@ -226,19 +226,20 @@ class FragPipeDbSearch(DbSearchMethods):
                 'Observed Mass': 'Mass',
                 'Protein': 'Accession',
                 'Modified Peptide': 'PTM',
-                'Spectrum File': 'Source File'
                 })
 
         # filter out decoy or contamination sequences
         df = df[(df["Is Decoy"] == False) & (df["Is Contaminant"] == False)]
         
+        # Retention time from seconds to minutes
+        df.loc[:, "RT"] = df.loc[:, "RT"] / 60
+
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
         df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
 
-        # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
-            lambda x: Path(x).stem
-        )
+        # source file name is first element in Spectrum column id
+        df['Source File'] = df.loc[:, 'Spectrum'].str.extract(r"([^\.]+)", 
+                                                           expand=False)
 
         df.loc[:, "ppm"] = df[['Calculated M/Z', 'm/z']].apply(
             lambda x: mz_diff_to_ppm(x['Calculated M/Z'],
