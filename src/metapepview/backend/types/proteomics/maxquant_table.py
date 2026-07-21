@@ -85,31 +85,15 @@ class MaxQuantDbSearch(DbSearchMethods):
     """
     
     # expected columns within input data
-    REQUIRED_FIELDS = ['Sequence', 'Length', 'Modifications', 'Modified sequence', 
-              'Acetyl (Protein N-term)', 'Missed cleavages', 'Proteins',
-              'Leading proteins', 'Leading razor protein', 'Type', 'Raw file',
-              'Experiment', 'MS/MS m/z', 'Charge', 'm/z', 'Mass',
-              'Uncalibrated - Calibrated m/z [ppm]',
-              'Uncalibrated - Calibrated m/z [Da]', 'Mass error [ppm]',
-              'Mass error [Da]', 'Uncalibrated mass error [ppm]',
-              'Uncalibrated mass error [Da]', 'Max intensity m/z 0',
-              'Retention time', 'Retention length', 'Calibrated retention time',
-              'Calibrated retention time start', 'Calibrated retention time finish',
-              'Retention time calibration', 'Match time difference',
-              'Match m/z difference', 'Match q-value', 'Match score',
-              'Number of data points', 'Number of scans',
-              'Number of isotopic peaks', 'PIF', 'Fraction of total spectrum',
-              'Base peak fraction', 'PEP', 'MS/MS count', 'MS/MS scan number',
-              'MS/MS scan numbers', 'MS3 scan numbers', 'Score', 'Delta score',
-              'Combinatorics', 'Intensity', 'Reverse', 'Potential contaminant',
-              'id', 'Protein group IDs', 'Peptide ID', 'Mod. peptide ID',
-              'MS/MS IDs', 'Best MS/MS', 'Deamidation (NQ) site IDs',
-              'Oxidation (M) site IDs', 'Taxonomy IDs', 'Taxonomy names',
-              'Mass deficit']
+
+    REQUIRED_FIELDS = ['Modified sequence', 'Sequence', 'Retention time',
+                       'MS/MS scan number', 'm/z', 'Charge', 'Mass error [ppm]',
+                       'Length', 'Score', 'Intensity', 'Mass', 'Proteins',
+                       'Modifications', 'Raw file']
 
     # columns expected to be numeric. Note, only relevant columns considered
-    NUMERIC_FIELDS = ['Length', 'Missed cleavages', 'Charge', 'm/z', 'Mass',
-                      'Retention time', 'MS/MS count', 'MS/MS scan number',
+    NUMERIC_FIELDS = ['Length', 'Charge', 'm/z', 'Mass', 'Mass error [ppm]',
+                      'Retention time', 'MS/MS scan number',
                       'Score', 'Delta score', 'Intensity']
     
     ACCESSION_DELIMITER = ';'
@@ -129,7 +113,7 @@ class MaxQuantDbSearch(DbSearchMethods):
         # keep all fields, including specific PTM fields
         # data = data[self.REQUIRED_FIELDS]
         
-        self._data = data
+        self._data = data[self.REQUIRED_FIELDS]
         self._file_name = file_name
    
     @property
