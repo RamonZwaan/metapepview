@@ -1,7 +1,9 @@
 from typing import List, Dict, Literal, overload
 from pathlib import Path
 import pandas as pd
-from scipy.interpolate import CubicSpline
+
+# from scipy.interpolate import CubicSpline
+from metapepview.backend.utils.numpy_utils import CubicSpline
 
 from metapepview.backend.spectral_ref_builder.definitions import RefBuilderOptions
 from metapepview.backend.type_operations import * # load_metapep_db_search, load_metapep_de_novo, db_search_importers, de_novo_importers
