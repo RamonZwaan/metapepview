@@ -4,24 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "metapepview"
-version = "0.1.0"
+version = "0.2.0"
 description = "Web interface for visualization of microbial communities from metaproteomics data and evaluation of MS experiments."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
 authors = [{name = "Ramon van der Zwaan", email = "r.vanderzwaan@tudelft.nl"},
            {name = "Martin Pabst", email = "m.pabst@tudelft.nl"}]
 
 # dependencies needed by your utils and dashboard
 dependencies = [
-    "dash>=3.1,<4",
-    "dash-bootstrap-components>=2.0,<3",
+    "dash>=3.1,<5",
+    "dash-bootstrap-components>=2.0.4,<3",
     "chunk_upload @ git+https://github.com/RamonZwaan/metapepview.git@dev#subdirectory=chunk_upload",
     "numpy>=2.0,<3",
-    "pandas>=2.3,<3",
-    "plotly==6.2,<7", 
-    "requests>=2.32,<3",
-    "scipy>=1.16.3,<2.0",
+    "scipy>=1.14,<2",
+    "pandas>=2.2,<3",
+    "plotly>=6,<7", 
+    "requests>=2.34,<3",
     "waitress>=3.0,<4",
 ]
 
