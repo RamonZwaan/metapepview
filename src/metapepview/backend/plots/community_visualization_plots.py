@@ -762,6 +762,11 @@ def pathway_abundance_barplot(dataset: pd.DataFrame, # cols: Protein Name, (Taxo
                  color=xcol,
                  color_discrete_sequence=GraphConstants.color_palette,
                  barmode='group')
+
+    fig_data = dataset.rename(columns={
+        prot_col: custom_xname,
+        ycol: custom_yname
+    })
     
     fig.update_layout(GraphConstants.default_layout,
                       margin=dict(t=30),
@@ -780,7 +785,7 @@ def pathway_abundance_barplot(dataset: pd.DataFrame, # cols: Protein Name, (Taxo
     if custom_xname is not None:
         fig.update_xaxes(title = custom_xname)
         
-    return fig
+    return (fig, fig_data)
 
 
 def de_novo_fraction_barplot(dataset,

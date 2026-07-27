@@ -11,7 +11,7 @@ import io
 import pandas as pd
 import numpy as np
 
-from metapepview.backend.utils import memory_to_stringio
+from metapepview.backend.utils import upload_to_stringio
 from metapepview.backend.types.definitions import *
 
 
@@ -162,7 +162,7 @@ class DataIO(Protocol):
         if isinstance(file_buffer, io.TextIOBase):
             df = pd.read_csv(file_buffer, delimiter=delim, low_memory=False)
         elif isinstance(file_buffer, str):
-            df = pd.read_csv(memory_to_stringio(file_buffer), 
+            df = pd.read_csv(upload_to_stringio(file_buffer), 
                              delimiter=delim,
                              low_memory=False)
         else:

@@ -363,7 +363,7 @@ taxonomy_barplot = [
         [
             html.H5("Figure", id="taxonomy_figure_title"),
             dbc.Button("Export figure data", 
-                       id="export_taxonomy_figure_data",
+                       id="",
                        className="me-3",
                        disabled=True)
         ],
@@ -392,7 +392,7 @@ taxonomy_de_novo_barplot = [
         dcc.Graph(id="taxonomy_barplot_de_novo_figure"),
         dcc.Graph(id="taxonomy_dif_barplot_de_novo_figure"),
     ], id='taxa_barplot_de_novo_graph', style={'display': 'None'}),
-    dcc.Store(id="taxonomy_de_novo_figure_data")
+    dcc.Store(id="taxonomy_de_novo_figure_data", data=None)
 ]
 
 
@@ -505,7 +505,7 @@ taxonomy_sample_analysis = taxonomy_page_constructor(
     [
         # download component for taxonomy export
         dcc.Download(id="download_taxonomy_composition_csv"),
-        dcc.Download(id="download_taxonomy_figure_data_csv"),
+        dcc.Download(id="download_taxonomy_figure_data_tsv"),
         taxonomic_dropoff_modal
     ]
 )
@@ -520,6 +520,7 @@ taxonomy_de_novo_analysis = taxonomy_page_constructor(
     ],
     [
         # download component for taxonomy export
-        dcc.Download(id="download_taxonomy_composition_de_novo_csv")
+        dcc.Download(id="download_taxonomy_composition_de_novo_tsv"),
+        dcc.Download(id="download_taxonomy_de_novo_figure_data_tsv")
     ]
 )

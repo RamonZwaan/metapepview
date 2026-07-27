@@ -102,7 +102,11 @@ def remove_peptide_data(datatable_data,
 
     metapep_obj = metapep_obj.remove_samples(filter_samples)
 
-    stored = add_dataset_to_server_store(app, "peptides", metapep_obj.to_json())
+    # Store NoneType if no data present anymore
+    if metapep_obj.is_empty:
+        stored = add_dataset_to_server_store(app, "peptides", None)
+    else:
+        stored = add_dataset_to_server_store(app, "peptides", metapep_obj.to_json())
 
     return stored
 
@@ -147,12 +151,12 @@ def clear_peptide_data(n_clicks):
 
 @app.callback(
     Output('psm_table_selector', 'options'),
-    Input('db_search_psm_upload', 'filename'),
+    Input('db_search_psm_upload', 'file_infos'),
 )
 def update_psm_sample_menu(names):
     """Update dropdown menu with imported sample names
     """
-    if names is None:
+    if names == []:
         return []
     else:
-        return names
+        return [file["filename"] for file in names]

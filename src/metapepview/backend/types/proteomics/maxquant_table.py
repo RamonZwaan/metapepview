@@ -96,7 +96,7 @@ class MaxQuantDbSearch(DbSearchMethods):
     # columns expected to be numeric. Note, only relevant columns considered
     NUMERIC_FIELDS = ['Length', 'Charge', 'm/z', 'Mass', 'Mass error [ppm]',
                       'Retention time', 'MS/MS scan number',
-                      'Score', 'Delta score', 'Intensity']
+                      'Score', 'Intensity']
     
     ACCESSION_DELIMITER = ';'
     

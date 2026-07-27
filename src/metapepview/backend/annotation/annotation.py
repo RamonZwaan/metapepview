@@ -85,7 +85,7 @@ def annotate_peptides(sample_name: str,
 
     # Convert annotation in GTDB format to NCBI format
     if options.gtdb_to_ncbi is True and \
-        taxonomy_map is not None and \
+        taxonomy_map != [] and \
         options.tax_db_format == "GTDB" and \
         options.tax_db_name is not None:
         print("import taxonomy database...")
@@ -108,7 +108,7 @@ def annotate_peptides(sample_name: str,
             raise AnnotationError(f"Failed to load GTDB to NCBI mapping: {err}")
         
         try:
-            tax_df = import_acc_tax_map(taxonomy_map,
+            tax_df = import_acc_tax_map(Path(taxonomy_map[0]["path"]),
                                         options.tax_db_acc_idx,
                                         options.tax_db_tax_idx,
                                         options.tax_db_acc_pattern,
@@ -124,7 +124,7 @@ def annotate_peptides(sample_name: str,
         # Change taxonomy db format after conversion to NCBI
         options.tax_db_format = "NCBI"
         
-    elif taxonomy_map is not None and \
+    elif taxonomy_map != [] and \
         options.tax_db_format is not None and \
         options.tax_db_name is not None:
         print("import taxonomy database...")
@@ -137,7 +137,7 @@ def annotate_peptides(sample_name: str,
         print("import protein to taxonomy map...")
         tax_db_archive_format = determine_archive_format(options.tax_db_name)
         try:
-            tax_df = import_acc_tax_map(taxonomy_map,
+            tax_df = import_acc_tax_map(Path(taxonomy_map[0]["path"]),
                                         options.tax_db_acc_idx,
                                         options.tax_db_tax_idx,
                                         options.tax_db_acc_pattern,
@@ -159,14 +159,14 @@ def annotate_peptides(sample_name: str,
         tax_df = None
         
     
-    if func_annot_map is not None and \
+    if func_annot_map != [] and \
         options.func_db_format is not None and \
         options.func_db_name is not None:
         print("import functional annotation db...")
         # define archive format, get file name by removing archive suffix
         func_annot_archive_format = determine_archive_format(options.func_db_name)
         try:
-            func_annot_db = import_func_map(func_annot_map,
+            func_annot_db = import_func_map(Path(func_annot_map[0]["path"]),
                                             options.func_db_format,
                                             accession_pattern=options.func_annot_pattern,
                                             archive_format=func_annot_archive_format)
@@ -187,6 +187,11 @@ def annotate_peptides(sample_name: str,
     # import de novo datasets into MetaPep format, files that fail to import are ignored
     if len(de_novo_list) != 0:
         print("import de novo files...")
+
+        # only convert sample to Path if path string
+        for idx, de_novo_sample in enumerate(de_novo_list):
+            if isinstance(de_novo_sample, str):
+                de_novo_list[idx] = Path(de_novo_sample)
         
         de_novo_crap = crap_pept if options.de_novo_filter_crap is True else None
         try:
@@ -199,8 +204,14 @@ def annotate_peptides(sample_name: str,
         de_novo_dict = None
     
     # import data from psm and protein db
-    if db_search_list is not None and len(db_search_list) != 0:
+    if (db_search_list is not None) and (len(db_search_list) != 0):
         print("import db search files...")
+
+        # only convert sample to Path if path string
+        for idx, db_search_sample in enumerate(db_search_list):
+            if isinstance(db_search_sample, str):
+                db_search_list[idx] = Path(db_search_sample)
+
         db_search_crap = crap_pept if options.db_search_filter_crap is True else None
         # assign identical names to peptide blocks if merger desired
         if options.merge_psms is True:
@@ -233,6 +244,9 @@ def annotate_peptides(sample_name: str,
             metapep_table_list = []
             for i, db_search_psm in enumerate(db_search_list):
                 print(f"process {db_search_names[i]}...")
+
+                if isinstance(db_search_psm, str):
+                    db_search_psm = Path(db_search_psm)
                 
                 try:
                     psm_df = load_metapep_db_search(db_search_psm,
@@ -556,8 +570,10 @@ def include_de_novo(db_search_peptides: pd.DataFrame | MetaPepDbSearch,
         # if all data under single sample name, process all files
         else:
             denovo_data = list(de_novo_source_map.values())
-        
+
+        # no de novo data for this specific db search dataset
         if len(denovo_data) == 0:
+            peptides_df[GlobalConstants.metapep_table_de_novo_fields] = np.nan
             peptides_df['De Novo Imported'] = False
             return peptides_df, None, None
         

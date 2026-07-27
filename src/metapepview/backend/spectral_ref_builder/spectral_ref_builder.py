@@ -333,7 +333,7 @@ def build_spectral_reference_data(
         if data["db search"] is None:
             db_search, db_search_data = None, None
         else:
-            db_search = load_metapep_db_search(data["db search"].open('r'), 
+            db_search = load_metapep_db_search(data["db search"], 
                                                name, 
                                                options.db_search_format)
             # if file contains data from other source files, omit them
@@ -344,7 +344,7 @@ def build_spectral_reference_data(
         if data["de novo"] is None:
             de_novo, de_novo_data = None, None
         else:
-            de_novo = load_metapep_de_novo(data['de novo'].open('r'),
+            de_novo = load_metapep_de_novo(data['de novo'],
                                            name,
                                            options.de_novo_format)
             if len(de_novo.source_files) > 1:

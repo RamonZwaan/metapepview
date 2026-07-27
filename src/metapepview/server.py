@@ -19,22 +19,45 @@ for item in Path(UPLOAD_FOLDER).iterdir():
 def register_upload_endpoints(app):
     server = app.server
 
-    # In-memory session registry, match file to component_id
+    # In-memory session registry, match component id to files
     server.component_files = {}
+
+    # store file information during upload session
     server.upload_sessions = {}
 
 
     @server.route("/upload-init", methods=["POST"])
     def upload_init():
+        """Trigger to start new upload session, delete old files related to
+        component. 
+        """
         data = request.json
-        filename = data["filename"]
+
         component_id = data["component_id"]
 
         # If new file replaces existing file from component, remove old file
-        old_file = server.component_files.get(component_id)
-        if old_file and os.path.exists(old_file):
-            os.remove(old_file)
+        old_files = server.component_files.get(component_id)
+        if old_files:
+            for old_file in old_files:
+                if os.path.exists(old_file):
+                    os.remove(old_file)
 
+        # set files connected to component id to empty
+        server.component_files[component_id] = []
+
+        return "OK", 200
+
+
+    @server.route("/file-upload-init", methods=["POST"])
+    def file_upload_init():
+        """New file upload, create file entry in upload session.
+        """
+        data = request.json
+
+        filename = data["filename"]
+        component_id = data["component_id"]
+
+        # create a new upload session on by-file basis
         upload_id = str(uuid.uuid4())
         temp_path = os.path.join(UPLOAD_FOLDER, upload_id + ".part")
 
@@ -42,7 +65,6 @@ def register_upload_endpoints(app):
             "filename": filename,
             "path": temp_path,
             "component_id": component_id
-
         }
 
         return jsonify({"upload_id": upload_id})
@@ -50,6 +72,8 @@ def register_upload_endpoints(app):
 
     @server.route("/upload-chunk", methods=["POST"])
     def upload_chunk():
+        """Add chunk data to file
+        """
         upload_id = request.form["upload_id"]
         chunk = request.files["chunk"]
 
@@ -63,8 +87,11 @@ def register_upload_endpoints(app):
         return "OK", 200
 
 
-    @server.route("/upload-complete", methods=["POST"])
-    def upload_complete():
+    @server.route("/file-upload-complete", methods=["POST"])
+    def file_upload_complete():
+        """Upload for single file complete, store file in final path and close 
+        
+        """
         data = request.json
         upload_id = data["upload_id"]
 
@@ -74,14 +101,17 @@ def register_upload_endpoints(app):
         
         component_id = session["component_id"]
 
-        final_path = os.path.join(UPLOAD_FOLDER, session["filename"])
-        os.rename(session["path"], final_path)
+        final_path = os.path.join(UPLOAD_FOLDER, f"{component_id}_{session['filename']}")
 
-        server.component_files[component_id] = final_path
+        try:
+            os.rename(session["path"], final_path)
 
-        del server.upload_sessions[upload_id]
+            server.component_files[component_id].append(final_path)
+        finally:
+            del server.upload_sessions[upload_id]
 
-        return jsonify({"filepath": final_path})
+        return jsonify({"path": final_path,
+                        "filename": session['filename']})
 
 
 app = Dash(__name__, 

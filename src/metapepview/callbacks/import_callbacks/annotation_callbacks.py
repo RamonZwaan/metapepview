@@ -53,12 +53,11 @@ def toggle_func_map_filters(n1):
 @app.callback(
     Output('peptides_name', 'children'),
     Input('peptides_upload', 'contents'),
-    State('peptides_upload', 'filename'),
-    State('peptides_upload', 'last_modified'))
-def show_peptides_names(contents, names, dates):
+    State('peptides_upload', 'filename'))
+def show_peptides_names(contents, names):
     """Display filename of annotated peptide dataset import.
     """
-    return import_single_file(names, dates, max_name_len=30, drag_and_drop=False)
+    return import_single_file(names, max_name_len=30, drag_and_drop=False)
 
 
 
@@ -66,32 +65,37 @@ def show_peptides_names(contents, names, dates):
     Output('db_search_psm_valid', 'data'),
     Output('db_search_psm_name', 'children', allow_duplicate=True),
     Output("sample_name_import", "value"),
-    Output('db_search_psm_upload', 'contents', allow_duplicate=True),
+    Output('db_search_psm_upload', 'file_infos', allow_duplicate=True),
     Output('db_search_format_alert', 'children', allow_duplicate=True),
     Output('db_search_format_alert', 'is_open', allow_duplicate=True),
     Output('db_search_import_box', 'style'),
-    Input('db_search_psm_upload', 'contents'),
-    State('db_search_psm_upload', 'filename'),
+    Input('db_search_psm_upload', 'file_infos'),
     State('db_search_psm_format', 'value'),
-    State('db_search_psm_upload', 'last_modified'),
     State("sample_name_import", "value"),
     prevent_initial_call=True)
-def show_db_search_psm_names(contents, names, format, dates, current_sample_name):
+def show_db_search_psm_names(contents, format, current_sample_name):
     """Display filename of db search psm import
     """
         # set up validator, including checking of compression type
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-        cont_buf = memory_to_stringio(cont, archv)
+        if isinstance(cont, io.StringIO) or isinstance(cont, io.TextIOWrapper):
+            cont_buf = cont
+        else:
+            cont_buf = upload_to_stringio(cont, archv)
         return validate_db_search(cont_buf, format)
-    valid_data, name_list, contents, msg, success_status, box_style = validate_multiple_files(
+    valid_data, name_list, out_content, msg, success_status, box_style = validate_multiple_files(
         contents,
-        names,
-        dates,
         valid_func)
+
+    if valid_data is False or out_content is None:
+        # if validation failed, remove all data and set file_infos to []
+        for file in contents:
+            Path(file["path"]).unlink(True)
+        contents = []
 
     # if no sample name given, give it the first item from PSM files
     if current_sample_name is None and valid_data is True:
-        current_sample_name = names[0]
+        current_sample_name = contents[0]["filename"]
 
     open_alert = not success_status
 
@@ -101,49 +105,54 @@ def show_db_search_psm_names(contents, names, format, dates, current_sample_name
 
 @app.callback(
     Output('db_search_psm_name', 'children', allow_duplicate=True),
-    Output('db_search_psm_upload', 'contents', allow_duplicate=True),
+    Output('db_search_psm_upload', 'file_infos', allow_duplicate=True),
     Input('db_search_psm_format', 'value'),
     prevent_initial_call=True
 )
 def reset_db_search_import_box(new_format):
-    return None, None
+    return None, []
 
 
 @app.callback(
     Output('denovo_name', 'children', allow_duplicate=True),
-    Output('denovo_upload', 'contents', allow_duplicate=True),
+    Output('denovo_upload', 'file_infos', allow_duplicate=True),
     Input('de_novo_format', 'value'),
     prevent_initial_call=True
 )
 def reset_de_novo_import_box(new_format):
-    return None, None
+    return None, []
 
 
 @app.callback(
     Output('de_novo_valid', 'data'),
     Output('denovo_name', 'children'),
-    Output('denovo_upload', 'contents'),
+    Output('denovo_upload', 'file_infos'),
     Output('de_novo_format_alert', 'children', allow_duplicate=True),
     Output('de_novo_format_alert', 'is_open', allow_duplicate=True),
     Output('de_novo_import_box', 'style'),
-    Input('denovo_upload', 'contents'),
-    State('denovo_upload', 'filename'),
+    Input('denovo_upload', 'file_infos'),
     State('de_novo_format', 'value'),
-    State('denovo_upload', 'last_modified'),
     prevent_initial_call=True)
-def show_denovo_names(contents, names, de_novo_format, dates):
+def show_denovo_names(contents, de_novo_format):
     """Display filename of denovo dataset import.
     """
     # set up validator, including checking of compression type
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-        cont_buf = memory_to_stringio(cont, archv)
+        if isinstance(cont, io.StringIO) or isinstance(cont, io.TextIOWrapper):
+            cont_buf = cont
+        else:
+            cont_buf = upload_to_stringio(cont, archv)
         return validate_de_novo(cont_buf, de_novo_format)
 
-    valid_data, name_list, contents, msg, success_status, box_style = validate_multiple_files(
+    valid_data, name_list, out_content, msg, success_status, box_style = validate_multiple_files(
         contents,
-        names,
-        dates,
         valid_func)
+
+    if valid_data is False or out_content is None:
+        # if validation failed, remove all data and set file_infos to []
+        for file in contents:
+            Path(file["path"]).unlink(True)
+        contents = []
     
     format_alert = not success_status
 
@@ -153,30 +162,37 @@ def show_denovo_names(contents, names, de_novo_format, dates):
 @app.callback(
     Output('func_annot_db_valid', 'data'),
     Output('func_annot_name', 'children'),
-    Output('func_annot_db_upload', 'contents', allow_duplicate=True),
+    Output('func_annot_db_upload', 'file_infos', allow_duplicate=True),
     Output('functional_db_format_alert', 'children'),
     Output('functional_db_format_alert', 'is_open'),
     Output('functional_db_import_box', 'style'),
-    Input('func_annot_db_upload', 'contents'),
-    State('func_annot_db_upload', 'filename'),
+    Input('func_annot_db_upload', 'file_infos'),
     State('func_annot_db_format', 'value'),
-    State('func_annot_db_upload', 'last_modified'),
     prevent_initial_call=True)
-def show_functional_db_name(contents, name, func_db_format, dates):
+def show_functional_db_name(contents, func_db_format):
     """Display filename of protein database import.
     """
+    if contents == []:
+        raise PreventUpdate
+    
     # set up validator, including checking of compression type
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-        cont_buf = memory_to_stringio(cont, archv)
+        cont_buf = upload_to_stringio(cont, archv)
         return validate_func_map(cont_buf, func_db_format)
 
-    valid_data, file_name, contents, msg, success, box_style = validate_single_file(
-        contents,
-        name,
-        dates,
+    valid_data, file_name, out_content, msg, success, box_style = validate_single_file(
+        Path(contents[0]["path"]),
+        contents[0]["filename"],
         valid_func,
+        drag_and_drop=True
     )
 
+    # if validation failed, remove all data and set file_infos to []
+    if out_content is None or valid_data is False:
+        for file in contents:
+            Path(file["path"]).unlink(True)
+        contents = []
+    
     alert_open = not success
 
     return (valid_data, file_name, contents, msg, alert_open, box_style)
@@ -185,29 +201,27 @@ def show_functional_db_name(contents, name, func_db_format, dates):
 @app.callback(
     Output('taxonomy_db_valid', 'data'),
     Output('taxonomy_db_name', 'children'),
-    Output('taxonomy_db_upload', 'contents'),
+    Output('taxonomy_db_upload', 'file_infos'),
     Output('taxonomy_db_format_alert', 'children'),
     Output('taxonomy_db_format_alert', 'is_open'),
     Output('taxonomy_db_import_box', 'style'),
-    Input('taxonomy_db_upload', 'contents'),
+    Input('taxonomy_db_upload', 'file_infos'),
     Input('acc_tax_map_delim', 'value'),
     Input('acc_tax_map_acc_idx', 'value'),
     Input('acc_tax_tax_idx', 'value'),
     Input('taxonomy_db_format', 'value'),
     Input('taxonomy_id_format_checkbox', 'value'),
-    State('taxonomy_db_upload', 'filename'),
-    State('taxonomy_db_upload', 'last_modified'),
     prevent_initial_call=True)
 def show_taxonomy_db_name(contents,
                           delim,
                           acc_idx,
                           tax_idx,
                           tax_format,
-                          tax_element_format,
-                          name,
-                          date):
+                          tax_element_format):
     """Display filename of functional annotation import
     """
+    if contents == []:
+        raise PreventUpdate
     valid_func = lambda cont, archv: validate_acc_tax_map(cont,
                                                           acc_idx,
                                                           tax_idx,
@@ -215,11 +229,18 @@ def show_taxonomy_db_name(contents,
                                                           tax_format,
                                                           tax_element_format,
                                                           archv)
-    valid_data, file_name, contents, msg, success, box_style = validate_single_file(
-        contents,
-        name,
-        date,
-        valid_func)
+    valid_data, file_name, out_content, msg, success, box_style = validate_single_file(
+        Path(contents[0]["path"]),
+        contents[0]["filename"],
+        valid_func,
+        drag_and_drop=True
+        )
+
+    # if validation failed, remove all data and set file_infos to []
+    if out_content is None or valid_data is False:
+        for file in contents:
+            Path(file["path"]).unlink(True)
+        contents = []
     
     alert_open = not success
 
@@ -444,21 +465,18 @@ def db_search_accession_parser(parser_option, current_value):
     State('peptides_metadata', 'data'),
     State('sample_name_import', 'value'),
     State('merge_psm_switch', 'value'),
-    State('db_search_psm_upload', 'contents'),
-    State('db_search_psm_upload', 'filename'),
+    State('db_search_psm_upload', 'file_infos'),
     State('db_search_psm_format', 'value'),
     State('db_search_accession_pattern', 'value'),
     State('db_search_psm_score_threshold', 'value'),
     State('db_search_filter_crap', 'value'),
-    State('denovo_upload', 'contents'),
-    State('denovo_upload', 'filename'),
+    State('denovo_upload', 'file_infos'),
     State('de_novo_format', 'value'),
     State('de_novo_score_threshold', 'value'),
     State('de_novo_filter_crap', 'value'),
-    State('taxonomy_db_upload', 'contents'),
+    State('taxonomy_db_upload', 'file_infos'),
     State('taxonomy_db_format', 'value'),
     State('taxonomy_id_format_checkbox', 'value'),
-    State('taxonomy_db_upload', 'filename'),
     State('acc_tax_map_delim', 'value'),
     State('tax_accession_format_radio', 'value'),
     State('acc_tax_map_acc_idx', 'value'),
@@ -466,9 +484,8 @@ def db_search_accession_parser(parser_option, current_value):
     State('acc_tax_tax_idx', 'value'),
     State('gtdb_genome_to_ncbi_checkbox', 'value'),
     State('global_taxonomy_annotation_checkbox', 'value'),
-    State('func_annot_db_upload', 'contents'),
+    State('func_annot_db_upload', 'file_infos'),
     State('func_annot_db_format', 'value'),
-    State('func_annot_db_upload', 'filename'),
     State('func_annot_combine', 'value'),
     State('func_annot_acc_pattern', 'value'),
     State('current_taxonomy_db_loc', 'data'),
@@ -481,20 +498,17 @@ def process_manual_annotation(n_clicks,
                               sample_name,
                               merge_psms,
                               psm_list,
-                              psm_names,
                               psm_format,
                               psm_acc_pattern,
                               psm_score_threshold,
                               psm_filter_crap,
                               denovo_data,
-                              denovo_names,
                               denovo_format,
                               denovo_score_threshold,
                               denovo_filter_crap,
                               acc_tax_map,
                               acc_tax_map_format,
                               acc_tax_map_elem_format,
-                              acc_tax_map_name,
                               acc_tax_map_delimiter,
                               acc_tax_map_acc_format,
                               acc_tax_map_acc_idx,
@@ -504,7 +518,6 @@ def process_manual_annotation(n_clicks,
                               global_tax_annot,
                               func_annot_db,
                               func_annot_db_format,
-                              func_annot_db_name,
                               func_annot_combine,
                               func_annot_acc_pattern,
                               tax_db_loc,
@@ -528,31 +541,32 @@ def process_manual_annotation(n_clicks,
 
     # keep multi file import consistent with empty list as opposed to nonetype
     psm_list = [] if psm_list is None else psm_list
-    psm_names = [] if psm_names is None else psm_names
     denovo_data = [] if denovo_data is None else denovo_data
-    denovo_names = [] if denovo_names is None else denovo_names
 
     # at least one db search or de novo dataset has to be imported to start
-    if all(i is None or len(i) == 0 for i in [psm_list, denovo_data]):
+    if all((i is None) or (len(i)) == 0 for i in [psm_list, denovo_data]):
         return no_update
     # if no db search data, global taxonomy annotation should be performed
     elif (psm_list is None or len(psm_list) == 0) and global_tax_annot is False:
         return no_update
     # finally, if db search data is present, at least one classification step has to be performed
-    elif acc_tax_map is None and\
-        func_annot_db is None and\
+    elif acc_tax_map == [] and\
+        func_annot_db == [] and\
         global_tax_annot is False:
         return no_update
 
     # if archive given for psm files and de novo files, extract:
     if len(psm_list) != 0:
         try:
-            archive_format = determine_archive_format(psm_names[0])
+            archive_format = determine_archive_format(psm_list[0]["filename"])
             if len(psm_list) == 1 and archive_format is not None:
-                psm_list, psm_names = archive_to_file_list(psm_list[0],
-                                                        archive_format)
+                psm_paths, psm_names = archive_to_file_list(Path(psm_list[0]["path"]),
+                                                           archive_format)
             elif archive_format is not None:
                 return no_update
+            else:
+                psm_paths, psm_names = [file["path"] for file in psm_list], [file["filename"] for file in psm_list]
+
         except:
             alert_msg = "Failed to extract DB search data. Ensure the archive only contains valid DB search files in consistent format."
             alert_open = True
@@ -562,16 +576,20 @@ def process_manual_annotation(n_clicks,
                     data_import_container, 
                     alert_msg, 
                     alert_open)
+    else:
+        psm_paths, psm_names = [], []
 
     # extract denovo if archive given
     if len(denovo_data) != 0:
         try:
-            archive_format = determine_archive_format(denovo_names[0])
+            archive_format = determine_archive_format(denovo_data[0]["filename"])
             if len(denovo_data) == 1 and archive_format is not None:
-                denovo_data, denovo_names = archive_to_file_list(denovo_data[0],
-                                                                archive_format)
+                denovo_paths, denovo_names = archive_to_file_list(Path(denovo_data[0]["path"]),
+                                                                  archive_format)
             elif archive_format is not None:
                 return no_update
+            else:
+                denovo_paths, denovo_names = [file["path"] for file in denovo_data], [file["filename"] for file in denovo_data]
         except:
             alert_msg = "Failed to extract de novo data. Ensure the archive only contains valid de novo files in consistent format."
             alert_open = True
@@ -581,6 +599,8 @@ def process_manual_annotation(n_clicks,
                     data_import_container, 
                     alert_msg, 
                     alert_open)
+    else:
+        denovo_paths = []
 
     # Import current peptides dataset, if data present, add new data
     if current_peptides is None:
@@ -604,10 +624,10 @@ def process_manual_annotation(n_clicks,
     # deduplicate (or filter) input file (names) and deduplicate sample name
     try:
         if merge_psms is False:
-            sample_name, psm_list, psm_names = deduplicate_input_lists(current_sample_names,
-                                                                       sample_name,
-                                                                       psm_list,
-                                                                       psm_names)
+            sample_name, psm_paths, psm_names = deduplicate_input_lists(current_sample_names,
+                                                                        sample_name,
+                                                                        psm_paths,
+                                                                        psm_names)
         else:
             sample_name = deduplicate_strings(sample_name, current_sample_names)
     except:
@@ -621,10 +641,14 @@ def process_manual_annotation(n_clicks,
                 alert_open)
 
     # set data formats to None if no data supplied
-    if len(psm_list) == 0: psm_format = None
-    if len(denovo_data) == 0: denovo_format = None
-    if acc_tax_map is None and global_tax_annot is False: acc_tax_map_format = None
-    if func_annot_db is None: func_annot_db_format = None
+    if len(psm_paths) == 0: psm_format = None
+    if len(denovo_paths) == 0: denovo_format = None
+    if acc_tax_map == [] and global_tax_annot is False: acc_tax_map_format = None
+    if func_annot_db == []: func_annot_db_format = None
+
+    # set taxonomy and function db names to None if not supplied
+    acc_tax_map_name = None if acc_tax_map == [] else acc_tax_map[0]["filename"]
+    func_annot_db_name = None if func_annot_db == [] else func_annot_db[0]["filename"]
 
     # set variable for taxonomy database used (NCBI, GTDB)
     tax_db_format = "GTDB" if acc_tax_map_format == "GTDB" else "NCBI"
@@ -661,9 +685,9 @@ def process_manual_annotation(n_clicks,
     # perform taxonomy and functional annotation to psm data
     try:
         new_peptides = annotate_peptides(sample_name,
-                                         psm_list,
+                                         psm_paths,
                                          psm_names,
-                                         denovo_data, # type: ignore
+                                         denovo_paths, # type: ignore
                                          acc_tax_map,
                                          func_annot_db,
                                          tax_db_loc,

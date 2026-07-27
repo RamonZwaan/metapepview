@@ -229,7 +229,7 @@ def export_tax_composition(button_click,
 
 
 @app.callback(
-    Output('download_taxonomy_figure_data_csv', 'data'),
+    Output('download_taxonomy_figure_data_tsv', 'data'),
     Input('export_taxonomy_figure_data', 'n_clicks'),
     State('taxonomy_barplot_figure_data', 'data'),
     prevent_initial_call=True
@@ -251,7 +251,30 @@ def activate_tax_comp_fig_button(fig_data):
 
 
 @app.callback(
-    Output('download_taxonomy_composition_de_novo_csv', 'data'),
+    Output('download_taxonomy_de_novo_figure_data_tsv', 'data'),
+    Input('export_taxonomy_de_novo_figure_data', 'n_clicks'),
+    State('taxonomy_de_novo_figure_data', 'data'),
+    prevent_initial_call=True
+)
+def export_tax_de_novo_comp_fig_data(button_click, 
+                                     fig_data):
+    fig_data_df = pd.read_json(
+        StringIO(fig_data))
+    
+    return dcc.send_data_frame(fig_data_df.to_csv, "composition_evaluation_data.tsv", sep="\t")
+
+@app.callback(
+    Output('export_taxonomy_de_novo_figure_data', 'disabled'),
+    Input('taxonomy_de_novo_figure_data', 'data'),
+)
+def activate_tax_de_novo_comp_fig_button(fig_data):
+    if fig_data is None:
+        return True
+    return False
+
+
+@app.callback(
+    Output('download_taxonomy_composition_de_novo_tsv', 'data'),
     Input('export_taxonomy_eval_button', 'n_clicks'),
     State('peptides', 'data'),
     State("barplot_de_novo_sample_items", "value"),

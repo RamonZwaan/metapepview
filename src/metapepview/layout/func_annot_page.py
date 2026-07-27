@@ -374,6 +374,7 @@ functional_annotation_barplot = [
         className="d-flex align-items-center justify-content-between"
     ),
     html.Hr(className="my-2"),
+    dcc.Store(id="function_barplot_figure_data", data=None),
     html.Div(dcc.Graph(id="pathway_barplot_figure"),
              id='pathway_barplot_graph', 
              style={"display":"None"}),
@@ -409,7 +410,9 @@ functional_annotation_page = [
                 ),
                 width={'size': 8, 'order': 'last'}
             ),
-            dcc.Download(id="download_community_functions_csv"),
+            dcc.Download(id="download_community_functions_tsv"),
+            dcc.Download(id="download_function_figure_data_tsv"),
+
         ],
         style={"height": "100%"}
     ),

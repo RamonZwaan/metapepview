@@ -252,11 +252,27 @@ class MetaPepTable(DataValidator):
     @property
     def sample_names(self) -> List[str]:
         return self._sample_names
+
+
+    @property
+    def is_empty(self) -> bool:
+        """If no sample data in object stored, return True.
+        Specifically checks presence of peptide data to determine if object is
+        empty. Thus, MetaPepTable objects with imported samples but with all
+        peptides filtered out are considered empty.
+
+        Returns:
+            bool: True if no data in object.
+        """
+        if self.data.shape[0] == 0:
+            return True
+        return False
+    
     
     @classmethod
     def validate_json(cls, json_str: str) -> Tuple[bool, str]:
         """Check if json data represents a valid MetaPepTable object.
-
+        
         Args:
             json_str (str): json data.
 
@@ -354,7 +370,7 @@ class MetaPepTable(DataValidator):
                 elif consensus_format[format] is None:
                     consensus_format[format] = table_formats[format]
                 if consensus_format[format] != table_formats[format]:
-                    raise ValueError(f"Conflicting format during metapep table concatenation: {format}")
+                    raise ValueError(f"Conflicting format during metapep table concatenation: {format}. Ensure all imported samples have the same data formats.")
         
         # check that all spectral files are unique across objects
         validate_spectral_redundancy(metapep_list)
@@ -363,12 +379,12 @@ class MetaPepTable(DataValidator):
         comb_df = pd.concat([i.data for i in metapep_list], axis=0).reset_index(drop=True)
         
         return cls(comb_df,
-                   fval.taxonomy_db_format,
-                   fval.functional_db_format,
-                   fval.db_search_format,
-                   fval.db_search_confidence_format,
-                   fval.de_novo_format,
-                   fval.de_novo_confidence_format,
+                   consensus_format["Taxonomy DB Format"],
+                   consensus_format["Functional DB Format"],
+                   consensus_format["DB Search Format"],
+                   consensus_format["DB Search Confidence Format"],
+                   consensus_format["De Novo Format"],
+                   consensus_format["De Novo Confidence Format"],
                    fval.experiment_name)
 
 

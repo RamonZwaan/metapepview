@@ -10,7 +10,7 @@ from typing import Type, Self, Sequence, IO, List
 
 from metapepview.backend.types.proteomics.proteomics_base_classes import DbSearchMethods, DeNovoMethods
 from metapepview.backend.types.metapep_table import MetaPepDbSearch, MetaPepDeNovo
-from metapepview.backend.utils import filter_crap, memory_to_stringio, wrangle_peptides
+from metapepview.backend.utils import filter_crap, upload_to_stringio, wrangle_peptides
 
 
 class NovorDeNovo(DeNovoMethods):
@@ -141,7 +141,7 @@ class NovorDeNovo(DeNovoMethods):
                              skiprows=skip_rows, 
                              delimiter=', ')
         elif isinstance(file_buffer, str):
-            df = pd.read_csv(memory_to_stringio(file_buffer),
+            df = pd.read_csv(upload_to_stringio(file_buffer),
                              skiprows=skip_rows,
                              delimiter=', ')
         else:
@@ -183,7 +183,7 @@ class NovorDeNovo(DeNovoMethods):
             str: Name of spectral file
         """
         if isinstance(file_buffer, str):
-            file_buffer = memory_to_stringio(file_buffer)
+            file_buffer = upload_to_stringio(file_buffer)
         
         source = None
         # fetch metadata content, iterate until source file fetched
@@ -221,7 +221,7 @@ class NovorDeNovo(DeNovoMethods):
             int: row number of header names
         """
         if isinstance(file_buffer, str):
-            file_buffer = memory_to_stringio(file_buffer)
+            file_buffer = upload_to_stringio(file_buffer)
         
         row_num = None
         # fetch metadata content, iterate until table headers located

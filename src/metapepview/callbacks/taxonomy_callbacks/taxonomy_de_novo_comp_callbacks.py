@@ -24,6 +24,7 @@ from metapepview.constants import *
     Output('taxa_barplot_de_novo_graph', 'children'),
     Output('taxa_barplot_de_novo_graph', 'style'),
     Output('taxonomy_de_novo_figure_title', 'children'),
+    Output('taxonomy_de_novo_figure_data', 'data'),
     Input('sidebar_taxonomy_de_novo_button', 'active'),
     Input('peptides', 'data'),
     Input("barplot_de_novo_sample_items", "value"),
@@ -58,17 +59,17 @@ def update_de_novo_taxa_graph(page_active,
     if peptide_json is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Import PSM and protein db datasets...")
-        return block_element, dict(), 'Figure'
+        return block_element, dict(), 'Figure', None
     
     if sample_name is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select sample name from the dropdown menu...")
-        return block_element, dict(), 'Figure'
+        return block_element, dict(), 'Figure', None
 
     if tax_rank is None:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select taxonomy rank in dropdown menu...")
-        return block_element, dict(), 'Figure'
+        return block_element, dict(), 'Figure', None
     
     # fetch data from sample
     peptide_df = MetaPepTable.read_json(peptide_json).data
@@ -95,10 +96,10 @@ def update_de_novo_taxa_graph(page_active,
     
     if tax_ids != [] and top_taxa == 2:
         peptide_df = peptide_df[peptide_df[tax_rank + ' Name'].isin(tax_ids)]
-        comp_plot = plot_method(peptide_df, 
-                                rank=tax_rank,
-                                abundance_metric=quant_method,
-                                fractional_abundance=fractional)[0]
+        comp_plot, fig_data = plot_method(peptide_df, 
+                                          rank=tax_rank,
+                                          abundance_metric=quant_method,
+                                          fractional_abundance=fractional)
         dif_plot = tax_differential_barplot(peptide_df,
                                             db_search_col,
                                             unipept_col,
@@ -108,15 +109,15 @@ def update_de_novo_taxa_graph(page_active,
     elif top_taxa == 2:
         block_element = hidden_graph_with_text("taxonomy_barplot_figure",
                                                "Select custom tax id's...")
-        return block_element, dict(), 'Figure'
+        return block_element, dict(), 'Figure', None
     else:
         n_taxa = 9 if top_taxa == 1 else 20
-        comp_plot = plot_method(peptide_df,
-                                topn=n_taxa,
-                                rank=tax_rank,
-                                abundance_metric=quant_method,
-                                fractional_abundance=fractional,
-                                include_undefined=unannotated)[0]
+        comp_plot, fig_data = plot_method(peptide_df,
+                                          topn=n_taxa,
+                                          rank=tax_rank,
+                                          abundance_metric=quant_method,
+                                          fractional_abundance=fractional,
+                                          include_undefined=unannotated)
         dif_plot = tax_differential_barplot(peptide_df,
                                             db_search_col,
                                             unipept_col,
@@ -138,4 +139,4 @@ def update_de_novo_taxa_graph(page_active,
                   style={'height': '28rem'}),
     ]
     
-    return graphs, dict(), plot_title
+    return graphs, dict(), plot_title, fig_data.to_json()

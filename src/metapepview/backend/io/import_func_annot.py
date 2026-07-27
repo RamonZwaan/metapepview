@@ -14,7 +14,7 @@ def validate_eggnog_file(upload_contents: str,
                     "KEGG_rclass", "BRITE", "KEGG_TC", "CAZy", "PFAMs"]
 
     # import content and extract data if delivered in archive
-    file_buffer = memory_to_stringio(upload_contents, archive_format)
+    file_buffer = upload_to_stringio(upload_contents, archive_format)
 
     # read data into dataframe format, only first 100 rows
     try:

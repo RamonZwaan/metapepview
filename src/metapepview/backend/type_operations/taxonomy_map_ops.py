@@ -15,7 +15,7 @@ from metapepview.backend.types.object_mappings import taxonomy_db_formats
 
 
 
-def import_acc_tax_map(upload_contents: str | IO[str],
+def import_acc_tax_map(upload_contents: str | IO[str] | Path,
                        acc_col: int,
                        tax_col: int,
                        acc_regex: str | None,
@@ -27,8 +27,8 @@ def import_acc_tax_map(upload_contents: str | IO[str],
                        archive_format: str | None = None,
                        wrangle_peptide_accessions = False) -> AccessionTaxaMapMethods:
     # if file buffer has not been extracted from raw string data, extract data into buffer
-    if isinstance(upload_contents, str):
-        str_file_obj = memory_to_stringio(upload_contents, archive_format)
+    if isinstance(upload_contents, str) or isinstance(upload_contents, Path):
+        str_file_obj = upload_to_stringio(upload_contents, archive_format)
     else:
         str_file_obj = upload_contents
 
@@ -72,7 +72,7 @@ def import_acc_tax_map(upload_contents: str | IO[str],
         raise ValueError("Invalid taxonomy format")
 
 
-def validate_acc_tax_map(upload_contents: str | IO[str],
+def validate_acc_tax_map(upload_contents: str | IO[str] | Path,
                          acc_col: int,
                          tax_col: int,
                          delimiter: str,
@@ -81,7 +81,7 @@ def validate_acc_tax_map(upload_contents: str | IO[str],
                          archive_format: str | None = None) -> Tuple[bool, str | None]:
     # if file buffer has not been extracted from raw string data, extract data into buffer
     if isinstance(upload_contents, str):
-        str_file_obj = memory_to_stringio(upload_contents, archive_format)
+        str_file_obj = upload_to_stringio(upload_contents, archive_format)
     else:
         str_file_obj = upload_contents
         # construct correct class object based on taxonomy db format

@@ -15,92 +15,18 @@ from metapepview.constants import GlobalConstants as gc, StyleConstants
 from chunk_upload.ChunkUpload import ChunkUpload
 
 
-def importer_block(
-    title: str,
-    upload_id: str,
-    return_data_id: str,
-    valid_state_id: str,
-    multiple=False,
-    title_id=None) -> Any:
-
-    if multiple is True:
-        filenames_feedback = html.Div(
-            [
-            html.P("No file...", style={"padding": "0rem .5rem",
-                                        "text-align": "left"})
-            ],
-            id=return_data_id,
-            className="overflow-auto",
-            style={"height": "5rem"}
-        )
-    else:
-        filenames_feedback = html.Div(
-            [
-            html.P("No file...", style={"padding": "0rem .5rem",
-                                        "text-align": "left"})
-            ],
-            id=return_data_id,
-        )
-
-    if title_id is None:
-        header_block = html.H4(title)
-    else:
-        header_block = html.H4(title, id=title_id)
-
-    return [
-        dbc.Row(
-            [
-                dbc.Col(
-                    header_block,
-                    className="align-self-center",
-                    style={"width": "20rem"}
-                ),
-                dbc.Col(
-                    dcc.Upload(
-                        [
-                            dbc.Button("Import", outline=True, color="primary",
-                                    className="px-4")
-                        ],
-                        multiple=multiple,
-                        id=upload_id,
-                        className="justify-content-between p-auto float-end"
-                    ),
-                    width=3
-                ),
-            ],
-            className="justify-content-between my-0"
-        ),
-
-        html.Hr(),
-        dbc.Row(
-            [
-                dbc.Col(
-                    dbc.Spinner(
-                        filenames_feedback
-                    )
-                )
-            ],
-            style={'display': "flex", "align-items": "center"}
-        ),
-        dcc.Store(id=valid_state_id, data=None)
-    ]
-
 
 def annotation_mini_importer_block(
     upload_id: str,
-    return_data_id: str,
     valid_state_id: str,
     format_options: List[str] | List[Dict[str, str]] | None=None,
     format_id: str | None=None,
-    allow_multiple: bool=False,
-    use_chunk_upload: bool=False) -> html.Div:
+    allow_multiple: bool=False) -> html.Div:
     """Create dash component template for importer blocks at small size.
 
     Args:
         upload_id (str): Id of dash upload component.
-        return_data_id (str): Id for the data name to be returned.
         valid_state_id (str): Component Id to check if block is valid.
-        multiple (bool, optional): Allow multiple files. Defaults to False.
         format_options(List[str] | None, optional): Give option values for
             the potential data formats to upload in a dropdown menu.
             Defaults to None.
@@ -151,41 +77,7 @@ def annotation_mini_importer_block(
         'textAlign': 'center',
     }
 
-    if use_chunk_upload is True:
-        return html.Div([
-            html.Div(
-                [
-                    header_block,
-                    format_dropdown,
-                    format_name
-                ],
-                style={"height": dropdown_height},
-                className="d-flex align-items-center justify-content-between my-3"
-            ),
-            ChunkUpload(
-                id=upload_id,
-                # className="my-2 mx-1",
-            ),
-            dcc.Store(id=valid_state_id, data=None)
-        ],
-        )
-
-    elif allow_multiple is True:
-        filenames_feedback = html.Div([
-                'Drag and Drop or ',
-                html.A("Select Files", style={'cursor': 'pointer', 'fontWeight': 'bold'})
-            ],
-            id=return_data_id,
-        )
-    else:
-        filenames_feedback = html.Div([
-                'Drag and Drop or ',
-                html.A("Select File", style={'cursor': 'pointer', 'fontWeight': 'bold'})
-            ],
-            id=return_data_id,
-        )
-
-
+    # if use_chunk_upload is True:
     return html.Div([
         html.Div(
             [
@@ -196,19 +88,55 @@ def annotation_mini_importer_block(
             style={"height": dropdown_height},
             className="d-flex align-items-center justify-content-between my-3"
         ),
-        dcc.Upload(
+        ChunkUpload(
+            multiple=allow_multiple,
             id=upload_id,
-            children=dbc.Spinner(
-                filenames_feedback,
-                size="sm"
-            ),
-            className="my-2 mx-1",
-            style=upload_style,
-            multiple=allow_multiple
+            file_infos = []
+            # className="my-2 mx-1",
         ),
         dcc.Store(id=valid_state_id, data=None)
     ],
     )
+
+    # elif allow_multiple is True:
+    #     filenames_feedback = html.Div([
+    #             'Drag and Drop or ',
+    #             html.A("Select Files", style={'cursor': 'pointer', 'fontWeight': 'bold'})
+    #         ],
+    #         id=return_data_id,
+    #     )
+    # else:
+    #     filenames_feedback = html.Div([
+    #             'Drag and Drop or ',
+    #             html.A("Select File", style={'cursor': 'pointer', 'fontWeight': 'bold'})
+    #         ],
+    #         id=return_data_id,
+    #     )
+
+
+    # return html.Div([
+    #     html.Div(
+    #         [
+    #             header_block,
+    #             format_dropdown,
+    #             format_name
+    #         ],
+    #         style={"height": dropdown_height},
+    #         className="d-flex align-items-center justify-content-between my-3"
+    #     ),
+    #     dcc.Upload(
+    #         id=upload_id,
+    #         children=dbc.Spinner(
+    #             filenames_feedback,
+    #             size="sm"
+    #         ),
+    #         className="my-2 mx-1",
+    #         style=upload_style,
+    #         multiple=allow_multiple
+    #     ),
+    #     dcc.Store(id=valid_state_id, data=None)
+    # ],
+    # )
 
 
 def accession_pattern_options(
@@ -264,91 +192,7 @@ def accession_pattern_options(
     ]
 
 
-def qa_importer_block(
-    title: str,
-    upload_id: str,
-    return_data_id: str,
-    valid_state_id: str,
-    title_id=None,
-    format_options: List[str] | List[Dict[str, str]] | None=None,
-    format_id: str | None=None) -> List[Any]:
-    """Create dash component template for importer blocks at small size.
-
-    Args:
-        title (str): Header text of block.
-        upload_id (str): Id of dash upload component.
-        return_data_id (str): Id for the data name to be returned.
-        valid_state_id (str): Component Id to check if block is valid.
-        multiple (bool, optional): Allow multiple files. Defaults to False.
-        title_id (_type_, optional): Add id to title component. Defaults to None.
-        format_options(List[str] | None, optional): Give option values for
-            the potential data formats to upload in a dropdown menu.
-            Defaults to None.
-        format_id (str | None, optional): Dash component id for format dropdown
-            menu. Defaults to None.
-
-    Returns:
-        Any: List[Any]: Dash component block.
-    """
-    filenames_feedback = html.Div([
-            'Drag and Drop or ',
-            html.A("Select File", style={'cursor': 'pointer', 'fontWeight': 'bold'})
-        ],
-        id=return_data_id,
-    )
-
-    if title_id is None:
-        header_block = html.H5(title)
-    else:
-        header_block = html.H5(title, id=title_id)
-
-    if format_options is not None:
-        initial_val = format_options[0] if isinstance(format_options[0], str) else format_options[0]['value']
-        format_block = dbc.Col(
-            dcc.Dropdown(
-                format_options,
-                value=initial_val,
-                clearable=False,
-                id=format_id
-            ),
-            width=4
-        )
-    else:
-        format_block = dbc.Col(None, width=4)
-
-    return [
-        dbc.Row(
-            [
-                dbc.Col(
-                    header_block,
-                    className="align-self-center",
-                    style={"width": "20rem"}
-                ),
-                format_block
-            ],
-            className="justify-content-between my-0"
-        ),
-        dcc.Upload(
-            id=upload_id,
-            children=dbc.Spinner(
-                filenames_feedback,
-                size="sm"
-            ),
-            className="my-2 mx-1 py-1",
-            style={
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center',
-                #'margin': '1rem'
-            },
-        ),
-        dcc.Store(id=valid_state_id, data=None)
-    ]
-
-
 def import_single_file(names: Optional[str],
-                       dates: Any,
                        max_name_len: int=17,
                        drag_and_drop: bool = False) -> List[Any] | html.P:
     """Standard function to display name for single file on dashboard.
@@ -381,7 +225,6 @@ def import_single_file(names: Optional[str],
 
 
 def import_multiple_files(names: Optional[Sequence[str]],
-                          dates: Optional[Sequence[str]],
                           max_name_len: int=17,
                           max_rows: int=0) -> List[html.P] | html.P:
     """Standard function to display names for multiple uploaded files
@@ -389,7 +232,6 @@ def import_multiple_files(names: Optional[Sequence[str]],
 
     Args:
         names (Optional[Sequence[str]]): List of file names.
-        dates (Optional[Sequence[str]]): List of dates from file names
         max_name_len (int, optional): maximal length of name to display.
             Defaults to 17.
         max_rows (int, optional): Maximal number of rows to display.
@@ -399,12 +241,12 @@ def import_multiple_files(names: Optional[Sequence[str]],
         List[html.P] | html.P: List of html p elements to display.
     """
 
-    if names is None or dates is None:
+    if names is None:
         return html.P("No file...")
 
     # limit displayed rows if desired
     if max_rows > 0 and max_rows < len(names):
-        names, dates = names[:max_rows], dates[:max_rows]
+        names = names[:max_rows]
 
     # get all names in the output list
     names_constr = []
@@ -418,10 +260,8 @@ def import_multiple_files(names: Optional[Sequence[str]],
     return [html.P(name, className="fw-bold") for name in names_constr]
 
 
-def validate_multiple_files(contents: List[str] | None,
-                            names: List[str] | None,
-                            dates: Any,
-                            content_validator: Callable[[str, str | None], Tuple[bool, str | None]]) -> Tuple[
+def validate_multiple_files(contents: List[str],
+                            content_validator: Callable[[str | IO[str] | Path, str | None], Tuple[bool, str | None]]) -> Tuple[
                             bool | None,
                             List[html.P] | html.P,
                             List[str] | None,
@@ -434,14 +274,14 @@ def validate_multiple_files(contents: List[str] | None,
     box_style = {}
 
     # validate file contents, if invalid format, notify user
-    if contents is not None and names is not None:
+    if contents != []:
         # allow import of single archive, extract all files
-        archive_format = determine_archive_format(names[0])
+        archive_format = determine_archive_format(contents[0]["filename"])
         if len(contents) == 1 and archive_format is not None:
-            file_data, file_names = archive_to_file_list(contents[0],
+            file_data, file_names = archive_to_file_list(Path(contents[0]["path"]),
                                                          archive_format)
         else:
-            file_data, file_names = contents, names
+            file_data, file_names = [file["path"] for file in contents], [file["filename"] for file in contents]
 
         current_name, success = None, False
         try:
@@ -449,11 +289,16 @@ def validate_multiple_files(contents: List[str] | None,
                 if file is None:
                     raise ValueError("Non-file-like encountered, likely directory")
 
-                # read buffer to keep content validator input consistent
-                file = file.read() if isinstance(file, IO) else file
+                # convert string of path to path object
+                if isinstance(file, str):
+                    file = Path(file)
 
                 current_name = file_names[idx]
                 current_archive_format = determine_archive_format(current_name)
+                if (archive_format is not None) and (current_archive_format is not None):
+                    success, msg = False, "Nested or multiple archives not supported, add all samples in a single archive for import."
+                    break
+
                 success, msg = content_validator(file, current_archive_format)
                 if success is False:
                     break
@@ -465,6 +310,7 @@ def validate_multiple_files(contents: List[str] | None,
             valid_data = True
             box_style = StyleConstants.success_box_style
         else:
+
             name_list = import_multiple_files(None, None)
             return (False, name_list, None, msg, success,
                     StyleConstants.failed_box_style)
@@ -475,17 +321,14 @@ def validate_multiple_files(contents: List[str] | None,
         msg = None
 
     name_list = import_multiple_files(file_names,
-                                      dates,
                                       max_name_len=30)
-
 
     return (valid_data, name_list, contents, msg, success, box_style)
 
 
-def validate_single_file(contents: str | None,
+def validate_single_file(contents: str | Path,
                          name: str | None,
-                         dates: Any,
-                         content_validator: Callable[[str, str | None], Tuple[bool, str | None]],
+                         content_validator: Callable[[str | Path, str | None], Tuple[bool, str | None]],
                          drag_and_drop: bool = False) -> Tuple[
                             bool | None,
                             List[Any] | html.P,
@@ -499,7 +342,7 @@ def validate_single_file(contents: str | None,
     styling of importer block based on success.
 
     Args:
-        contents (str): File contents,
+        contents (str | Path): File contents,
         name (str): File name
         dates (Any): Last modified date
         content_validator (Callable[[str, str  |  None], Tuple[bool, str  |  None]]):
@@ -516,7 +359,7 @@ def validate_single_file(contents: str | None,
     """
     msg, valid_data, box_style, success = None, None, {}, True
 
-    if contents is not None and name is not None:
+    if (contents is not None) and (name is not None):
         # validate format if data given
         archive_format = determine_archive_format(name)
         try:
@@ -531,13 +374,16 @@ def validate_single_file(contents: str | None,
         else:
             valid_data = False
             box_style = StyleConstants.failed_box_style
+
+
+
             contents = None
     # remove name if no contents is imported
     elif contents is None:
         name = None
     
     return (valid_data,
-            import_single_file(name, dates, max_name_len=30, drag_and_drop=drag_and_drop),
+            import_single_file(name, max_name_len=30, drag_and_drop=drag_and_drop),
             contents,
             msg,
             success,

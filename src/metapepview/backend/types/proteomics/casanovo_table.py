@@ -9,7 +9,7 @@ from typing import List, IO, Self, Dict
 
 from metapepview.backend.types.proteomics.proteomics_base_classes import DeNovoMethods
 from metapepview.backend.types.metapep_table import MetaPepDeNovo
-from metapepview.backend.utils import memory_to_stringio,\
+from metapepview.backend.utils import upload_to_stringio,\
     wrangle_peptides,\
     spectrum_id_to_scan_number,\
     mz_diff_to_ppm,\
@@ -54,12 +54,13 @@ class CasanovoDeNovo(DeNovoMethods):
                  data: pd.DataFrame,
                  file_name: str | None = None,
                  source_files: Dict[str, str] | None = None):
+        # convert column name from older casanovo version reporting
+        data = data.rename(columns={"opt_ms_run[1]_aa_scores": "opt_global_aa_scores"})
         success, msg = self.validate_input(data)
 
         if success is False:
             raise ValueError(msg)
-        
-        data = data.rename(columns={"opt_ms_run[1]_aa_scores": "opt_global_aa_scores"})
+
         data = data[self.REQUIRED_FIELDS]
         
         self._data = data
@@ -192,7 +193,7 @@ class CasanovoDeNovo(DeNovoMethods):
             T: Instance of class object
         """
         if isinstance(file_buffer, str):
-            file_buffer = memory_to_stringio(file_buffer)
+            file_buffer = upload_to_stringio(file_buffer)
 
         try:
             source_files = cls.__fetch_all_source_files(file_buffer)

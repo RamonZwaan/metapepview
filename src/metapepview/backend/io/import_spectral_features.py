@@ -10,10 +10,8 @@ from typing import Any, Callable, Dict, IO, Tuple
 import pandas as pd
 import numpy as np
 
-from metapepview.constants import StyleConstants
-from metapepview.html_templates import import_single_file
 from metapepview.backend.utils import determine_archive_format, \
-    memory_to_file_like, \
+    upload_to_file_like, \
     compress_string
 
 
@@ -26,7 +24,7 @@ featurexml_types: Dict[str, Callable] = {
 _SCAN_NUM_PATTERN = re.compile(r"(?<=scan=)[0-9]+")
 
 
-def import_features(content: str, 
+def import_features(content: str | Path, 
                     filename: str, 
                     mzml_metadata: Dict[str, Any] | None) -> Tuple[str, 
                                                                    Dict[str, Any],
@@ -52,7 +50,7 @@ def import_features(content: str,
     
     print("Process feature data...")
     try:
-        data, metadata = featurexml_to_df(memory_to_file_like(content, archive_format), 
+        data, metadata = featurexml_to_df(upload_to_file_like(content, archive_format), 
                                           None)
     except Exception as err:
         print(err)

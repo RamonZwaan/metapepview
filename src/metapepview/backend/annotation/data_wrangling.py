@@ -11,7 +11,7 @@ from metapepview.backend.types import *
 from metapepview.constants import *
 
 
-def match_source_denovo(denovo_list: Sequence[IO[str] | str],
+def match_source_denovo(denovo_list: Sequence[IO[str] | Path],
                         denovo_format: DeNovoSource,
                         crap_dataset: pd.Series | None = None) -> Dict[str, MetaPepDeNovo]:
     """Extract source files from denovo datasets and match them to the datasets
@@ -67,7 +67,7 @@ def match_source_denovo_buffer(denovo_list: Sequence[IO[str] | str],
         
         # convert data to string file-like buffer
         if isinstance(denovo_contents, str):
-            denovo_file = memory_to_stringio(denovo_contents)
+            denovo_file = upload_to_stringio(denovo_contents)
         else:
             denovo_file = denovo_contents
         

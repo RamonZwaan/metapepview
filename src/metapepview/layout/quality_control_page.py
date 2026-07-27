@@ -1,8 +1,7 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-from metapepview.html_templates import qa_importer_block
-from metapepview.constants import GlobalConstants, StyleConstants
+from metapepview.constants import GlobalConstants
 
 
 
@@ -891,7 +890,7 @@ ms_performance = html.Div(
                 dbc.Tab(
                     ref_benchmark,
                     label="Experiment comparison",
-                    id="Reference Benchmark"
+                    tab_id="Reference Benchmark"
                 ),
                 # dbc.Tab(
                 #     peptide_identification,
@@ -901,12 +900,13 @@ ms_performance = html.Div(
                 dbc.Tab(
                     ms_spectra_tab,
                     label="Experimental quality",
-                    id="MS Spectra",
+                    tab_id="MS Spectra",
                     style={"margin": "0.5rem 0.5rem"}
                 )
             ],
             id="ms_performance_tabs",
-            # active_tab="Reference Benchmark"
+            active_tab="Reference Benchmark",
+            persistence=True
         ),
     ],
     style={"margin-left": "0rem", "padding": "0rem 1rem"},

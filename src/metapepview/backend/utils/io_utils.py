@@ -72,25 +72,30 @@ def upload_contents_to_bytes(upload_contents: str) -> bytes:
     return base64.b64decode(content_string)
 
 
-def memory_to_file_like(upload_contents: str,
+def upload_to_file_like(upload_contents: str | Path,
                         archive_format: str | None = None,
                         filename: str | None = None) -> IO[bytes]:
     """Convert in-memory encoded string into a file-like
     object for processing with functions that expect a file.
 
     Args:
-        upload_contents (str): Content uploaded through dash upload component.
+        upload_contents (str | Path): Content uploaded through dash upload component.
 
     Returns:
         io.BytesIO: file-like object
     """
-    content = upload_contents_to_bytes(upload_contents)
+    if isinstance(upload_contents, str):
+        content_bytes = upload_contents_to_bytes(upload_contents)
+        content = io.BytesIO(content_bytes)
+    else:
+        with open(upload_contents, "rb") as file_data:
+            content = io.BytesIO(file_data.read())
     
     # either return bytes buffer object, or extract archive and return
     if archive_format is None:
-        return io.BytesIO(content)
+        return content
     else:
-        return extract_in_memory_archive(io.BytesIO(content),
+        return extract_in_memory_archive(content,
                                          archive_format,
                                          filename)
 
@@ -154,7 +159,7 @@ def decompress_string(content: str) -> str:
     return decompressed.decode(encoding='utf-8')
 
 
-def memory_to_stringio(upload_contents: str,
+def upload_to_stringio(upload_contents: str | Path,
                        archive_format: str | None = None,
                        filename: str | None = None) -> IO[str]:
     """Convert in-memory encoded string into string buffer object for
@@ -166,18 +171,30 @@ def memory_to_stringio(upload_contents: str,
     Returns:
         io.StringIO: String buffer object
     """
-    content = upload_contents_to_bytes(upload_contents)
-    
-    # either return bytes buffer object, or extract archive and return
-    if archive_format is None:
-        # convert bytes array to StringIO
-        return io.StringIO(content.decode('utf-8'))
+    if isinstance(upload_contents, Path):
+        # either return bytes buffer object, or extract archive and return
+        if archive_format is None:
+            # convert bytes array to StringIO
+            return io.StringIO(open(upload_contents, "r", encoding="utf-8").read())
+        else:
+            extracted_content = extract_in_memory_archive(upload_contents,
+                                                          archive_format,
+                                                          filename)
+            # convert BytesIO to StringIO-like object
+            return io.TextIOWrapper(extracted_content, encoding='utf-8')
     else:
-        extracted_content = extract_in_memory_archive(io.BytesIO(content),
-                                                      archive_format,
-                                                      filename)
-        # convert BytesIO to StringIO-like object
-        return io.TextIOWrapper(extracted_content, encoding='utf-8')
+        content = upload_contents_to_bytes(upload_contents)
+        
+        # either return bytes buffer object, or extract archive and return
+        if archive_format is None:
+            # convert bytes array to StringIO
+            return io.StringIO(content.decode('utf-8'))
+        else:
+            extracted_content = extract_in_memory_archive(io.BytesIO(content),
+                                                        archive_format,
+                                                        filename)
+            # convert BytesIO to StringIO-like object
+            return io.TextIOWrapper(extracted_content, encoding='utf-8')
 
 
 def import_csv_file(upload_contents: str | IO[str]) -> pd.DataFrame:
@@ -193,8 +210,8 @@ def import_csv_file(upload_contents: str | IO[str]) -> pd.DataFrame:
     # if data has been decoded, directly return csv DataFrame
     if isinstance(upload_contents, io.TextIOBase):
         return pd.read_csv(upload_contents)
-    elif isinstance(upload_contents, str):
-        return pd.read_csv(memory_to_stringio(upload_contents))
+    elif isinstance(upload_contents, str) or isinstance(upload_contents, Path):
+        return pd.read_csv(upload_to_stringio(upload_contents))
     else:
         raise TypeError("invalid content type supplied...")
 
@@ -259,7 +276,11 @@ def extract_in_memory_archive(file: IO[bytes] | Path,
         raise TypeError("Supplied incorrect file type.")
     
     # return io.TextIOWrapper(extracted_file, encoding='utf-8')
-    return extracted_file
+
+    # read data into memory and close file
+    in_memory_buf = io.BytesIO(extracted_file.read())
+    extracted_file.close()
+    return in_memory_buf
 
 
 def determine_archive_format(file_name: str) -> Literal['.tar', '.zip'] | None:
@@ -281,7 +302,7 @@ def determine_archive_format(file_name: str) -> Literal['.tar', '.zip'] | None:
         return None
 
 
-def archive_to_file_list(archive: str,
+def archive_to_file_list(archive: str | Path,
                          archive_format: Literal['.zip', '.tar']) -> Tuple[Sequence[IO[str]], List[str]]:
     """Extract list of files and names from archive file.
 
@@ -295,7 +316,7 @@ def archive_to_file_list(archive: str,
             list of file names.
     """
     # decode data, do not extract, as an object is created separately
-    archive_data = memory_to_file_like(archive)
+    archive_data = upload_to_file_like(archive)
 
     file_list, file_names = extract_all_in_memory_archive(archive_data,
                                                           archive_format)

@@ -13,7 +13,7 @@ from metapepview.backend.types.definitions import FuncAnnotFormat
 from metapepview.backend.types import FunctionDbMapper
 
 
-def import_func_map(upload_contents: str,
+def import_func_map(upload_contents: str | Path,
                     db_format: FuncAnnotFormat,
                     accession_pattern: str | None = None,
                     max_evalue = 1e-6,
@@ -27,7 +27,7 @@ def import_func_map(upload_contents: str,
         raise ValueError("Invalid file format supplied")
     else:
         # extract file if delivered in archive    
-        file_buffer = memory_to_stringio(upload_contents, archive_format)
+        file_buffer = upload_to_stringio(upload_contents, archive_format)
         
         func_mapper_obj = importer.read_file_buffer(file_buffer, 
                                                     max_evalue=max_evalue,
@@ -57,7 +57,7 @@ def validate_func_map(file_buffer: str | IO[str],
     else:
         try:
             if isinstance(file_buffer, str):
-                file_buffer = memory_to_stringio(file_buffer, archive_format)
+                file_buffer = upload_to_stringio(file_buffer, archive_format)
             importer.read_file_buffer(file_buffer)
             return True, None
         except Exception as e:

@@ -60,7 +60,7 @@ def validate_de_novo(file_buffer: str | IO[str],
             return False, repr(e)
 
 
-def load_metapep_db_search(file_buffer: str | IO[str],
+def load_metapep_db_search(file_buffer: str | IO[str] | Path,
                            sample_name: str,
                            file_format: DbSearchSource,
                            crap_dataset: pd.Series | None = None) -> MetaPepDbSearch:
@@ -68,7 +68,7 @@ def load_metapep_db_search(file_buffer: str | IO[str],
     MetaPepDbSearch object.
 
     Args:
-        file_buffer (IO[str]): File buffer object
+        file_buffer (str | IO[str] | Path): File buffer object
         sample_name (str): Name of sample.
         file_format (DbSearchSource): Format of db search psm output.
 
@@ -76,6 +76,10 @@ def load_metapep_db_search(file_buffer: str | IO[str],
         MetaPepDbSearch: Db search psm data in MetaPep table format
     """
     try:
+        # if path to file given, create TextIOWrapper
+        if isinstance(file_buffer, Path):
+            file_buffer = open(file_buffer, "r", encoding="utf-8")
+
         importer = db_search_importers.get(file_format)
         
         if importer is None:
@@ -92,7 +96,7 @@ def load_metapep_db_search(file_buffer: str | IO[str],
         raise ValueError(f"Failed to load db search sample '{sample_name}': {err}")
     
     
-def load_metapep_de_novo(file_buffer: str | IO[str],
+def load_metapep_de_novo(file_buffer: str | IO[str] | Path,
                          sample_name: str | None,
                          file_format: DeNovoSource,
                          crap_dataset: pd.Series | None = None) -> MetaPepDeNovo:
@@ -100,7 +104,7 @@ def load_metapep_de_novo(file_buffer: str | IO[str],
     MetaPepDeNovo object.
 
     Args:
-        file_buffer (IO[str]): File buffer object
+        file_buffer (str | IO[str] | Path): File buffer object
         sample_name (str): Name of sample.
         file_format (DeNovoSource): Format of db search psm output.
         crap_dataset (pd.Series | None, optional): Series of peptide sequences
@@ -113,6 +117,9 @@ def load_metapep_de_novo(file_buffer: str | IO[str],
 
     importer = de_novo_importers.get(file_format)
     try:
+        if isinstance(file_buffer, Path):
+            file_buffer = open(file_buffer, "r", encoding="utf-8")
+            
         if importer is None:
             raise ValueError("Invalid file format supplied")
         else:

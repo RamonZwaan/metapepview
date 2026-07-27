@@ -4,8 +4,8 @@ from typing import List, Dict, Literal, overload
 from pathlib import Path
 import pandas as pd
 
-# from scipy.interpolate import CubicSpline
-from metapepview.backend.utils.numpy_utils import CubicSpline
+from scipy.interpolate import CubicSpline
+# from metapepview.backend.utils.numpy_utils import CubicSpline
 
 from metapepview.backend.spectral_ref_builder.definitions import RefBuilderOptions
 from metapepview.backend.type_operations import * # load_metapep_db_search, load_metapep_de_novo, db_search_importers, de_novo_importers
@@ -177,9 +177,9 @@ def score_rank_dist(data_dict: Dict[str, Dict[str, Path | None]],
         
         # extract confidence column from data
         if file_type == 'db search':
-            df = load_metapep_db_search(df_path.open('r'), name, file_format) #type:ignore
+            df = load_metapep_db_search(df_path, name, file_format) #type:ignore
         elif file_type == 'de novo':
-            df = load_metapep_de_novo(df_path.open('r'), name, file_format) #type:ignore
+            df = load_metapep_de_novo(df_path, name, file_format) #type:ignore
         
         # if file contains data from other source files, omit them
         if len(df.source_files) > 1:
@@ -265,9 +265,9 @@ def score_rank_dist_norm(data_dict: Dict[str, Dict[str, Path | None]],
         
         # extract confidence column from data
         if file_type == 'db search':
-            df = load_metapep_db_search(df_path.open('r'), name, file_format) #type:ignore
+            df = load_metapep_db_search(df_path, name, file_format) #type:ignore
         elif file_type == 'de novo':
-            df = load_metapep_de_novo(df_path.open('r'), name, file_format) #type:ignore
+            df = load_metapep_de_novo(df_path, name, file_format) #type:ignore
         
         # if file contains data from other source files, omit them
         if len(df.source_files) > 1:

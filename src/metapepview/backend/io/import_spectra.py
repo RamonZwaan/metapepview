@@ -14,7 +14,7 @@ import numpy as np
 
 from metapepview.backend.utils import spectrum_id_to_scan_number, \
     determine_archive_format, \
-    memory_to_file_like, \
+    upload_to_file_like, \
     compress_string, \
     extract_in_memory_archive
 

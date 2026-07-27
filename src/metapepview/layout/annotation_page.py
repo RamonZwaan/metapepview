@@ -496,7 +496,6 @@ db_search_import_block = [
             ),
             annotation_mini_importer_block(
                 "db_search_psm_upload", 
-                "db_search_psm_import_txt", 
                 "db_search_psm_valid",
                 format_options=gc.db_search_dropdown_options,
                 format_id="db_search_psm_format",
@@ -531,7 +530,7 @@ de_novo_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "denovo_upload", "de_novo_import_txt", "de_novo_valid",
+                "denovo_upload", "de_novo_valid",
                 format_options=gc.de_novo_dropdown_options,
                 format_id="de_novo_format",
                 allow_multiple=True
@@ -561,7 +560,7 @@ taxonomy_map_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "taxonomy_db_upload", "tax_map_import_txt", "taxonomy_db_valid",
+                "taxonomy_db_upload", "taxonomy_db_valid",
                 format_options=[{'label': 'GhostKOALA', 'value': 'GhostKOALA'},
                                 {'label': 'NCBI', 'value': 'NCBI'}] +
                     ([{'label': 'GTDB', 'value': 'GTDB'}] if gc.show_advanced_settings is True\
@@ -598,7 +597,7 @@ function_map_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "func_annot_db_upload", "func_map_import_txt", "func_annot_db_valid",
+                "func_annot_db_upload", "func_annot_db_valid",
                 format_options=[{'label': 'EggNOG', 'value': 'EggNOG'},
                                 {'label': 'GhostKOALA', 'value': 'GhostKOALA'}],
                 format_id="func_annot_db_format"
@@ -626,7 +625,7 @@ spectral_data_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "mzml_upload", "mzml_name_txt", "mzml_valid", use_chunk_upload=True
+                "mzml_upload", "mzml_valid"
             )
         ],
         className="mx-4 mb-3"
@@ -651,7 +650,7 @@ feature_data_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "features_upload", "features_name_txt", "features_valid"
+                "features_upload", "features_valid"
             )
         ],
         className="mx-4 mb-3"
@@ -677,7 +676,6 @@ db_search_qa_import_block = [
             ),
             annotation_mini_importer_block(
                 "db_search_psm_qa_upload", 
-                "db_search_psm_qa_import_txt", 
                 "db_search_psm_qa_valid",
                 format_options=gc.db_search_dropdown_options,
                 format_id="db_search_psm_qa_format",
@@ -706,7 +704,7 @@ de_novo_qa_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "denovo_qa_upload", "denovo_qa_import_txt", "denovo_qa_valid",
+                "denovo_qa_upload", "denovo_qa_valid",
                 format_options=gc.de_novo_dropdown_options,
                 format_id="denovo_qa_format",
                 allow_multiple=False
@@ -915,7 +913,7 @@ import_block = html.Div(
                 html.Div(
                     [
                         html.H4("Performance evaluation dataset"),
-                        dbc.Button('Clear data',
+                        dbc.Button('Clear performance evaluation data',
                                    n_clicks=0, 
                                    id='clear_spectral_dataset', 
                                    className="me-2"),

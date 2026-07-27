@@ -18,27 +18,23 @@ from metapepview.backend.utils import *
 @app.callback(
     Output('db_search_psm_qa_valid', 'data'),
     Output('db_search_psm_qa_name', 'children'),
-    Output('db_search_psm_qa_upload', 'contents'),
+    Output('db_search_psm_qa_upload', 'file_infos'),
     Output('db_search_qa_format_alert', 'children', allow_duplicate=True),
     Output('db_search_qa_format_alert', 'is_open', allow_duplicate=True),
     Output('db_search_psm_qa_import_box', 'style'),
-    Input('db_search_psm_qa_upload', 'contents'),
+    Input('db_search_psm_qa_upload', 'file_infos'),
     Input('mzml_metadata', 'data'),
     State('db_search_psm_qa_format', 'value'),
-    State('db_search_psm_qa_upload', 'filename'),
-    State('db_search_psm_qa_upload', 'last_modified'),
     prevent_initial_call=True
 )
 def show_db_psm_search_qa_name(contents, 
                                mzml_metadata,
-                               file_format,
-                               name, 
-                               date):
+                               file_format):
     """Display filename of annotated peptide dataset import.
     """
     # set validation function
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-        cont_buf = memory_to_stringio(cont, archv)
+        cont_buf = upload_to_stringio(cont, archv)
 
         return validate_db_search(cont_buf, file_format)
 
@@ -58,49 +54,56 @@ def show_db_psm_search_qa_name(contents,
         #         msg = "mzml and DB search not from same experiment."
         #         return False, msg
         # return True, None
-    
+
+    if contents == []:
+        raise PreventUpdate
+
+    path = Path(contents[0]["path"])
+    filename = contents[0]["filename"]
+
     (valid_data, 
      name, 
      content, 
      err_msg, 
      success, 
-     import_box_style) = validate_single_file(contents, 
-                                              name, 
-                                              date, 
+     import_box_style) = validate_single_file(path, 
+                                              filename, 
                                               valid_func, 
                                               drag_and_drop=True)
     
+    # if validation failed, remove all data and set file_infos to []
+    if content is None:
+        for file in contents:
+            Path(file["path"]).unlink(True)
+        contents = []
+    
     open_alert = not success
 
-    return (valid_data, name, content, err_msg, open_alert, import_box_style)
+    return (valid_data, name, contents, err_msg, open_alert, import_box_style)
 
 
 
 @app.callback(
     Output('denovo_qa_valid', 'data'),
     Output('denovo_qa_name', 'children'),
-    Output('denovo_qa_upload', 'contents'),
+    Output('denovo_qa_upload', 'file_infos'),
     Output('de_novo_qa_format_alert', 'children'),
     Output('de_novo_qa_format_alert', 'is_open'),
     Output('denovo_qa_import_box', 'style'),
-    Input('denovo_qa_upload', 'contents'),
+    Input('denovo_qa_upload', 'file_infos'),
     Input('denovo_qa_format', 'value'),
-    Input("mzml_metadata", "data"),
-    State('denovo_qa_upload', 'filename'),
-    State('denovo_qa_upload', 'last_modified'))
+    Input("mzml_metadata", "data"))
 def show_denovo_search_qa_name(contents, 
                                file_format, 
-                               mzml_metadata,
-                               name, 
-                               date):
+                               mzml_metadata):
     """Display filename of annotated peptide dataset import.
     """
-    if contents is None:
+    if contents == []:
         raise PreventUpdate
 
     # set validation function
     def valid_func(cont, archv) -> Tuple[bool, str | None]:
-        cont_buf = memory_to_stringio(cont, archv)
+        cont_buf = upload_to_stringio(cont, archv)
 
         return validate_de_novo(cont_buf, file_format)
         
@@ -121,46 +124,57 @@ def show_denovo_search_qa_name(contents,
         #         return False, msg
         # return True, None
     
+    de_novo_path = Path(contents[0]["path"])
+    filename = contents[0]["filename"]
 
     (valid_data, 
      name, 
      content, 
      err_msg, 
      success, 
-     import_box_style) = validate_single_file(contents, 
-                                              name, 
-                                              date, 
+     import_box_style) = validate_single_file(de_novo_path, 
+                                              filename, 
                                               valid_func, 
                                               drag_and_drop=True)
-    
+
+    # if validation failed, remove all data and set file_infos to []
+    if content is None:
+        for file in contents:
+            Path(file["path"]).unlink(True)
+        contents = []
+
     open_alert = not success
     
-    return (valid_data, name, content, err_msg, open_alert, import_box_style)
+    return (valid_data, name, contents, err_msg, open_alert, import_box_style)
 
 
 @app.callback(
     Output("mzml_name", "children"),
-    Input("mzml_upload", "file_info")
+    Input("mzml_upload", "file_infos")
 )
 def show_mzml(file_path):
-    if (file_path is not None) and (Path(file_path).is_file()):
-        return truncate_end(Path(file_path).name, 30)
+    if (file_path != []) and (Path(file_path[0]["path"]).is_file()):
+        file_name = file_path[0]["filename"]
+        return truncate_end(file_name, 30)
     else:
-        return None
+        return "No file..."
 
 
 @app.callback(
     Output("features_name", "children"),
-    Input("features_upload", "filename")
+    Input("features_upload", "file_infos")
 )
 def show_features(filename):
-    return filename
+    if filename != []:
+        return filename[0]["filename"]
+    else:
+        return "No file..."
 
 
 @app.callback(
     Output('start_spectral_import_button', 'disabled'),
     Output('spectral_import_hint', 'children'),
-    Input('mzml_upload', 'file_info'),
+    Input('mzml_upload', 'file_infos'),
     Input("db_search_psm_qa_valid", "data"),
     Input("denovo_qa_valid", "data"),
 )
@@ -169,7 +183,7 @@ def inactivate_spectral_import_button(mzml_file_path,
                                       de_novo_valid):
     tooltip_target = "start_spectral_import_button_wrapper"
 
-    if mzml_file_path is None:
+    if len(mzml_file_path) == 0:
         tooltip = dbc.Tooltip("Import spectral dataset (mzML)",
                               target=tooltip_target,
                               placement="bottom",
@@ -209,14 +223,12 @@ def inactivate_spectral_import_button(mzml_file_path,
     Output("qa_data_import_alert", "children", allow_duplicate=True),
     Output("qa_data_import_alert", "is_open", allow_duplicate=True),
     Input("start_spectral_import_button", "n_clicks"),
-    State("mzml_upload", "file_info"),
-    State("features_upload", "contents"),
-    State("features_upload", "filename"),
-    State("db_search_psm_qa_upload", "contents"),
+    State("mzml_upload", "file_infos"),
+    State("features_upload", "file_infos"),
+    State("db_search_psm_qa_upload", "file_infos"),
     State("db_search_psm_qa_format", "value"),
     State("db_search_psm_qa_valid", "data"),
-    State("denovo_qa_upload", "contents"),
-    State("denovo_qa_upload", "filename"),
+    State("denovo_qa_upload", "file_infos"),
     State("denovo_qa_format", "value"),
     State("denovo_qa_valid", "data"),
     prevent_initial_call=True
@@ -224,18 +236,16 @@ def inactivate_spectral_import_button(mzml_file_path,
 def store_spectral_dataset(btn, 
                            mzml_file_path,
                            features_content, 
-                           features_filename,
                            db_search_content,
                            db_search_format,
                            db_search_valid, 
                            de_novo_content,
-                           de_novo_name,
                            de_novo_format,
                            de_novo_valid):
     loading_status = None
 
     # only update if valid data uploaded
-    if (mzml_file_path is None) or (not Path(mzml_file_path).is_file()):
+    if (len(mzml_file_path) == 0) or (not Path(mzml_file_path[0]["path"]).is_file()):
         raise PreventUpdate    
 
     empty_data = (None,)*8
@@ -244,7 +254,7 @@ def store_spectral_dataset(btn,
     (mzml_data, 
      mzml_peaks, 
      mzml_metadata,
-     mzml_valid) = import_mzml(Path(mzml_file_path), Path(mzml_file_path).name)
+     mzml_valid) = import_mzml(Path(mzml_file_path[0]["path"]), mzml_file_path[0]["filename"])
     
     #TODO: Add check that DB search and de novo is related to raw mzml file
 
@@ -259,11 +269,11 @@ def store_spectral_dataset(btn,
         return empty_data + (spectral_data_import_container, msg, True)
 
     # import feature data and return as compressed string data
-    if features_content is not None:
+    if features_content != []:
         (feature_data, 
         feature_metadata, 
-        feature_valid) = import_features(features_content, 
-                                         features_filename, 
+        feature_valid) = import_features(Path(features_content[0]["path"]), 
+                                         features_content[0]["filename"], 
                                          mzml_metadata)
     else:
         # no feature data is considered valid to prevent raising alert message
@@ -272,8 +282,15 @@ def store_spectral_dataset(btn,
         feature_valid = True
 
     # compress db search and de novo data
-    if db_search_content is not None:
-        db_search_data = load_metapep_db_search(db_search_content, 
+    if db_search_content != []:
+        db_search_path = Path(db_search_content[0]["path"])
+        db_search_archive_format = determine_archive_format(db_search_content[0]["filename"])
+        if db_search_archive_format is not None:
+            db_search_files, db_search_names = archive_to_file_list(db_search_path,
+                                                                    db_search_archive_format)
+            db_search_path = db_search_files[0]
+
+        db_search_data = load_metapep_db_search(db_search_path, 
                                                 "sample", 
                                                 db_search_format)
         
@@ -285,9 +302,16 @@ def store_spectral_dataset(btn,
         db_search_store = compress_string(db_search_json)
     else:
         db_search_store = None
-    if de_novo_content is not None:
-        de_novo_data = load_metapep_de_novo(de_novo_content,
-                                            de_novo_name,
+    if de_novo_content != []:
+        de_novo_path = Path(de_novo_content[0]["path"])
+        de_novo_archive_format = determine_archive_format(de_novo_content[0]["filename"])
+        if de_novo_archive_format is not None:
+            de_novo_files, de_novo_names = archive_to_file_list(de_novo_path,
+                                                                de_novo_archive_format)
+            de_novo_path = de_novo_files[0]
+
+        de_novo_data = load_metapep_de_novo(de_novo_path,
+                                            de_novo_content[0]["filename"],
                                             de_novo_format)
 
         if mzml_metadata["raw file name"] not in de_novo_data.source_files:

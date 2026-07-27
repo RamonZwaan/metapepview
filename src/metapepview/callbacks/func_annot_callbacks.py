@@ -14,6 +14,7 @@ from metapepview.backend.plots import pathway_abundance_barplot
 from metapepview.constants import GlobalConstants
 from metapepview.backend.utils.functional_plot_utils import *
 
+from io import StringIO
 import numpy as np
 import pandas as pd
 
@@ -206,6 +207,7 @@ def disable_module_dropdown(kegg_db, kegg_display_format):
     Output("pathway_barplot_graph", "children"),
     Output("pathway_barplot_graph", "style"),
     Output('func_annot_figure_title', 'children'),
+    Output("function_barplot_figure_data", "data"),
     Input('peptides', 'data'),
     Input("kegg_group_type", "value"),
     Input("kegg_display_format_radio", "value"),
@@ -251,11 +253,11 @@ def update_pathway_barplot(peptide_json_loaded,
     else:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                "Import KEGG dataset (sidebar)...")
-        return block_element, dict(), "Figure"
+        return block_element, dict(), "Figure", None
     if peptide_json is None:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                "Import DB Search and functional annotation datasets...")
-        return block_element, dict(), "Figure"
+        return block_element, dict(), "Figure", None
     metapep_obj = MetaPepTable.read_json(peptide_json)
     if metapep_obj.functional_annotation_present is False:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
@@ -264,7 +266,7 @@ def update_pathway_barplot(peptide_json_loaded,
     if kegg_group_method == "Manual" and (custom_prot is None or custom_prot == []):
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                 "Select protein terms in filter settings...")
-        return block_element, dict(), "Figure"
+        return block_element, dict(), "Figure", None
     
 
     peptide_df = metapep_obj.data
@@ -324,20 +326,47 @@ def update_pathway_barplot(peptide_json_loaded,
                                       clade_rank=clade_rank,
                                       func_abundances=func_abundances)    
     
-    plot = pathway_abundance_barplot(peptide_df,
-                                    "Sample Name",
-                                    ycol,
-                                    "Protein Name",
-                                    tax_col=tax_col,
-                                    custom_title=plot_title,
-                                    custom_xname=kegg_format,
-                                    custom_yname=ytitle)
+    plot, figure_data = pathway_abundance_barplot(peptide_df,
+                                                  "Sample Name",
+                                                  ycol,
+                                                  "Protein Name",
+                                                  tax_col=tax_col,
+                                                  custom_title=plot_title,
+                                                  custom_xname=kegg_format,
+                                                  custom_yname=ytitle)
     
     plot.update_layout(title="")
 
-    return dcc.Graph(figure=plot,
+    return (dcc.Graph(figure=plot,
                      id="pathway_barplot_figure",
-                     style={"height": "40rem"}), dict(), plot_title
+                     style={"height": "40rem"}), 
+            dict(), 
+            plot_title,
+            figure_data.to_json()
+    )
+
+
+@app.callback(
+    Output('download_function_figure_data_tsv', 'data'),
+    Input('export_func_annot_figure_data', 'n_clicks'),
+    State('function_barplot_figure_data', 'data'),
+    prevent_initial_call=True
+)
+def export_func_comp_fig_data(button_click, 
+                             fig_data):
+    fig_data_df = pd.read_json(
+        StringIO(fig_data))
+    
+    return dcc.send_data_frame(fig_data_df.to_csv, "functional_composition.tsv", sep="\t")
+
+@app.callback(
+    Output('export_func_annot_figure_data', 'disabled'),
+    Input('function_barplot_figure_data', 'data'),
+)
+def activate_func_comp_fig_button(fig_data):
+    if fig_data is None:
+        return True
+    return False
 
 
 @app.callback(
@@ -489,7 +518,7 @@ def toggle_export_button(peptide_json_loaded):
 
 
 @app.callback(
-    Output('download_community_functions_csv', 'data'),
+    Output('download_community_functions_tsv', 'data'),
     Input('export_functions_button', 'n_clicks'),
     State('peptides', 'data'),
     State("kegg_group_type", "value"),
