@@ -29,6 +29,10 @@ Keyword arguments:
 
 - file_info (dict; optional)
 
+- file_infos (list; optional)
+
+- multiple (boolean; default False)
+
 - progress (number; optional)"""
     _children_props: typing.List[str] = []
     _base_nodes = ['children']
@@ -40,15 +44,17 @@ Keyword arguments:
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
         file_info: typing.Optional[dict] = None,
+        file_infos: typing.Optional[typing.Sequence] = None,
         progress: typing.Optional[NumberType] = None,
         chunk_size: typing.Optional[NumberType] = None,
+        multiple: typing.Optional[bool] = None,
         className: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
         **kwargs
     ):
-        self._prop_names = ['id', 'chunk_size', 'className', 'file_info', 'progress', 'style']
+        self._prop_names = ['id', 'chunk_size', 'className', 'file_info', 'file_infos', 'multiple', 'progress', 'style']
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'chunk_size', 'className', 'file_info', 'progress', 'style']
+        self.available_properties = ['id', 'chunk_size', 'className', 'file_info', 'file_infos', 'multiple', 'progress', 'style']
         self.available_wildcard_properties =            []
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()

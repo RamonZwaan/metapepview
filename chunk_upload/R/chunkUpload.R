@@ -1,9 +1,9 @@
 # AUTO GENERATED FILE - DO NOT EDIT
 
 #' @export
-chunkUpload <- function(id=NULL, file_info=NULL, progress=NULL) {
+chunkUpload <- function(id=NULL, chunk_size=NULL, className=NULL, file_info=NULL, file_infos=NULL, multiple=NULL, progress=NULL, style=NULL) {
     
-    props <- list(id=id, file_info=file_info, progress=progress)
+    props <- list(id=id, chunk_size=chunk_size, className=className, file_info=file_info, file_infos=file_infos, multiple=multiple, progress=progress, style=style)
     if (length(props) > 0) {
         props <- props[!vapply(props, is.null, logical(1))]
     }
@@ -11,7 +11,7 @@ chunkUpload <- function(id=NULL, file_info=NULL, progress=NULL) {
         props = props,
         type = 'ChunkUpload',
         namespace = 'chunk_upload',
-        propNames = c('id', 'file_info', 'progress'),
+        propNames = c('id', 'chunk_size', 'className', 'file_info', 'file_infos', 'multiple', 'progress', 'style'),
         package = 'chunkUpload'
         )
 
