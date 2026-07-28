@@ -363,7 +363,7 @@ taxonomy_barplot = [
         [
             html.H5("Figure", id="taxonomy_figure_title"),
             dbc.Button("Export figure data", 
-                       id="",
+                       id="export_taxonomy_figure_data",
                        className="me-3",
                        disabled=True)
         ],
