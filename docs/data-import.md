@@ -34,7 +34,7 @@ In the *Options* menu (only present for *Compositions and functions dataset* imp
 
 Metaproteomics data from *de novo* peptide identification of DDA mass spectometry data is imported in the *De novo* field. Similarly to DB search import, this field expects a dataset of peptide sequence identified scans (one row corresponds to a single spectrum identification). Meta-PepView supports several *de novo* output formats:
 
-- [Peaks Studio 10/11](https://www.bioinfor.com/peaks-11/)
+- [Peaks Studio 10/11/13](https://www.bioinfor.com/peaks-11/)
 - [Novor (SearchGUI)](https://compomics.github.io/projects/searchgui)
 - [Casanovo](https://casanovo.readthedocs.io/en/latest/)
 
