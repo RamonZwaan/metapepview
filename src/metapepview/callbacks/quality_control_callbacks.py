@@ -241,7 +241,7 @@ def show_tic_over_rt(mzml_df_loaded,
         metapep_confidence_cutoff = 0
     
     # only update once mzml is uploaded
-    if mzml_df is None:
+    if (mzml_df is None) or (mzml_metadata is None):
         raise PreventUpdate
     mzml_df = decompress_string(mzml_df)
     mzml_df = pd.read_json(StringIO(mzml_df))
@@ -488,7 +488,7 @@ def show_frag_eff(mzml_df_loaded,
         mz_cutoff = 0
 
     # only update once mzxml is uploaded
-    if mzml_df is None:
+    if (mzml_df is None) or (metadata is None):
         raise PreventUpdate
     
     mzml_df = decompress_string(mzml_df)

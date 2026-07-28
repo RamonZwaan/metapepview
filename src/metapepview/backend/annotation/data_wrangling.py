@@ -238,7 +238,7 @@ def unique_taxa_from_rank(metapep_table: MetaPepTable,
         col_suffix = ' Id'
     
     # filter dataset to only contain rows belonging to one clade
-    if filter_clade and clade_rank and clade_rank != 'Root':
+    if (filter_clade is not None) and (clade_rank is not None) and clade_rank != 'Root':
         dataset = dataset[dataset[clade_rank + " Name"] == filter_clade]
     
     return dataset[rank + col_suffix]\

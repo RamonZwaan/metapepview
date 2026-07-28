@@ -116,7 +116,7 @@ def update_taxa_graph(page_active,
         return (block_element, dict(), 'Figure', None)
 
     # filter the dataset based on taxa at corresponding rank
-    if filter_clade and clade_rank and clade_rank != 'Root':
+    if (filter_clade is not None) and (clade_rank is not None) and clade_rank != 'Root':
         peptide_df = filter_taxonomy_clade(peptide_df, filter_clade, clade_rank, 'Name')
         if facet_peptide_df is not None:
             facet_peptide_df = filter_taxonomy_clade(facet_peptide_df, filter_clade, clade_rank, 'Name')

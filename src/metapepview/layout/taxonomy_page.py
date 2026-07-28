@@ -186,6 +186,8 @@ clade_filter = [
         [
             dbc.Col(html.B("Root taxonomy"), style={"text-align": 'left'}),
             dbc.Col(dcc.Dropdown(
+                options=[],
+                value=None,
                 id='tax_barplot_clade_selection_taxa',
                 disabled=True,
                 style={"width": "15rem"}
@@ -510,7 +512,7 @@ taxonomy_sample_analysis = taxonomy_page_constructor(
     ]
 )
 
-# Taxonomy annotation page
+# Composition evaluation page
 taxonomy_de_novo_analysis = taxonomy_page_constructor(
     # tax_sample_de_novo_options + comp_eval_export_button, # + clade_filter,
     tax_sample_de_novo_options_acc + comp_eval_export_button,

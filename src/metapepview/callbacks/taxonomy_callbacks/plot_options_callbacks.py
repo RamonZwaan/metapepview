@@ -76,8 +76,8 @@ def update_heatmap_taxa_selector(selector_radio_value):
     Output('barplot_custom_taxa_items', 'value'),
     Input('peptides', 'data'),
     Input('barplot_taxa_rank_items', 'value'),
-    Input('tax_barplot_clade_selection_taxa', 'value'),
-    Input('tax_barplot_clade_selection_rank', 'value'),
+    Input('tax_barplot_clade_selection_taxa', 'value', allow_optional=True),
+    Input('tax_barplot_clade_selection_rank', 'value', allow_optional=True),
 )
 def update_barplot_custom_taxa_items_options(peptide_json_loaded, 
                                              tax_rank, 
@@ -109,15 +109,15 @@ def update_barplot_clade_selection_options(peptide_json_loaded, tax_rank):
     peptide_json = get_dataset_from_server_store(app, "peptides")
 
     if peptide_json is None:
-        return ([], [], True, True)
+        return ([], None, True, True)
     
     if not tax_rank or tax_rank == "Root":
-        return ([], [], True, False)
+        return ([], None, True, False)
     
     metapep_obj = MetaPepTable.read_json(peptide_json)
     
     # return a list of taxonomy id's, sorted and without nan's
-    return (unique_taxa_from_rank(metapep_obj, tax_rank), [], False, False)
+    return (unique_taxa_from_rank(metapep_obj, tax_rank), None, False, False)
     
     
 @app.callback(

@@ -262,7 +262,7 @@ def update_pathway_barplot(peptide_json_loaded,
     if metapep_obj.functional_annotation_present is False:
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                "No samples with functional annotation in dataset...")
-        return block_element, dict(), "Figure"
+        return block_element, dict(), "Figure", None
     if kegg_group_method == "Manual" and (custom_prot is None or custom_prot == []):
         block_element = hidden_graph_with_text("pathway_barplot_figure",
                                                 "Select protein terms in filter settings...")
@@ -612,7 +612,7 @@ def export_func_composition(button_click,
         )
         sample_pept_df = (sample_pept_df
             .set_index("Protein Name")
-            .sort_values("PSM Count", ascending=False)
+            .sort_values(ycol, ascending=False)
             .loc[sample_func_abundances.index.to_list(), :]
             .reset_index()
         )
