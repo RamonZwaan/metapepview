@@ -46,8 +46,9 @@ def tic_over_rt_plot(mzml_df: pd.DataFrame,
     
     # cut out data from dataset in equally spaced parts for faster rendering
     spectral_dataset = spectral_dataset.iloc[::data_reduction_factor]
+
     if features is not None:
-        features = features.iloc[::data_reduction_factor]
+        features = features.iloc[::data_reduction_factor].copy()
 
     # scattergl implementation
     fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -117,7 +118,7 @@ def tic_over_rt_plot(mzml_df: pd.DataFrame,
                          secondary_y=True,
                          tickmode="sync")
     elif secondary_param == "Peak Width (FWHM)" and features is not None:
-        features.loc[:, 'FWHM SMA'] = features['peak width']\
+        features['FWHM SMA'] = features['peak width']\
             .rolling(sma_window, closed='both')\
             .mean()
         
