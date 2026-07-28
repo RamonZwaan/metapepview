@@ -104,7 +104,8 @@ def remove_peptide_data(datatable_data,
 
     # Store NoneType if no data present anymore
     if metapep_obj.is_empty:
-        stored = add_dataset_to_server_store(app, "peptides", None)
+        remove_dataset_from_server_store(app, "peptides")
+        stored = False
     else:
         stored = add_dataset_to_server_store(app, "peptides", metapep_obj.to_json())
 
