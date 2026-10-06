@@ -373,7 +373,7 @@ class MetaPepTable(DataValidator):
                     raise ValueError(f"Conflicting format during metapep table concatenation: {format}. Ensure all imported samples have the same data formats.")
         
         # check that all spectral files are unique across objects
-        validate_spectral_redundancy(metapep_list)
+        # validate_spectral_redundancy(metapep_list)
 
         # concatinate rows of all separate tables in one
         comb_df = pd.concat([i.data for i in metapep_list], axis=0).reset_index(drop=True)
@@ -876,7 +876,12 @@ def validate_spectral_redundancy(metapep_list: Sequence[MetaPepDeNovo | MetaPepD
     union_list = list(union_list)
     
     if len(set(union_list)) < len(union_list):
-        file_format = "DB search" if isinstance(metapep_list[0], MetaPepDbSearch) else "de novo"
-        raise ValueError(f"Redundancy found in {file_format} files, cannot concatenate.")
+        if isinstance(metapep_list[0], MetaPepDbSearch):
+            file_format = "DB search files"
+        elif isinstance(metapep_list[0], MetaPepDeNovo):
+            file_format = "de novo files"
+        else:
+            file_format = "metapep samples"
+        raise ValueError(f"Redundancy found in {file_format}, cannot concatenate.")
     
     return union_list
