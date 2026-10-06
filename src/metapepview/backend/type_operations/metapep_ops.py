@@ -96,7 +96,7 @@ def load_metapep_db_search(file_buffer: str | IO[str] | Path,
         raise ValueError(f"Failed to load db search sample '{sample_name}': {err}")
     
     
-def load_metapep_de_novo(file_buffer: str | IO[str] | Path,
+def load_metapep_de_novo(file_buffer: IO[str] | Path,
                          sample_name: str | None,
                          file_format: DeNovoSource,
                          crap_dataset: pd.Series | None = None) -> MetaPepDeNovo:
@@ -118,12 +118,17 @@ def load_metapep_de_novo(file_buffer: str | IO[str] | Path,
     importer = de_novo_importers.get(file_format)
     try:
         if isinstance(file_buffer, Path):
+            file_name = file_buffer.stem
             file_buffer = open(file_buffer, "r", encoding="utf-8")
+        elif isinstance(file_buffer, io.TextIOWrapper):
+            file_name = Path(file_buffer.name).stem
+        else:
+            raise TypeError("de novo content in invalid format, only Path or file buffer supported.")
             
         if importer is None:
             raise ValueError("Invalid file format supplied")
         else:
-            de_novo_obj = importer.read_file_buffer(file_buffer, sample_name)
+            de_novo_obj = importer.read_file_buffer(file_buffer, file_name)
         
         # convert de novo data to metapep format. If multiple source files in dataset,
         # omit all data that are not of the currently processed source file.

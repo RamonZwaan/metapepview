@@ -544,7 +544,7 @@ class PeaksDeNovo13(DeNovoMethods):
         if ("Source File" not in data.columns) and (file_name is not None):
             data["Source File"] = file_name.split(".")[0] + ".raw"
         elif "Source File" not in data.columns:
-            data["Source File"] = None
+            data["Source File"] = "undefined"
 
         success, msg = self.validate_input(data)
 
@@ -576,10 +576,15 @@ class PeaksDeNovo13(DeNovoMethods):
             str: Name of raw spectral file
         """
         with open(file_name) as contents:
-            header = contents.readline().replace('"', '').replace('\n', '')
-            if not all(x in header.split(",") for x in cls.REQUIRED_FIELDS):
+            header = contents.readline().replace('"', '').replace('\n', '').split(",")
+            if not all(x in header for x in cls.REQUIRED_FIELDS):
                 raise TypeError("Invalid format supplied, expects Peaks Studio 10 db search format.")
-            source_file_col_idx = header.index("Source File")
+
+            # version 13.5 does not store "Source File" in dataset, but in filename 
+            if "Source File" in header:
+                source_file_col_idx = header.index("Source File")
+            else:
+                source_file_col_idx = file_name.split(".")[0] + ".raw"
             
             # get first row
             line = contents.readline()
@@ -596,12 +601,16 @@ class PeaksDeNovo13(DeNovoMethods):
         Returns:
             Sequence[str]: All raw spectral file names in dataset.
         """
-        source_file_col = self.data['Source File']
-        source_files: List[str] =  source_file_col\
-            .dropna()\
-            .drop_duplicates()\
-            .apply(lambda x: Path(x).stem)\
-            .tolist()
+        # version 13.5 does not store "Source File" in dataset, but in filename 
+        if "Source File" in self.data.columns:
+            source_file_col = self.data['Source File']
+            source_files: List[str] =  source_file_col\
+                .dropna()\
+                .drop_duplicates()\
+                .apply(lambda x: Path(x).stem)\
+                .tolist()
+        else:
+            source_files = [self.file_name.split(".")[0] + ".raw"]
 
         return source_files
     
@@ -631,6 +640,8 @@ class PeaksDeNovo13(DeNovoMethods):
         df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
+        if df.loc[:, 'Source File'].iat[0] == None:
+            raise ValueError("Cannot process de novo dataset; no source file name reported.")
         df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
