@@ -15,16 +15,20 @@ fetch_db_modal = dbc.Modal(
             [
                 html.H4("Database Location", className="mb-3"),
                 dbc.Label("NCBI Taxonomy path", className="fst-italic"),
-                dbc.Input(id='ncbi_taxonomy_db_loc',
+                dbc.Input(id={"type": "import_config", "field": 'ncbi_taxonomy_db_loc'},
                     value=gc.ncbi_taxonomy_dir,
+                    persistence=True,
+                    persistence_type="session",
                     size="sm mb-4"),
 
                 # gtdb module will only be provided in full functionality mode
                 html.Div(
                     [
                         dbc.Label("GTDB Taxonomy path", className="fst-italic"),
-                        dbc.Input(id='gtdb_taxonomy_db_loc',
+                        dbc.Input(id={"type": "import_config", "field": 'gtdb_taxonomy_db_loc'},
                             value=gc.gtdb_taxonomy_dir,
+                            persistence=True,
+                            persistence_type="session",
                             size="sm mb-4"),
                     ],
                     className="" if gc.show_advanced_settings is True else "d-none"
@@ -33,7 +37,11 @@ fetch_db_modal = dbc.Modal(
                 html.Div(
                     [
                         dbc.Label("KEGG KO map path", className="fst-italic"),
-                        dbc.Input(id='kegg_map_loc', value=gc.kegg_map_dir, size="sm mb-4"),
+                        dbc.Input(id={"type": "import_config", "field": 'kegg_map_loc'},
+                                  value=gc.kegg_map_dir,
+                                  persistence=True,
+                                  persistence_type="session",
+                                  size="sm mb-4"),
                     ],
                     className="" if gc.display_db_search is True else "d-none"
                 ),
@@ -48,6 +56,8 @@ fetch_db_modal = dbc.Modal(
                 dbc.Checkbox(
                     id="fetch_ncbi_taxonomy_checkbox",
                     label="NCBI Taxonomy",
+                    persistence=True,
+                    persistence_type="session",
                     value=False
                 ),
                 html.Div(
@@ -55,11 +65,15 @@ fetch_db_modal = dbc.Modal(
                         dbc.Checkbox(
                             id="ncbi_taxonomy_overwrite_old_checkbox",
                             label="Overwrite existing data",
+                            persistence=True,
+                            persistence_type="session",
                             value=False
                         ),
                         dbc.Checkbox(
                             id="ncbi_taxonomy_create_parent_dirs_checkbox",
                             label="Create parent dir",
+                            persistence=True,
+                            persistence_type="session",
                             value=False,
                             className="ms-5"
                         ),
@@ -67,7 +81,11 @@ fetch_db_modal = dbc.Modal(
                     className="d-flex"
                 ),
                 dbc.Label("Source URL", className="fst-italic"),
-                dbc.Input(id='ncbi_taxonomy_db_source_url', value=gc.ncbi_taxonomy_url, size="sm"),
+                dbc.Input(id={"type": "import_config", "field": 'ncbi_taxonomy_db_source_url'},
+                          value=gc.ncbi_taxonomy_url,
+                          persistence=True,
+                          persistence_type="session",
+                          size="sm"),
                 dbc.FormText("Database stored in path location specified above.", className="fst-italic"),
 
                 # gtdb download module only shown in full functional interface
@@ -76,6 +94,8 @@ fetch_db_modal = dbc.Modal(
                         dbc.Checkbox(
                             id="fetch_gtdb_taxonomy_checkbox",
                             label="GTDB Taxonomy",
+                            persistence=True,
+                            persistence_type="session",
                             value=False,
                             className="mt-4"
                         ),
@@ -84,11 +104,15 @@ fetch_db_modal = dbc.Modal(
                                 dbc.Checkbox(
                                     id="gtdb_taxonomy_overwrite_old_checkbox",
                                     label="Overwrite existing data",
+                                    persistence=True,
+                                    persistence_type="session",
                                     value=False
                                 ),
                                 dbc.Checkbox(
                                     id="gtdb_taxonomy_create_parent_dirs_checkbox",
                                     label="Create parent dir",
+                                    persistence=True,
+                                    persistence_type="session",
                                     value=False,
                                     className="ms-5"
                                 ),
@@ -96,7 +120,11 @@ fetch_db_modal = dbc.Modal(
                             className="d-flex"
                         ),
                         dbc.Label("Source URL (Parent Dir)", className="fst-italic"),
-                        dbc.Input(id='gtdb_taxonomy_db_source_url', value=gc.gtdb_taxonomy_url, size="sm"),
+                        dbc.Input(id={"type": "import_config", "field": 'gtdb_taxonomy_db_source_url'},
+                                  persistence=True,
+                                  persistence_type="session",
+                                  value=gc.gtdb_taxonomy_url,
+                                  size="sm"),
                         dbc.FormText("Database stored in path location specified above.", className="fst-italic"),
                     ],
                     className="" if gc.show_advanced_settings is True else "d-none"
@@ -108,6 +136,8 @@ fetch_db_modal = dbc.Modal(
                         dbc.Checkbox(
                             id="fetch_kegg_map_checkbox",
                             label="KEGG KO mapping",
+                            persistence=True,
+                            persistence_type="session",
                             value=False,
                             className="mt-4"
                         ),
@@ -116,10 +146,14 @@ fetch_db_modal = dbc.Modal(
                                 dbc.Checkbox(
                                     id="kegg_map_overwrite_old_checkbox",
                                     label="Overwrite existing data",
+                                    persistence=True,
+                                    persistence_type="session",
                                     value=False
                                 ),
                                 dbc.Checkbox(
                                     id="kegg_map_create_parent_dirs_checkbox",
+                                    persistence=True,
+                                    persistence_type="session",
                                     label="Create parent dir",
                                     value=False,
                                     className="ms-5"

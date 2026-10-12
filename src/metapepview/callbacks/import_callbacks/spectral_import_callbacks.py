@@ -24,7 +24,7 @@ from metapepview.backend.utils import *
     Output('db_search_psm_qa_import_box', 'style'),
     Input('db_search_psm_qa_upload', 'file_infos'),
     Input('mzml_metadata', 'data'),
-    State('db_search_psm_qa_format', 'value'),
+    State({"type": "import_config", "field": 'db_search_psm_qa_format'}, 'value'),
     prevent_initial_call=True
 )
 def show_db_psm_search_qa_name(contents, 
@@ -91,7 +91,7 @@ def show_db_psm_search_qa_name(contents,
     Output('de_novo_qa_format_alert', 'is_open'),
     Output('denovo_qa_import_box', 'style'),
     Input('denovo_qa_upload', 'file_infos'),
-    Input('denovo_qa_format', 'value'),
+    Input({"type": "import_config", "field": 'de_novo_qa_format'}, 'value'),
     Input("mzml_metadata", "data"))
 def show_denovo_search_qa_name(contents, 
                                file_format, 
@@ -226,10 +226,10 @@ def inactivate_spectral_import_button(mzml_file_path,
     State("mzml_upload", "file_infos"),
     State("features_upload", "file_infos"),
     State("db_search_psm_qa_upload", "file_infos"),
-    State("db_search_psm_qa_format", "value"),
+    State({"type": "import_config", "field": "db_search_psm_qa_format"}, "value"),
     State("db_search_psm_qa_valid", "data"),
     State("denovo_qa_upload", "file_infos"),
-    State("denovo_qa_format", "value"),
+    State({"type": "import_config", "field": "de_novo_qa_format"}, "value"),
     State("denovo_qa_valid", "data"),
     prevent_initial_call=True
 )

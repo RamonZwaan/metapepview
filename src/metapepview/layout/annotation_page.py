@@ -14,6 +14,8 @@ sample_options_block = [
                     html.H5("Sample name:", className="align-self-center me-4"),
                     dbc.Input(id="sample_name_import", 
                               type="text",
+                              persistence=True,
+                              persistence_type="session",
                               style={"width": "20rem"}),
                 ],
                 className="d-flex justify-content-between align-items-center",
@@ -23,7 +25,11 @@ sample_options_block = [
                 [
                     html.H5("Merge DB search files",
                         className="align-self-center me-4"),
-                    dbc.Switch(id="merge_psm_switch", className="align-self-center", value=True),
+                    dbc.Switch(id={"type": "import_config", "field": "merge_psm_switch"}, 
+                               className="align-self-center", 
+                               persistence=True,
+                               persistence_type="session",
+                               value=True),
                 ],
                 className="d-flex justify-content-start" if gc.show_advanced_settings is True else "d-none"
             ),
@@ -35,7 +41,10 @@ sample_options_block = [
                             style={'text-decoration-line': "underline", 
                                    'text-decoration-style': "dotted"}
                     ),
-                    dbc.Switch(id="global_taxonomy_annotation_checkbox", 
+                    dbc.Switch(id={"type": "import_config",
+                                   "field": "global_taxonomy_annotation_checkbox"}, 
+                               persistence=True,
+                               persistence_type="session",
                                className="align-self-center", 
                                value=False),
                     dbc.Popover("""
@@ -58,9 +67,10 @@ sample_options_block = [
                 [
                     dbc.Spinner(html.Div(id="annotation_loading_spot", style={"width": "5rem"})),
                     html.Div(
-                        dbc.Button("Add sample", id="start_annotation_button",
-                                color="primary",
-                                className="px-3"),
+                        dbc.Button("Add sample", 
+                            id="start_annotation_button",
+                            color="primary",
+                            className="px-3"),
                         id="start_annotation_button_wrapper",
                         className="me-1"
                     ),
@@ -110,6 +120,8 @@ peptide_data_block = html.Div(
                         html.H4("Name: ", className="align-self-center me-3"),
                         dbc.Input(id="experiment_name_field",
                                   type="text",
+                                  persistence=True,
+                                  persistence_type="session",
                                   style={'width': '25rem'},
                                   className="fw-bold"),
                     ],
@@ -122,7 +134,9 @@ peptide_data_block = html.Div(
                                    id='clear_peptides_data', 
                                    n_clicks=0,
                                    className="px-3 me-2"),
-                        dbc.Button('Export project', id='export_peptides_json', className="px-3 me-2"),
+                        dbc.Button('Export project', 
+                                   id='export_peptides_json', 
+                                   className="px-3 me-2"),
                         dcc.Upload(
                             [
                                 dbc.Button('Import project', id='import_peptides',
@@ -164,9 +178,9 @@ db_search_options_modal = dbc.Modal(
             [
                 html.Div(accession_pattern_options(
                     "db_search_acc_selection_text",
-                    "db_search_accession_parser_items",
+                    {"type": "import_config", "field": "db_search_accession_parser_items"},
                     "db_search_accession_popover",
-                    "db_search_accession_pattern",
+                    {"type": "import_config", "field": "db_search_accession_pattern"},
                     "db_search_accession_pattern_container",
                     """
                     Specify what part of the accession (protein id) should be used
@@ -180,7 +194,15 @@ db_search_options_modal = dbc.Modal(
                         html.B("Confidence threshold:", 
                                className="align-self-center",
                                style={"width": "18rem"}),
-                        dbc.Input(value=0, min=0, id="db_search_psm_score_threshold", size="sm", type="number", style={"width": "4rem"}),
+                        dbc.Input(value=0, 
+                                  min=0, 
+                                  id={"type": "import_config", 
+                                      "field": "db_search_psm_score_threshold"}, 
+                                  persistence=True,
+                                  persistence_type="session",
+                                  size="sm", 
+                                  type="number", 
+                                  style={"width": "4rem"}),
                     ],
                     className="d-flex justify-content-start mt-3 mb-3"
                 ),
@@ -191,7 +213,10 @@ db_search_options_modal = dbc.Modal(
                                                    className="ms-2 me-3 align-top",
                                                    style={"text-decoration-line": "underline", 
                                                           "text-decoration-style": "dotted"}),
-                                     id="db_search_filter_crap",
+                                     persistence=True,
+                                     persistence_type="session",
+                                     id={"type": "import_config",
+                                         "field": "db_search_filter_crap"},
                                      value=True),
                         dbc.Popover("""
                                     Ignore peptides that occur within the cRAP dataset, which
@@ -229,7 +254,15 @@ de_novo_options_modal = dbc.Modal(
                         html.B("Confidence threshold:", 
                                className="align-self-center",
                                style={"width": "18rem"}),
-                        dbc.Input(value=0, min=0, id="de_novo_score_threshold", size="sm", type="number", style={"width": "4rem"}),
+                        dbc.Input(value=0, 
+                                  min=0,
+                                  id={"type": "import_config", 
+                                      "field": "de_novo_score_threshold"}, 
+                                  size="sm", 
+                                  persistence=True,
+                                  persistence_type="session",
+                                  type="number", 
+                                  style={"width": "4rem"}),
                     ],
                     className="d-flex justify-content-start mb-3"
                 ),
@@ -240,7 +273,10 @@ de_novo_options_modal = dbc.Modal(
                                                    className="ms-2 me-3 align-top",
                                                    style={"text-decoration-line": "underline", 
                                                           "text-decoration-style": "dotted"}),
-                                     id="de_novo_filter_crap",
+                                     persistence=True,
+                                     persistence_type="session",
+                                     id={"type": "import_config", 
+                                         "field": "de_novo_filter_crap"},
                                      value=True),
                         dbc.Popover("""
                                     Ignore peptides that occur within the cRAP dataset, which
@@ -277,7 +313,14 @@ taxonomy_map_options_modal = dbc.Modal(
                         html.B("Delimiter:", 
                                className="align-self-center",
                                style={"width": "18rem"}),
-                        dbc.Input(value=r'\t', id="acc_tax_map_delim", size="sm", type="text", style={"width": "4rem"}),
+                        dbc.Input(value=r'\t',
+                                  id={"type": "import_config", 
+                                      "field": "acc_tax_map_delim"}, 
+                                  size="sm", 
+                                  persistence=True,
+                                  persistence_type="session",
+                                  type="text", 
+                                  style={"width": "4rem"}),
                     ],
                     id="tax_acc_map_delimiter_container",
                     # className CONFIGURED IN CALLBACK
@@ -293,7 +336,10 @@ taxonomy_map_options_modal = dbc.Modal(
                             {"label": "Peptide sequence", "value":"Sequence"}
                             ],
                             value="Accession",
-                            id="tax_accession_format_radio",
+                            persistence=True,
+                            persistence_type="session",
+                            id={"type": "import_config", 
+                                "field": "tax_accession_format_radio"},
                             inline=True,
                         )
                     ],
@@ -302,9 +348,9 @@ taxonomy_map_options_modal = dbc.Modal(
                 ),
                 html.Div(accession_pattern_options(
                             "accession_parser_text",
-                            "accession_parser_checkbox",
+                            {"type": "import_config", "field": "accession_parser_checkbox"},
                             "accession_parser_info",
-                            "acc_tax_map_acc_pattern", 
+                            {"type": "import_config", "field": "acc_tax_map_acc_pattern"}, 
                             "acc_tax_map_acc_pattern_container",
                             """
                                 Specify what part of the accession should be used
@@ -318,8 +364,11 @@ taxonomy_map_options_modal = dbc.Modal(
                                style={"width": "18rem"}),
                         dbc.Input(value=0, 
                                   min=0, 
-                                  id="acc_tax_map_acc_idx", 
+                                  id={"type": "import_config", 
+                                      "field": "acc_tax_map_acc_idx"}, 
                                   size="sm", 
+                                  persistence=True,
+                                  persistence_type="session",
                                   type="number", 
                                   style={"width": "4rem"}),
                         dbc.FormText("index starts at 0", className="ms-3 fst-italic align-self-center")
@@ -335,8 +384,11 @@ taxonomy_map_options_modal = dbc.Modal(
                                style={"width": "18rem"}),
                         dbc.Input(value=1, 
                                   min=0, 
-                                  id="acc_tax_tax_idx", 
+                                  id={"type": "import_config",
+                                      "field": "acc_tax_map_tax_idx"}, 
                                   size="sm", 
+                                  persistence=True,
+                                  persistence_type="session",
                                   type="number", 
                                   style={"width": "4rem"}),
                         dbc.FormText("index starts at 0", className="ms-3 fst-italic align-self-center")
@@ -357,7 +409,10 @@ taxonomy_map_options_modal = dbc.Modal(
                                        "taxonomy id",
                                        "taxonomy name"
                                        ],
-                                       id="taxonomy_id_format_checkbox",
+                                       id={"type": "import_config", 
+                                           "field": "taxonomy_id_format_checkbox"},
+                                       persistence=True,
+                                       persistence_type="session",
                                        inline=True,
                                        value="taxonomy id"),
                         dbc.Popover("""
@@ -395,7 +450,10 @@ taxonomy_map_options_modal = dbc.Modal(
                                         style={"text-decoration-line": "underline", 
                                                "text-decoration-style": "dotted"}
                                         ),
-                                        id="gtdb_genome_to_ncbi_checkbox",
+                                        persistence=True,
+                                        persistence_type="session",
+                                        id={"type": "import_config",
+                                            "field": "gtdb_genome_to_ncbi_checkbox"},
                                         value=False),
                         dbc.Popover("""
                             Convert genome id from GTDB database to NCBI taxonomy id.
@@ -431,9 +489,9 @@ function_map_options_modal = dbc.Modal(
             [
                 html.Div(accession_pattern_options(
                     "func_accession_parser_text",
-                    "func_accession_parser_checkbox",
+                    {"type": "import_config", "field": "func_accession_parser_checkbox"},
                     "func_accession_parser_info",
-                    "func_annot_acc_pattern", 
+                    {"type": "import_config", "field": "func_annot_acc_pattern"}, 
                     "func_annot_acc_pattern_container",
                     """
                         Specify what part of the protein id string should be used
@@ -451,7 +509,10 @@ function_map_options_modal = dbc.Modal(
                                         style={"text-decoration-line": "underline", 
                                                "text-decoration-style": "dotted"}
                                         ),
-                                        id="func_annot_combine",
+                                        persistence=True,
+                                        persistence_type="session",
+                                        id={"type": "import_config",
+                                            "field": "func_annot_combine"},
                                         value=False),
                         dbc.Popover("""
                             When a peptide matches to multiple accessions, they might receive multiple functional annotations.
@@ -498,7 +559,7 @@ db_search_import_block = [
                 "db_search_psm_upload", 
                 "db_search_psm_valid",
                 format_options=gc.db_search_dropdown_options,
-                format_id="db_search_psm_format",
+                format_id={"type": "import_config", "field": "db_search_psm_format"},
                 allow_multiple=True
             ),
         ],
@@ -530,9 +591,10 @@ de_novo_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "denovo_upload", "de_novo_valid",
+                "de_novo_upload", 
+                "de_novo_valid",
                 format_options=gc.de_novo_dropdown_options,
-                format_id="de_novo_format",
+                format_id={"type": "import_config", "field": "de_novo_format"},
                 allow_multiple=True
             )
         ],
@@ -560,13 +622,14 @@ taxonomy_map_import_block = [
                 className="d-flex justify-content-between mb-4 align-items-center"
             ),
             annotation_mini_importer_block(
-                "taxonomy_db_upload", "taxonomy_db_valid",
+                "taxonomy_db_upload", 
+                "taxonomy_db_valid",
                 format_options=[{'label': 'GhostKOALA', 'value': 'GhostKOALA'},
                                 {'label': 'NCBI', 'value': 'NCBI'}] +
                     ([{'label': 'GTDB', 'value': 'GTDB'}] if gc.show_advanced_settings is True\
                     else []),
 
-                format_id="taxonomy_db_format"
+                format_id={"type": "import_config", "field": "taxonomy_db_format"}
             )
         ],
         className="mx-4 mb-3"
@@ -600,7 +663,8 @@ function_map_import_block = [
                 "func_annot_db_upload", "func_annot_db_valid",
                 format_options=[{'label': 'EggNOG', 'value': 'EggNOG'},
                                 {'label': 'GhostKOALA', 'value': 'GhostKOALA'}],
-                format_id="func_annot_db_format"
+                format_id={"type": "import_config",
+                           "field": "func_annot_db_format"}
             )
         ],
         className="mx-4 mb-3"
@@ -678,7 +742,7 @@ db_search_qa_import_block = [
                 "db_search_psm_qa_upload", 
                 "db_search_psm_qa_valid",
                 format_options=gc.db_search_dropdown_options,
-                format_id="db_search_psm_qa_format",
+                format_id={"type": "import_config", "field": "db_search_psm_qa_format"},
                 allow_multiple=False
             ),
         ],
@@ -706,7 +770,7 @@ de_novo_qa_import_block = [
             annotation_mini_importer_block(
                 "denovo_qa_upload", "denovo_qa_valid",
                 format_options=gc.de_novo_dropdown_options,
-                format_id="denovo_qa_format",
+                format_id={"type": "import_config", "field": "de_novo_qa_format"},
                 allow_multiple=False
             )
         ],
@@ -721,6 +785,43 @@ de_novo_qa_import_block = [
     ),
 ]
 
+
+annot_config_file_importer = html.Div(
+    [
+        html.Div(
+            [
+                html.P("configuration settings import/export:", 
+                       className="mx-3 mb-0 fs-6"),
+                dbc.Button("Export config", 
+                        id="annotation_config_file_export",
+                        color="primary",
+                        className="px-3 mx-1"),
+                dcc.Upload(
+                    id="annotation_config_file_import",
+                    children=dbc.Button("Import config", 
+                                        outline=True, 
+                                        color="primary",
+                                        className="px-3"),
+                    multiple=False,
+                    className=" mx-1",
+                ),
+                html.I("No file...", 
+                       id="annotation_config_file_name", 
+                       className="ms-3"),
+            ],className="d-flex align-items-center justify-content-start"
+        ),
+        html.Div(
+            html.A(
+                html.I("Guide: how to prepare data for import", 
+                       style={"font-size": "0.9vw"}), 
+                href=gc.docs_data_prep_url, 
+                target="_blank"), 
+            className="me-3 py-1"),
+        
+        dcc.Download(id="annotation_config_file_download")
+    ],
+    className="d-flex p-1 align-items-center justify-content-between"
+)
 
 
 data_import_container = configure_import_container(
@@ -848,14 +949,21 @@ import_block = html.Div(
             color="danger",
             className="mt-3"
         ),
+        dbc.Alert(
+            id="config_import_alert",
+            dismissable=True,
+            is_open=False,
+            color="danger",
+            className="mt-3"
+        ),
         db_search_options_modal,
         de_novo_options_modal,
         taxonomy_map_options_modal,
         function_map_options_modal,
+        
         html.H3("Data importers", className="mx-3 mt-3 mb-1"),
-        html.Div(html.A(html.I("Guide: how to prepare data for import", 
-                               style={"font-size": "0.9vw"}), 
-            href=gc.docs_data_prep_url, target="_blank"), className="ms-3 py-1"),
+        annot_config_file_importer,
+
         dbc.Accordion(
             [
                 dbc.AccordionItem(

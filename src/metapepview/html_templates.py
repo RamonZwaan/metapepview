@@ -20,7 +20,7 @@ def annotation_mini_importer_block(
     upload_id: str,
     valid_state_id: str,
     format_options: List[str] | List[Dict[str, str]] | None=None,
-    format_id: str | None=None,
+    format_id: Dict[str, str] | str | None=None,
     allow_multiple: bool=False) -> html.Div:
     """Create dash component template for importer blocks at small size.
 
@@ -54,6 +54,8 @@ def annotation_mini_importer_block(
             value=initial_val,
             clearable=False,
             id=format_id,
+            persistence=True,
+            persistence_type="session",
             style={'height': dropdown_height, "width": "15rem"} if not hide_dropdown else None,
             className="" if len(format_options) > 1 else "d-none"
             )
@@ -141,9 +143,9 @@ def annotation_mini_importer_block(
 
 def accession_pattern_options(
         text_id: str,
-        selection_items_id: str,
+        selection_items_id: Dict[str] | str,
         popover_id: str,
-        pattern_id: str,
+        pattern_id: Dict[str] | str,
         pattern_container_id: str,
         popover_str: str
 ):
@@ -161,6 +163,8 @@ def accession_pattern_options(
                                 "Up to first white-space",
                                 "Custom regex"
                                 ],
+                                persistence=True,
+                                persistence_type="session",
                                 id=selection_items_id,
                                 inline=False,
                                 value="Full string"),
@@ -184,6 +188,8 @@ def accession_pattern_options(
                 dbc.Input(id=pattern_id, 
                           size="sm", 
                           type="text", 
+                          persistence=True,
+                          persistence_type="session",
                           style={"width": "10rem"}),
             ],
             id=pattern_container_id,

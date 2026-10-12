@@ -1,4 +1,4 @@
-from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ctx
+from dash import Dash, dash_table, html, dcc, callback, Output, Input, State, ALL, no_update, ctx
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 
@@ -70,7 +70,7 @@ def show_peptides_names(contents, names):
     Output('db_search_format_alert', 'is_open', allow_duplicate=True),
     Output('db_search_import_box', 'style'),
     Input('db_search_psm_upload', 'file_infos'),
-    State('db_search_psm_format', 'value'),
+    State({"type": "import_config", "field": 'db_search_psm_format'}, 'value'),
     State("sample_name_import", "value"),
     prevent_initial_call=True)
 def show_db_search_psm_names(contents, format, current_sample_name):
@@ -106,7 +106,7 @@ def show_db_search_psm_names(contents, format, current_sample_name):
 @app.callback(
     Output('db_search_psm_name', 'children', allow_duplicate=True),
     Output('db_search_psm_upload', 'file_infos', allow_duplicate=True),
-    Input('db_search_psm_format', 'value'),
+    Input({"type": "import_config", "field": 'db_search_psm_format'}, 'value'),
     prevent_initial_call=True
 )
 def reset_db_search_import_box(new_format):
@@ -115,8 +115,8 @@ def reset_db_search_import_box(new_format):
 
 @app.callback(
     Output('denovo_name', 'children', allow_duplicate=True),
-    Output('denovo_upload', 'file_infos', allow_duplicate=True),
-    Input('de_novo_format', 'value'),
+    Output('de_novo_upload', 'file_infos', allow_duplicate=True),
+    Input({"type": "import_config", "field": 'de_novo_format'}, 'value'),
     prevent_initial_call=True
 )
 def reset_de_novo_import_box(new_format):
@@ -126,12 +126,12 @@ def reset_de_novo_import_box(new_format):
 @app.callback(
     Output('de_novo_valid', 'data'),
     Output('denovo_name', 'children'),
-    Output('denovo_upload', 'file_infos'),
+    Output('de_novo_upload', 'file_infos'),
     Output('de_novo_format_alert', 'children', allow_duplicate=True),
     Output('de_novo_format_alert', 'is_open', allow_duplicate=True),
     Output('de_novo_import_box', 'style'),
-    Input('denovo_upload', 'file_infos'),
-    State('de_novo_format', 'value'),
+    Input('de_novo_upload', 'file_infos'),
+    State({"type": "import_config", "field": 'de_novo_format'}, 'value'),
     prevent_initial_call=True)
 def show_denovo_names(contents, de_novo_format):
     """Display filename of denovo dataset import.
@@ -167,7 +167,7 @@ def show_denovo_names(contents, de_novo_format):
     Output('functional_db_format_alert', 'is_open'),
     Output('functional_db_import_box', 'style'),
     Input('func_annot_db_upload', 'file_infos'),
-    State('func_annot_db_format', 'value'),
+    State({"type": "import_config", "field": 'func_annot_db_format'}, 'value'),
     prevent_initial_call=True)
 def show_functional_db_name(contents, func_db_format):
     """Display filename of protein database import.
@@ -206,11 +206,11 @@ def show_functional_db_name(contents, func_db_format):
     Output('taxonomy_db_format_alert', 'is_open'),
     Output('taxonomy_db_import_box', 'style'),
     Input('taxonomy_db_upload', 'file_infos'),
-    Input('acc_tax_map_delim', 'value'),
-    Input('acc_tax_map_acc_idx', 'value'),
-    Input('acc_tax_tax_idx', 'value'),
-    Input('taxonomy_db_format', 'value'),
-    Input('taxonomy_id_format_checkbox', 'value'),
+    Input({"type": "import_config", "field": 'acc_tax_map_delim'}, 'value'),
+    Input({"type": "import_config", "field": 'acc_tax_map_acc_idx'}, 'value'),
+    Input({"type": "import_config", "field": 'acc_tax_map_tax_idx'}, 'value'),
+    Input({"type": "import_config", "field": 'taxonomy_db_format'}, 'value'),
+    Input({"type": "import_config", "field": 'taxonomy_id_format_checkbox'}, 'value'),
     prevent_initial_call=True)
 def show_taxonomy_db_name(contents,
                           delim,
@@ -250,7 +250,7 @@ def show_taxonomy_db_name(contents,
 
 @app.callback(
     Output('sample_name_import', 'disabled'),
-    Input('merge_psm_switch', 'value'),
+    Input({"type": "import_config", "field": 'merge_psm_switch'}, 'value'),
 )
 def inactivate_sample_name(merge_psm_switch):
     if merge_psm_switch is True:
@@ -260,10 +260,10 @@ def inactivate_sample_name(merge_psm_switch):
 
 
 @app.callback(
-    Output('merge_psm_switch', 'disabled'),
-    Output('merge_psm_switch', 'value'),
+    Output({"type": "import_config", "field": 'merge_psm_switch'}, 'disabled'),
+    Output({"type": "import_config", "field": 'merge_psm_switch'}, 'value'),
     Input('db_search_psm_valid', 'data'),
-    Input('merge_psm_switch', 'value'),
+    Input({"type": "import_config", "field": 'merge_psm_switch'}, 'value'),
 )
 def inactivate_psm_merge(db_search_valid, current_val):
     if db_search_valid is True:
@@ -280,9 +280,9 @@ def inactivate_psm_merge(db_search_valid, current_val):
     Input('taxonomy_db_valid', 'data'),
     Input('func_annot_db_valid', 'data'),
     Input('database_present_status', 'data'),
-    Input('global_taxonomy_annotation_checkbox', 'value'),
+    Input({"type": "import_config", "field": 'global_taxonomy_annotation_checkbox'}, 'value'),
     Input('sample_name_import', 'value'),
-    State('merge_psm_switch', 'value')
+    State({"type": "import_config", "field": 'merge_psm_switch'}, 'value')
 )
 def inactivate_annotation_button(psm_valid,
                                  denovo_valid,
@@ -358,9 +358,9 @@ def inactivate_annotation_button(psm_valid,
     Output('tax_acc_map_tax_idx_container', 'className'),
     Output('tax_acc_map_tax_type_container', 'className'),
     Output('gtdb_genome_to_ncbi_container', 'className'),
-    Output('global_taxonomy_annotation_checkbox', 'disabled'),
-    Input('taxonomy_db_format', 'value'),
-    Input('gtdb_genome_to_ncbi_checkbox', 'value')
+    Output({"type": "import_config", "field": 'global_taxonomy_annotation_checkbox'}, 'disabled'),
+    Input({"type": "import_config", "field": 'taxonomy_db_format'}, 'value'),
+    Input({"type": "import_config", "field": 'gtdb_genome_to_ncbi_checkbox'}, 'value')
 )
 def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     """Manage display and interactivity of taxonomy map settings depending on
@@ -409,9 +409,9 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
 
 @app.callback(
     Output('acc_tax_map_acc_pattern_container', 'className'),
-    Output('acc_tax_map_acc_pattern', 'value'),
-    Input('accession_parser_checkbox', 'value'),
-    State('acc_tax_map_acc_pattern', 'value'),
+    Output({"type": "import_config", "field": 'acc_tax_map_acc_pattern'}, 'value'),
+    Input({"type": "import_config", "field": 'accession_parser_checkbox'}, 'value'),
+    State({"type": "import_config", "field": 'acc_tax_map_acc_pattern'}, 'value'),
 )
 def taxonomy_annotations_accession_parser(parser_option, current_value):
     if parser_option == "Custom regex":
@@ -424,9 +424,9 @@ def taxonomy_annotations_accession_parser(parser_option, current_value):
 
 @app.callback(
     Output('func_annot_acc_pattern_container', 'className'),
-    Output('func_annot_acc_pattern', 'value'),
-    Input('func_accession_parser_checkbox', 'value'),
-    State('func_annot_acc_pattern', 'value'),
+    Output({"type": "import_config", "field": 'func_annot_acc_pattern'}, 'value'),
+    Input({"type": "import_config", "field": 'func_accession_parser_checkbox'}, 'value'),
+    State({"type": "import_config", "field": 'func_annot_acc_pattern'}, 'value'),
 )
 def functional_annotations_accession_parser(parser_option, current_value):
     if parser_option == "Custom regex":
@@ -439,9 +439,9 @@ def functional_annotations_accession_parser(parser_option, current_value):
 
 @app.callback(
     Output('db_search_accession_pattern_container', 'className'),
-    Output('db_search_accession_pattern', 'value'),
-    Input('db_search_accession_parser_items', 'value'),
-    State('db_search_accession_pattern', 'value'),
+    Output({"type": "import_config", "field": 'db_search_accession_pattern'}, 'value'),
+    Input({"type": "import_config", "field": 'db_search_accession_parser_items'}, 'value'),
+    State({"type": "import_config", "field": 'db_search_accession_pattern'}, 'value'),
 )
 def db_search_accession_parser(parser_option, current_value):
     if parser_option == "Custom regex":
@@ -464,32 +464,32 @@ def db_search_accession_parser(parser_option, current_value):
     State('peptides', 'data'),
     State('peptides_metadata', 'data'),
     State('sample_name_import', 'value'),
-    State('merge_psm_switch', 'value'),
+    State({"type": "import_config", "field": 'merge_psm_switch'}, 'value'),
     State('db_search_psm_upload', 'file_infos'),
-    State('db_search_psm_format', 'value'),
-    State('db_search_accession_pattern', 'value'),
-    State('db_search_psm_score_threshold', 'value'),
-    State('db_search_filter_crap', 'value'),
-    State('denovo_upload', 'file_infos'),
-    State('de_novo_format', 'value'),
-    State('de_novo_score_threshold', 'value'),
-    State('de_novo_filter_crap', 'value'),
+    State({"type": "import_config", "field": 'db_search_psm_format'}, 'value'),
+    State({"type": "import_config", "field": 'db_search_accession_pattern'}, 'value'),
+    State({"type": "import_config", "field": 'db_search_psm_score_threshold'}, 'value'),
+    State({"type": "import_config", "field": 'db_search_filter_crap'}, 'value'),
+    State('de_novo_upload', 'file_infos'),
+    State({"type": "import_config", "field": 'de_novo_format'}, 'value'),
+    State({"type": "import_config", "field": 'de_novo_score_threshold'}, 'value'),
+    State({"type": "import_config", "field": 'de_novo_filter_crap'}, 'value'),
     State('taxonomy_db_upload', 'file_infos'),
-    State('taxonomy_db_format', 'value'),
-    State('taxonomy_id_format_checkbox', 'value'),
-    State('acc_tax_map_delim', 'value'),
-    State('tax_accession_format_radio', 'value'),
-    State('acc_tax_map_acc_idx', 'value'),
-    State('acc_tax_map_acc_pattern', 'value'),
-    State('acc_tax_tax_idx', 'value'),
-    State('gtdb_genome_to_ncbi_checkbox', 'value'),
-    State('global_taxonomy_annotation_checkbox', 'value'),
+    State({"type": "import_config", "field": 'taxonomy_db_format'}, 'value'),
+    State({"type": "import_config", "field": 'taxonomy_id_format_checkbox'}, 'value'),
+    State({"type": "import_config", "field": 'acc_tax_map_delim'}, 'value'),
+    State({"type": "import_config", "field": 'tax_accession_format_radio'}, 'value'),
+    State({"type": "import_config", "field": 'acc_tax_map_acc_idx'}, 'value'),
+    State({"type": "import_config", "field": 'acc_tax_map_acc_pattern'}, 'value'),
+    State({"type": "import_config", "field": 'acc_tax_map_tax_idx'}, 'value'),
+    State({"type": "import_config", "field": 'gtdb_genome_to_ncbi_checkbox'}, 'value'),
+    State({"type": "import_config", "field": 'global_taxonomy_annotation_checkbox'}, 'value'),
     State('func_annot_db_upload', 'file_infos'),
-    State('func_annot_db_format', 'value'),
-    State('func_annot_combine', 'value'),
-    State('func_annot_acc_pattern', 'value'),
+    State({"type": "import_config", "field": 'func_annot_db_format'}, 'value'),
+    State({"type": "import_config", "field": 'func_annot_combine'}, 'value'),
+    State({"type": "import_config", "field": 'func_annot_acc_pattern'}, 'value'),
     State('current_taxonomy_db_loc', 'data'),
-    State('ncbi_taxonomy_db_loc', 'value'),
+    State({"type": "import_config", "field": 'ncbi_taxonomy_db_loc'}, 'value'),
     prevent_initial_call=True
 )
 def process_manual_annotation(n_clicks,
@@ -916,9 +916,9 @@ def process_peptides_data(project_data,
 
 @app.callback(
     Output("current_taxonomy_db_loc", "data"),
-    Input("ncbi_taxonomy_db_loc", "value"),
-    Input("gtdb_taxonomy_db_loc", "value"),
-    Input('taxonomy_db_format', 'value'),
+    Input({"type": "import_config", "field": "ncbi_taxonomy_db_loc"}, "value"),
+    Input({"type": "import_config", "field": "gtdb_taxonomy_db_loc"}, "value"),
+    Input({"type": "import_config", "field": 'taxonomy_db_format'}, 'value'),
 )
 def set_taxonomy_db_loc(ncbi_loc,
                         gtdb_loc,
@@ -928,3 +928,67 @@ def set_taxonomy_db_loc(ncbi_loc,
             return gtdb_loc
         case _:
             return ncbi_loc
+
+
+@callback(
+    Output("annotation_config_file_download", "data"),
+    Input("annotation_config_file_export", "n_clicks"),
+    State({"type": "import_config", "field": ALL}, "id"),
+    State({"type": "import_config", "field": ALL}, "value"),
+    prevent_initial_call=True,
+)
+def export_config_values(n_clicks, field_ids, field_values):
+    if not n_clicks:
+        return None
+
+    config = {
+        component_id["field"]: value
+        for component_id, value in zip(field_ids, field_values)
+    }
+
+    toml_text = config_to_toml(config)
+
+    return {
+        "content": toml_text,
+        "filename": "annotation_config.toml",
+        "type": "application/toml",
+    }
+
+
+@callback(
+    Output({"type": "import_config", "field": ALL}, "value"),
+    Output("annotation_config_file_name", "children"),
+    Output("config_import_alert", "children"),
+    Output("config_import_alert", "is_open"),
+    Input("annotation_config_file_import", "contents"),
+    State("annotation_config_file_import", "filename"),
+    State({"type": "import_config", "field": ALL}, "id"),
+    prevent_initial_call=True,
+)
+def import_config(contents, filename, field_ids):
+    if not contents:
+        return [no_update] * len(field_ids), no_update, no_update, no_update
+
+    try:
+        config = parse_toml_upload(contents)
+
+        values = [
+            config.get(component_id["field"], no_update)
+            for component_id in field_ids
+        ]
+
+        return (
+            values,
+            filename or "Unknown filename",
+            "",
+            False,
+        )
+
+    except (ValueError, TypeError, RecursionError) as exc:
+        return (
+            [no_update] * len(field_ids),
+            no_update,
+            f"Failed to import configuration: {exc}",
+            True,
+        )
+    

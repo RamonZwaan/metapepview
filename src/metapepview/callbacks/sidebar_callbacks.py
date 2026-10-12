@@ -19,15 +19,15 @@ from metapepview.backend import \
     Output('ncbi_db_presence_check', 'children'),
     Output('gtdb_db_presence_check', 'children'),
     Output('kegg_map_presence_check', 'children'),
-    Output('ncbi_taxonomy_db_loc', 'valid'),
-    Output('gtdb_taxonomy_db_loc', 'valid'),
-    Output('kegg_map_loc', 'valid'),
+    Output({"type": "import_config", "field": 'ncbi_taxonomy_db_loc'}, 'valid'),
+    Output({"type": "import_config", "field": 'gtdb_taxonomy_db_loc'}, 'valid'),
+    Output({"type": "import_config", "field": 'kegg_map_loc'}, 'valid'),
     Output('start_db_check', 'interval'),
     Input('start_db_check', 'n_intervals'),
     Input('data_imported_trigger', 'data'),
-    Input('ncbi_taxonomy_db_loc', 'value'),
-    Input('gtdb_taxonomy_db_loc', 'value'),
-    Input('kegg_map_loc', 'value'),
+    Input({"type": "import_config", "field": 'ncbi_taxonomy_db_loc'}, 'value'),
+    Input({"type": "import_config", "field": 'gtdb_taxonomy_db_loc'}, 'value'),
+    Input({"type": "import_config", "field": 'kegg_map_loc'}, 'value'),
 )
 def validate_db_presence(n,
                          import_finish_trigger,
@@ -91,10 +91,10 @@ def validate_db_presence(n,
     State('fetch_ncbi_taxonomy_checkbox', 'value'),
     State('fetch_gtdb_taxonomy_checkbox', 'value'),
     State('fetch_kegg_map_checkbox', 'value'),
-    State('ncbi_taxonomy_db_loc', 'value'),
-    State('gtdb_taxonomy_db_loc', 'value'),
-    State('ncbi_taxonomy_db_source_url', 'value'),
-    State('gtdb_taxonomy_db_source_url', 'value'),
+    State({"type": "import_config", "field": 'ncbi_taxonomy_db_loc'}, 'value'),
+    State({"type": "import_config", "field": 'gtdb_taxonomy_db_loc'}, 'value'),
+    State({"type": "import_config", "field": 'ncbi_taxonomy_db_source_url'}, 'value'),
+    State({"type": "import_config", "field": 'gtdb_taxonomy_db_source_url'}, 'value'),
     State('ncbi_taxonomy_overwrite_old_checkbox', 'value'),
     State('gtdb_taxonomy_overwrite_old_checkbox', 'value'),
     State('kegg_map_overwrite_old_checkbox', 'value'),
@@ -165,7 +165,7 @@ def toggle_fetch_db_modal(n1):
         return True
 
 @app.callback(
-    Output("ncbi_taxonomy_db_source_url", "disabled"),
+    Output({"type": "import_config", "field": "ncbi_taxonomy_db_source_url"}, "disabled"),
     Output("ncbi_taxonomy_overwrite_old_checkbox", "disabled"),
     Output("ncbi_taxonomy_create_parent_dirs_checkbox", "disabled"),
     Input("fetch_ncbi_taxonomy_checkbox", "value")
@@ -174,7 +174,7 @@ def toggle_ncbi_tax_fetch_disabled(checkbox):
     return tuple([not checkbox] * 3) 
 
 @app.callback(
-    Output("gtdb_taxonomy_db_source_url", "disabled"),
+    Output({"type": "import_config", "field": "gtdb_taxonomy_db_source_url"}, "disabled"),
     Output("gtdb_taxonomy_overwrite_old_checkbox", "disabled"),
     Output("gtdb_taxonomy_create_parent_dirs_checkbox", "disabled"),
     Input("fetch_gtdb_taxonomy_checkbox", "value")

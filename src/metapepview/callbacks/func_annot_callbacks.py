@@ -61,7 +61,7 @@ def kegg_db_to_memory(db_status, loaded_data):
 @app.callback(
     Output("kegg_ko_map_data", "data"),
     Input("database_present_status", "data"),
-    State('kegg_map_loc', 'value')
+    State({"type": "import_config", "field": 'kegg_map_loc'}, 'value')
 )
 def store_kegg_ko_map(db_status, kegg_db_loc):
     if db_status["kegg_map"] == True:

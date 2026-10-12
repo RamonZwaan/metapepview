@@ -23,6 +23,7 @@ dependencies = [
     "plotly>=6,<7", 
     "requests>=2.34,<3",
     "waitress>=3.0,<4",
+    "tomli-w>=1",
 ]
 
 [project.urls]
