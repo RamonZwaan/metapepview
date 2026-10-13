@@ -222,6 +222,7 @@ def inactivate_spectral_import_button(mzml_file_path,
     Output("spectral_data_import_container", "children"),
     Output("qa_data_import_alert", "children", allow_duplicate=True),
     Output("qa_data_import_alert", "is_open", allow_duplicate=True),
+    Output("qa_data_import_alert", "color", allow_duplicate=True),
     Input("start_spectral_import_button", "n_clicks"),
     State("mzml_upload", "file_infos"),
     State("features_upload", "file_infos"),
@@ -260,13 +261,17 @@ def store_spectral_dataset(btn,
 
     # require mzml data for any information to be stored
     if mzml_valid is False or any(x is False for x in [db_search_valid, de_novo_valid]):
+        alert_open, alert_color = True, "danger"
         if mzml_valid is False:
             msg = "Failed to load mzml dataset"
         elif db_search_valid is False:
             msg = "Invalid db search file... Potentially due to invalid format or different experiment source from mzml"
         elif de_novo_valid is False:
             msg = "Invalid de novo file... Potentially due to invalid format or different experiment source from mzml"
-        return empty_data + (spectral_data_import_container, msg, True)
+        return empty_data + (spectral_data_import_container, 
+                             msg, 
+                             alert_open,
+                             alert_color)
 
     # import feature data and return as compressed string data
     if features_content != []:
@@ -295,8 +300,12 @@ def store_spectral_dataset(btn,
                                                 db_search_format)
         
         if mzml_metadata["raw file name"] not in db_search_data.source_files:
+            alert_open, alert_color = True, "danger"
             msg = "mzml and DB search not from same experiment."
-            return empty_data + (spectral_data_import_container, msg, True)
+            return empty_data + (spectral_data_import_container, 
+                                 msg, 
+                                 alert_open,
+                                 alert_color)
 
         db_search_json = db_search_data.to_json()
         db_search_store = compress_string(db_search_json)
@@ -315,8 +324,12 @@ def store_spectral_dataset(btn,
                                             de_novo_format)
 
         if mzml_metadata["raw file name"] not in de_novo_data.source_files:
+            alert_open, alert_color = True, "danger"
             msg = "mzml and de novo not from same experiment."
-            return empty_data + (spectral_data_import_container, msg, True)
+            return empty_data + (spectral_data_import_container, 
+                                 msg, 
+                                 alert_open,
+                                 alert_color)
 
         de_novo_json = de_novo_data.to_json()
         de_novo_store = compress_string(de_novo_json)
@@ -325,10 +338,12 @@ def store_spectral_dataset(btn,
 
     if feature_valid is False:
         alert_open = True
+        alert_color = "danger"
         alert_msg = "Failed to load Feature dataset, spectral data imported without features."
     else:
-        alert_open = False
-        alert_msg = None
+        alert_open = True
+        alert_color = "success"
+        alert_msg = "Successfully imported performance evaluation dataset"
 
     # store mzml data on server, store key to data in store
     mzml_peaks_stored = add_dataset_to_server_store(app, 
@@ -348,7 +363,8 @@ def store_spectral_dataset(btn,
             de_novo_store,
             spectral_data_import_container,
             alert_msg,
-            alert_open)
+            alert_open,
+            alert_color)
 
 
 @app.callback(

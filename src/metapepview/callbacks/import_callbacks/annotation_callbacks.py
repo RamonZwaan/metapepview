@@ -458,8 +458,9 @@ def db_search_accession_parser(parser_option, current_value):
     Output('peptides_metadata', 'data', allow_duplicate=True),
     Output('annotation_loading_spot', 'children'),
     Output('data_import_container', 'children'),
-    Output('annotation_error_alert', 'children'),
-    Output('annotation_error_alert', 'is_open'),
+    Output('annotation_res_alert', 'children'),
+    Output('annotation_res_alert', 'is_open'),
+    Output('annotation_res_alert', 'color'),
     Input('start_annotation_button', 'n_clicks'),
     State('peptides', 'data'),
     State('peptides_metadata', 'data'),
@@ -527,6 +528,7 @@ def process_manual_annotation(n_clicks,
     # default state of output
     alert_content = None
     alert_open = False
+    alert_color = None
     loading_status = None
 
     current_peptides = get_dataset_from_server_store(app, "peptides")
@@ -537,7 +539,10 @@ def process_manual_annotation(n_clicks,
                  loading_status, 
                  data_import_container, 
                  alert_content, 
-                 alert_open)
+                 alert_open,
+                 alert_color)
+
+    alert_color = "danger"
 
     # keep multi file import consistent with empty list as opposed to nonetype
     psm_list = [] if psm_list is None else psm_list
@@ -575,7 +580,8 @@ def process_manual_annotation(n_clicks,
                     loading_status, 
                     data_import_container, 
                     alert_msg, 
-                    alert_open)
+                    alert_open,
+                    alert_color)
     else:
         psm_paths, psm_names = [], []
 
@@ -598,7 +604,8 @@ def process_manual_annotation(n_clicks,
                     loading_status, 
                     data_import_container, 
                     alert_msg, 
-                    alert_open)
+                    alert_open,
+                    alert_color)
     else:
         denovo_paths = []
 
@@ -618,7 +625,8 @@ def process_manual_annotation(n_clicks,
                     loading_status, 
                     data_import_container, 
                     alert_msg, 
-                    alert_open)
+                    alert_open,
+                    alert_color)
            
             
     # deduplicate (or filter) input file (names) and deduplicate sample name
@@ -638,7 +646,8 @@ def process_manual_annotation(n_clicks,
                 loading_status, 
                 data_import_container, 
                 alert_msg, 
-                alert_open)
+                alert_open,
+                alert_color)
 
     # set data formats to None if no data supplied
     if len(psm_paths) == 0: psm_format = None
@@ -699,7 +708,8 @@ def process_manual_annotation(n_clicks,
                 loading_status, 
                 data_import_container, 
                 err.msg, 
-                alert_open)
+                alert_open,
+                alert_color)
     except Exception as err:
         alert_msg = "Failed annotation due to unexpected problem: {err}"
         alert_open = True
@@ -708,7 +718,8 @@ def process_manual_annotation(n_clicks,
                 loading_status, 
                 data_import_container, 
                 alert_msg, 
-                alert_open)
+                alert_open,
+                alert_color)
 
     # merge new data to current data if present and store as json
     if current_peptides_df is not None:
@@ -722,7 +733,8 @@ def process_manual_annotation(n_clicks,
                     loading_status, 
                     data_import_container, 
                     alert_msg, 
-                    alert_open)
+                    alert_open,
+                    alert_color)
 
     try:
         new_peptides_dump = new_peptides.to_json()
@@ -734,15 +746,17 @@ def process_manual_annotation(n_clicks,
                 loading_status, 
                 data_import_container, 
                 alert_msg, 
-                alert_open)
+                alert_open,
+                alert_color)
         
         
     return (add_dataset_to_server_store(app, "peptides", new_peptides_dump),
             current_metadata,
             loading_status,
             data_import_container,
-            None,
-            False)
+            "Successfully imported sample into project",
+            True,
+            "success")
 
 
 def global_taxonomy_annotation_only():

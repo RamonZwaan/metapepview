@@ -943,7 +943,7 @@ import_block = html.Div(
             className="mt-3"
         ),
         dbc.Alert(
-            id="annotation_error_alert",
+            id="annotation_res_alert",
             dismissable=True,
             is_open=False,
             color="danger",
