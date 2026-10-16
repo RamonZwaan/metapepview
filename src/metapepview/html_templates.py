@@ -293,8 +293,9 @@ def validate_multiple_files(contents: List[str],
         try:
             for idx, file in enumerate(file_data):
                 if file is None:
-                    raise ValueError("Non-file-like encountered, likely directory")
-
+                    success, msg = False, "Non-file-like encountered in input data. When importing an archive, ensure the data inside are only dataset files. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
+                    break
+    
                 # convert string of path to path object
                 if isinstance(file, str):
                     file = Path(file)
@@ -302,14 +303,14 @@ def validate_multiple_files(contents: List[str],
                 current_name = file_names[idx]
                 current_archive_format = determine_archive_format(current_name)
                 if (archive_format is not None) and (current_archive_format is not None):
-                    success, msg = False, "Nested or multiple archives not supported, add all samples in a single archive for import."
+                    success, msg = False, "Invalid archive. Meta-PepView supports import of one archive file (.tar.gz or .zip), which may contain multiple DB search files, or separate import of multiple DB search files. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                     break
 
                 success, msg = content_validator(file, current_archive_format)
                 if success is False:
                     break
         except:
-            success, msg = False, f"failed to read '{current_name}'"
+            success, msg = False, f"failed to read '{current_name}'. Ensure the correct format is selected and the data is untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
 
         # if all files pass validation, update display names
         if success is True:
@@ -371,7 +372,7 @@ def validate_single_file(contents: str | Path,
         try:
             success, msg = content_validator(contents, archive_format)
         except:
-            success, msg = False, f"failed to read '{name}'"
+            success, msg = False, f"failed to read '{name}'. Ensure the correct format is selected and the data is untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
 
         # assign box colour based on success of failed
         if success:
@@ -380,8 +381,6 @@ def validate_single_file(contents: str | Path,
         else:
             valid_data = False
             box_style = StyleConstants.failed_box_style
-
-
 
             contents = None
     # remove name if no contents is imported

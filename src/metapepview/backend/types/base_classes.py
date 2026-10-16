@@ -45,7 +45,7 @@ class DataValidator(Protocol):
         field_array = np.array(cls.REQUIRED_FIELDS)
         missing_cols = field_array[~np.isin(field_array, input_df.columns)]
         if len(missing_cols) > 0:
-            err_msg = "Invalid format, missing expected columns in dataset: {}".format(missing_cols)
+            err_msg = "Invalid dataset format; some column names which are expected are missing: {}. Check that the selected format is correct and that the file is untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'".format(missing_cols)
             return (False, err_msg)
         
         # get columns that are expected numeric but object
@@ -65,7 +65,7 @@ class DataValidator(Protocol):
             try:
                 input_df.loc[:, not_numeric] = input_df.loc[:, not_numeric].astype(float)
             except Exception as e:
-                err_msg = "Invalid format, non-numeric values encountered in numeric columns"
+                err_msg = "Invalid dataset format; string values encountered in numeric columns. This is likely due to data changes after file generation. Check that the selected format is correct and that the file is untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                 return (False, err_msg)
         
         return (True, None)
@@ -160,13 +160,19 @@ class DataIO(Protocol):
         """
         # if data has been decoded, directly return csv DataFrame
         if isinstance(file_buffer, io.TextIOBase):
-            df = pd.read_csv(file_buffer, delimiter=delim, low_memory=False)
+            try:
+                df = pd.read_csv(file_buffer, delimiter=delim, low_memory=False)
+            except:
+                raise ValueError("Failed to read dataset. Ensure that the correct format was selected and that the file contents are untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         elif isinstance(file_buffer, str):
-            df = pd.read_csv(upload_to_stringio(file_buffer), 
-                             delimiter=delim,
-                             low_memory=False)
+            try:
+                df = pd.read_csv(upload_to_stringio(file_buffer), 
+                                delimiter=delim,
+                                low_memory=False)
+            except:
+                raise ValueError("Failed to read dataset. Ensure that the correct format was selected and that the file contents are untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         else:
-            raise TypeError("invalid content type supplied...")
+            raise TypeError("invalid content type supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
         
         cls_obj = cls(df, file_name) # type: ignore
         

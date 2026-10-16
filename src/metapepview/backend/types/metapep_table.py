@@ -352,7 +352,7 @@ class MetaPepTable(DataValidator):
         """
         # check that input is not empty
         if len(metapep_list) == 0:
-            raise ValueError("empty input sequence. Cannot generate MetaPepTable")
+            raise ValueError("empty input sequence. Cannot generate MetaPepTable. Check that the correct formats are selected for input data. Also, check that input files contain a good number of data rows. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         
         
             
@@ -370,7 +370,7 @@ class MetaPepTable(DataValidator):
                 elif consensus_format[format] is None:
                     consensus_format[format] = table_formats[format]
                 if consensus_format[format] != table_formats[format]:
-                    raise ValueError(f"Conflicting format during metapep table concatenation: {format}. Ensure all imported samples have the same data formats.")
+                    raise ValueError(f"Conflicting format encountered when combining data: {format}. Ensure all imported samples have the same data formats. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         
         # check that all spectral files are unique across objects
         # validate_spectral_redundancy(metapep_list)
@@ -835,7 +835,7 @@ def _concat_tables_sample(metapep_list: Sequence[metapep_obj]) -> metapep_obj:
     """
     # check that input is not empty
     if len(metapep_list) == 0:
-        raise ValueError("empty input sequence. Cannot generate metapep table")
+        raise ValueError("No input samples. Cannot generate metapep table")
     
     # check that formats and samples are identical
     fval = metapep_list[0]
@@ -844,7 +844,7 @@ def _concat_tables_sample(metapep_list: Sequence[metapep_obj]) -> metapep_obj:
         (fval.data_source, fval.confidence_format, fval.sample_name) 
         for i in metapep_list
         ):
-        raise ValueError("metapep metadata not consistent. Cannot concatenate.")
+        raise ValueError("Metadata not consistent. Ensure that all samples share the same format.")
     
     # check that all spectral files are unique
     concat_spectra = validate_spectral_redundancy(metapep_list)

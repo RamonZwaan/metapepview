@@ -241,9 +241,9 @@ class GhostkoalaMapper(FunctionDbMapper, AccessionTaxaMapMethods):
             ncols = line.count(cls.FILE_DELIM) + 1
             ko_prefix = line.startswith(cls.ACC_PREFIX)
             if ncols != len(cls.FILE_COLS):
-                raise ValueError(f"Invalid GhostKOALA file format, expected {len(cls.FILE_COLS)} fields, got {ncols}...")
+                raise ValueError(f"Invalid GhostKOALA file format, expected {len(cls.FILE_COLS)} fields, got {ncols}. Check that the correct format is selected and the data is untampered. See documentation: 'Prepare input data', what dataset is expected. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
             if not ko_prefix:
-                raise ValueError("Invalid accession format encountered, expected 'user:' prefix")
+                raise ValueError("Invalid accession format encountered, expected 'user:' prefix. Check that the correct format is selected and the data is untampered. See documentation: 'Prepare input data', what dataset is expected. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         file_buffer.seek(0)
         return file_buffer
 

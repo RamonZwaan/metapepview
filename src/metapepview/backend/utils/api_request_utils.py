@@ -93,7 +93,7 @@ def request_to_file(url: str,
     try:
         response = fetch_request(url)
     except RuntimeError as err:
-        return (False, repr(err))
+        return (False, str(err))
     return contents_to_file(response.text, file_loc, create_parent_dir, overwrite)
 
 

@@ -24,7 +24,7 @@ def import_func_map(upload_contents: str | Path,
     importer = functional_db_importers.get(db_format)
     
     if importer is None:
-        raise ValueError("Invalid file format supplied")
+        raise ValueError("Invalid format supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
     else:
         # extract file if delivered in archive    
         file_buffer = upload_to_stringio(upload_contents, archive_format)
@@ -53,7 +53,7 @@ def validate_func_map(file_buffer: str | IO[str],
     importer = functional_db_importers.get(file_format)
     
     if importer is None:
-        return False, "Invalid file format supplied"
+        return False, "Invalid format supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'"
     else:
         try:
             if isinstance(file_buffer, str):
@@ -61,4 +61,4 @@ def validate_func_map(file_buffer: str | IO[str],
             importer.read_file_buffer(file_buffer)
             return True, None
         except Exception as e:
-            return False, repr(e)
+            return False, str(e)

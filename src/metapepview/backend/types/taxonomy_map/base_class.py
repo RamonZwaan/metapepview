@@ -170,7 +170,7 @@ class AccessionTaxaMap:
                                   engine='python',
                                   nrows=100)
         except:
-            err_msg = "Failed to read input, should be delimited text file like '.csv'"
+            err_msg = "Failed to read input, should be character delimited text file like '.csv' or '.tsv'. Check data if the format is as expected. If the issue persists. please notify us on GitHub, see documentation: 'Troubleshooting'"
             return (False, err_msg)
         
         # check that indices are different and inside table range
@@ -178,16 +178,16 @@ class AccessionTaxaMap:
 
         # no delimiter found, incorrect delimiter
         if max_idx == 0:
-            err_msg = "Only one column in input data, is delimiter correct?"
+            err_msg = "Only one column in input data. Check if the correct file or format is selected, or if the specified delimiter is correct in 'option'. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
             return (False, err_msg)
         
         # index found outside range           
         if not all(i <= max_idx for i in (acc_col, tax_col)):
-            err_msg = f"Supplied column indices exeed range input data, max index: {max_idx}"
+            err_msg = f"The specified column indices exeed range input data, max index: {max_idx}. Check that the delimiter is correct and the accession and taxonomy column indices are correctly assigned. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
             return (False, err_msg)
         
         if acc_col == tax_col:
-            err_msg = "Accession and Taxonomy column index cannot be equal."
+            err_msg = "Accession and Taxonomy column index cannot be equal. Set the accession and taxonomy column index to the values corresponding to the columns in the file. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
             return (False, err_msg)
         
         if custom_validators is not None:

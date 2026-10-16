@@ -27,13 +27,13 @@ def validate_db_search(file_buffer: str | IO[str],
     importer = db_search_importers.get(file_format)
     
     if importer is None:
-        return False, "Invalid file format supplied"
+        return False, "Invalid file format supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'"
     else:
         try:
             importer.read_file_buffer(file_buffer)
             return True, None
         except Exception as e:
-            return False, repr(e)
+            return False, str(e)
 
 
 def validate_de_novo(file_buffer: str | IO[str],
@@ -51,13 +51,13 @@ def validate_de_novo(file_buffer: str | IO[str],
     importer = de_novo_importers.get(file_format)
     
     if importer is None:
-        return False, "Invalid file format supplied"
+        return False, "Invalid file format supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'"
     else:
         try:
             importer.read_file_buffer(file_buffer)
             return True, None
         except Exception as e:
-            return False, repr(e)
+            return False, str(e)
 
 
 def load_metapep_db_search(file_buffer: str | IO[str] | Path,
@@ -83,7 +83,7 @@ def load_metapep_db_search(file_buffer: str | IO[str] | Path,
         importer = db_search_importers.get(file_format)
         
         if importer is None:
-            raise ValueError("Invalid file format supplied")
+            raise ValueError("Invalid file format supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
         else:
             db_search_obj = importer.read_file_buffer(file_buffer, sample_name)
         

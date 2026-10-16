@@ -618,7 +618,7 @@ def process_manual_annotation(n_clicks,
             current_peptides_df = MetaPepTable.read_json(current_peptides)
             current_sample_names = current_peptides_df.data["Sample Name"].unique().tolist()
         except:
-            alert_msg = "Failed to parse project data..."
+            alert_msg = "Failed to load project data. The file should be a project JSON generated from 'Export project'"
             alert_open = True
             return (current_peptides_loaded, 
                     current_metadata, 
@@ -639,7 +639,7 @@ def process_manual_annotation(n_clicks,
         else:
             sample_name = deduplicate_strings(sample_name, current_sample_names)
     except:
-        alert_msg = "Failed to parse db search filenames..."
+        alert_msg = "Failed to parse DB search file names. Ensure that DB search files have distinct and valid names."
         alert_open = True
         return (current_peptides_loaded, 
                 current_metadata, 

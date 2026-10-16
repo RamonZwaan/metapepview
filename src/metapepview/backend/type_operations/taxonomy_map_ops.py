@@ -69,7 +69,7 @@ def import_acc_tax_map(upload_contents: str | IO[str] | Path,
             wrangle_peptide_accessions=wrangle_peptide_accessions
             )
     else:
-        raise ValueError("Invalid taxonomy format")
+        raise ValueError("Invalid taxonomy format. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
 
 
 def validate_acc_tax_map(upload_contents: str | IO[str] | Path,
@@ -99,6 +99,6 @@ def validate_acc_tax_map(upload_contents: str | IO[str] | Path,
             tax_format.read_file_buffer(str_file_obj)
             return True, None
         except Exception as e:
-            return False, repr(e)
+            return False, str(e)
     else:
-        raise ValueError("Invalid taxonomy format")
+        raise ValueError("Invalid taxonomy format. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
