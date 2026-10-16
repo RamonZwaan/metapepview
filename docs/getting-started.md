@@ -15,6 +15,15 @@ The dashboard contains several modules for data management and visualization. Th
     - *Experiment performance evaluation*: Visualization toolbox for evaluation of metaproteomics experiment performance metrics, as well as benchmarking of experiments against an experiment reference dataset.
     - *Community composition evaluation*: Compare community taxonomy composition from one sample between peptide annotation from local protein database matching and peptide sequence matching against Uniprot TrEMBL through the Unipept API.
 
+Commonly, you will start by updating the taxonomy and functional databases in the sidebar and by importing some datasets into the dashboard. The video below shows a demonstration of the data import process:
+
+<video controls width="100%">
+    <source src="../images/import_demonstration.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+</video>
+
+Details about the preparation of input data are provided in [[prepare-input-data|Prepare input data]]. The data import process itself is described in detail in [[data-import|Data import]].
+
 ## Download public databases
 
 For import of metaproteomics data and visualization of taxonomy and function groups, meta-PepView requires access to public taxonomy and function databases. These have to be downloaded from their sources. To infer lineages from taxonomy annotations and parse the taxonomy tree, the NCBI or GTDB taxonomy datasets are required (depending on the selected taxonomy annotation format). For visualization of function groups, the KEGG function mapping dataset has to be fetched online.
