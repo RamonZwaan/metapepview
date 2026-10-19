@@ -411,9 +411,10 @@ def disable_taxonomy_annotations_options(tax_db_format, gtdb_to_ncbi):
     Output('acc_tax_map_acc_pattern_container', 'className'),
     Output({"type": "import_config", "field": 'acc_tax_map_acc_pattern'}, 'value'),
     Input({"type": "import_config", "field": 'accession_parser_checkbox'}, 'value'),
+    Input("taxonomy_map_modal", 'id_open'),
     State({"type": "import_config", "field": 'acc_tax_map_acc_pattern'}, 'value'),
 )
-def taxonomy_annotations_accession_parser(parser_option, current_value):
+def taxonomy_annotations_accession_parser(parser_option, _, current_value):
     if parser_option == "Custom regex":
         return ("d-flex justify-content-start mb-3", current_value)
     elif parser_option == "Full string":
@@ -426,9 +427,10 @@ def taxonomy_annotations_accession_parser(parser_option, current_value):
     Output('func_annot_acc_pattern_container', 'className'),
     Output({"type": "import_config", "field": 'func_annot_acc_pattern'}, 'value'),
     Input({"type": "import_config", "field": 'func_accession_parser_checkbox'}, 'value'),
+    Input("function_map_modal", 'id_open'),
     State({"type": "import_config", "field": 'func_annot_acc_pattern'}, 'value'),
 )
-def functional_annotations_accession_parser(parser_option, current_value):
+def functional_annotations_accession_parser(parser_option, _, current_value):
     if parser_option == "Custom regex":
         return ("d-flex justify-content-start mb-3", current_value)
     elif parser_option == "Full string":
@@ -441,9 +443,10 @@ def functional_annotations_accession_parser(parser_option, current_value):
     Output('db_search_accession_pattern_container', 'className'),
     Output({"type": "import_config", "field": 'db_search_accession_pattern'}, 'value'),
     Input({"type": "import_config", "field": 'db_search_accession_parser_items'}, 'value'),
+    Input("db_search_modal", 'id_open'),
     State({"type": "import_config", "field": 'db_search_accession_pattern'}, 'value'),
 )
-def db_search_accession_parser(parser_option, current_value):
+def db_search_accession_parser(parser_option, _, current_value):
     if parser_option == "Custom regex":
         return ("d-flex justify-content-start mb-3", current_value)
     elif parser_option == "Full string":
