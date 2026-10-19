@@ -7,7 +7,7 @@ name = "metapepview"
 version = "0.2.0"
 description = "Web interface for visualization of microbial communities from metaproteomics data and evaluation of MS experiments."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.15"
 license = {text = "Apache-2.0"}
 authors = [{name = "Ramon van der Zwaan", email = "r.vanderzwaan@tudelft.nl"},
            {name = "Martin Pabst", email = "m.pabst@tudelft.nl"}]
