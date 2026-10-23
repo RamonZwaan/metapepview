@@ -13,6 +13,7 @@ from metapepview.constants import *
 
 def match_source_denovo(denovo_list: Sequence[IO[str] | Path],
                         denovo_format: DeNovoSource,
+                        sample_name: str | None = None,
                         crap_dataset: pd.Series | None = None) -> Dict[str, MetaPepDeNovo]:
     """Extract source files from denovo datasets and match them to the datasets
     by mapping index to source files. If multiple denovo files point to same source
@@ -22,6 +23,7 @@ def match_source_denovo(denovo_list: Sequence[IO[str] | Path],
     Args:
         denovo_list (Sequence[IO[str]] | List[str]): list of denovo datasets.
         denovo_format (DeNovoSource): Data format of input datasets.
+        sample_name (str | None, optional): Name of sample to assign de novo data to.
         crap_dataset (pd.Series | None, optional): Series of peptide sequences
             part of the cRAP dataset. These are filtered out of the de novo 
             peptide data. defaults to None.
@@ -33,7 +35,7 @@ def match_source_denovo(denovo_list: Sequence[IO[str] | Path],
     denovo_sources = {}
     for denovo_contents in denovo_list:
         de_novo_obj = load_metapep_de_novo(denovo_contents,
-                                           None,
+                                           sample_name,
                                            denovo_format,
                                            crap_dataset)
         raw_files = de_novo_obj.source_files

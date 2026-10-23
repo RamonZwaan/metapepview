@@ -195,9 +195,16 @@ def annotate_peptides(sample_name: str,
         
         de_novo_crap = crap_pept if options.de_novo_filter_crap is True else None
         try:
-            de_novo_dict = match_source_denovo(de_novo_list,
-                                               options.de_novo_format,
-                                               de_novo_crap)
+            if options.merge_psms is True:
+                de_novo_dict = match_source_denovo(de_novo_list,
+                                                options.de_novo_format,
+                                                sample_name,
+                                                de_novo_crap)
+            else:
+                de_novo_dict = match_source_denovo(de_novo_list,
+                                                   options.de_novo_format,
+                                                   None,
+                                                   de_novo_crap)
         except Exception as err:
             raise AnnotationError(f"Failed to import de novo data. Ensure that the correct format is selected. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
     else:
@@ -388,7 +395,7 @@ def functional_annotation(peptides: pd.DataFrame,
 
     for i, acc_list in enumerate(peptides["Accession"].str.split(acc_delim)):
         # some peptides in psm dataset may have no accession annotation, these cannot be functionally annotated
-        if acc_list is None:
+        if not isinstance(acc_list, list) or not isinstance(acc_list, str):
             continue
         
         func_data = accession_list_to_function(acc_list,

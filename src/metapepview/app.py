@@ -1,6 +1,7 @@
 import sys
 from textwrap import dedent
 from waitress import serve
+from packaging.version import Version
 
 from metapepview.server import app
 
@@ -30,7 +31,8 @@ def main():
     """Entrypoint to start MetaPepView dashboard.
     """
     # set downcasting behavior to manage FutureWarning in `replace` function
-    pd.set_option('future.no_silent_downcasting', True)
+    if Version(pd.__version__) < Version("3.0.0"):
+        pd.set_option('future.no_silent_downcasting', True)
 
     # assign template theme for plotly figures
     pio.templates.default = GraphConstants.default_template

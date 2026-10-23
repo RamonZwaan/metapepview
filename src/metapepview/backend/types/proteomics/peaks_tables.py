@@ -471,7 +471,7 @@ class PeaksDbSearchPsm10(DbSearchMethods):
         df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # scan column includes fraction if multiple present, need to be removed
-        df.loc[:, 'Scan'] = fraction_col_to_numeric(df, 'Scan')
+        df['Scan'] = fraction_col_to_numeric(df, 'Scan')
         
         # remove file type suffix from Source File column
         df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
@@ -970,7 +970,7 @@ class PeaksDeNovo10(DeNovoMethods):
         
         # for multiple fractions, 'Scan' column contains fraction identity,
         # this needs to be removed in order to match spectral files to peptide
-        df.loc[:, 'Scan'] = fraction_col_to_numeric(df, 'Scan')
+        df['Scan'] = fraction_col_to_numeric(df, 'Scan')
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
         df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
@@ -1018,11 +1018,11 @@ def fraction_col_to_numeric(df: pd.DataFrame, col: str) -> pd.Series:
         ValueError: Conversion failed.
     """
     # scan column includes fraction if multiple present, need to be removed
-    scan_val = df.loc[df.index[0], 'Scan']
+    scan_val = df.loc[df.index[0], col]
     if type(scan_val) == str and len(scan_val.split(':')) > 1:
-        col_series = df.loc[:, 'Scan'].apply(lambda x: x.split(':')[-1] if not isinstance(x, float) else x)
+        col_series = df.loc[:, col].apply(lambda x: x.split(':')[-1] if not isinstance(x, float) else x)
     else:
-        col_series = df.loc[:, 'Scan']
+        col_series = df.loc[:, col]
 
     try:
         col_series = pd.to_numeric(col_series)

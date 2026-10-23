@@ -238,7 +238,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         # check correct format for ncbi taxonomy
         def check_numeric(prot_df: pd.DataFrame) -> Tuple[bool, str | None]:
             if not pd.api.types.is_numeric_dtype(prot_df.iloc[:, tax_col]):
-                err_msg = "Invalid taxonomy format, expects ncbi id's (numeric)"
+                err_msg = "Invalid taxonomy format, expects ncbi id's (numeric). Check that the correct delimiter and taxonomy column index has been selected. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                 return (False, err_msg)
             else:
                 return (True, None)
