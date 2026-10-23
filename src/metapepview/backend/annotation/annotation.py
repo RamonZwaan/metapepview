@@ -239,7 +239,7 @@ def annotate_peptides(sample_name: str,
                                                     taxonomy_db,
                                                     options)
             except AnnotationError as err:
-                raise AnnotationError(err)
+                raise err
             except Exception as err:
                 raise AnnotationError(f"Failed to annotate DB search data. This is an internal error. Please notify us on GitHub: see documentation: 'Troubleshooting'. Internal error: {err}")
         else:
@@ -267,7 +267,7 @@ def annotate_peptides(sample_name: str,
                                                                taxonomy_db,
                                                                options)
                 except AnnotationError as err:
-                    raise AnnotationError(err)
+                    raise err
                 except Exception as err:
                     raise AnnotationError(f"Failed to annotate DB search data. This is an internal error. Please notify us on GitHub: see documentation: 'Troubleshooting'. Internal error: {err}")
                 metapep_table_list.append(sample_metapep_table)
@@ -287,7 +287,7 @@ def annotate_peptides(sample_name: str,
                                                 taxonomy_db,
                                                 options)
         except AnnotationError as err:
-            raise AnnotationError(err)
+            raise err
         except Exception as err:
             raise AnnotationError(f"Failed to annotate de novo data. This is an internal error. Please notify us on GitHub: see documentation: 'Troubleshooting'. Internal error: {err}")
     else:
