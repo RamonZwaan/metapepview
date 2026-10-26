@@ -10,18 +10,19 @@
 }
 
 \usage{
-chunkUpload(id=NULL, chunk_size=NULL, className=NULL, file_info=NULL,
-file_infos=NULL, multiple=NULL, progress=NULL, style=NULL)
+chunkUpload(id=NULL, appearance=NULL, chunk_size=NULL, className=NULL,
+file_infos=NULL, multiple=NULL, progress=NULL, style=NULL,
+uploadText=NULL)
 }
 
 \arguments{
 \item{id}{Character. }
 
+\item{appearance}{Character. }
+
 \item{chunk_size}{Numeric. }
 
 \item{className}{Character. }
-
-\item{file_info}{Named list. }
 
 \item{file_infos}{Unnamed list. }
 
@@ -30,6 +31,8 @@ file_infos=NULL, multiple=NULL, progress=NULL, style=NULL)
 \item{progress}{Numeric. }
 
 \item{style}{Named list. }
+
+\item{uploadText}{Character. }
 }
 
 \value{named list of JSON elements corresponding to React.js properties and their values}

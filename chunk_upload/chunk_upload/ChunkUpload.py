@@ -23,17 +23,19 @@ Keyword arguments:
 
 - id (string; optional)
 
+- appearance (string; default "default")
+
 - chunk_size (number; optional)
 
 - className (string; optional)
-
-- file_info (dict; optional)
 
 - file_infos (list; optional)
 
 - multiple (boolean; default False)
 
-- progress (number; optional)"""
+- progress (number; optional)
+
+- uploadText (string; optional)"""
     _children_props: typing.List[str] = []
     _base_nodes = ['children']
     _namespace = 'chunk_upload'
@@ -43,18 +45,19 @@ Keyword arguments:
     def __init__(
         self,
         id: typing.Optional[typing.Union[str, dict]] = None,
-        file_info: typing.Optional[dict] = None,
         file_infos: typing.Optional[typing.Sequence] = None,
         progress: typing.Optional[NumberType] = None,
         chunk_size: typing.Optional[NumberType] = None,
         multiple: typing.Optional[bool] = None,
+        uploadText: typing.Optional[str] = None,
         className: typing.Optional[str] = None,
+        appearance: typing.Optional[str] = None,
         style: typing.Optional[typing.Any] = None,
         **kwargs
     ):
-        self._prop_names = ['id', 'chunk_size', 'className', 'file_info', 'file_infos', 'multiple', 'progress', 'style']
+        self._prop_names = ['id', 'appearance', 'chunk_size', 'className', 'file_infos', 'multiple', 'progress', 'style', 'uploadText']
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'chunk_size', 'className', 'file_info', 'file_infos', 'multiple', 'progress', 'style']
+        self.available_properties = ['id', 'appearance', 'chunk_size', 'className', 'file_infos', 'multiple', 'progress', 'style', 'uploadText']
         self.available_wildcard_properties =            []
         _explicit_args = kwargs.pop('_explicit_args')
         _locals = locals()
