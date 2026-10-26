@@ -896,13 +896,12 @@ def process_peptides_data(project_data):
     else:
         file_data, file_name = open(project_data["path"], "r"), project_data["filename"]
 
-    data_string = file_data.read()
-
     # Deserialize the JSON string
     try:
+        data_string = file_data.read()
         json_dict = json.loads(data_string)
     except:
-        return empty_project + ("Failed to parse data as json.", True)
+        return empty_project + ("Failed to parse data as JSON. Only import earlier exported project JSON files. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'", True)
     
     # experiment name taken from filename except last suffix
     file_name = "".join(file_name.split('.')[:-1])
