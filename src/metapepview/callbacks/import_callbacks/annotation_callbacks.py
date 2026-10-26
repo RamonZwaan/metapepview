@@ -861,12 +861,10 @@ def download_annotated_dataset_json(n_clicks,
     Output('experiment_name_field', 'value', allow_duplicate=True),
     Output('peptides_import_format_alert', 'children'),
     Output('peptides_import_format_alert', 'is_open'),
-    Input('peptides_obj_upload', 'contents'),
-    Input('peptides_obj_upload', 'filename'),
+    Input('peptides_obj_upload', 'file_infos'),
     prevent_initial_call=True
 )
-def process_peptides_data(project_data, 
-                          file_name):
+def process_peptides_data(project_data):
     empty_project = (None, 
                      None, 
                      None, 
@@ -876,15 +874,33 @@ def process_peptides_data(project_data,
                      None, 
                      None, 
                      None)
-
-    if project_data is None:
+    if project_data == [] or project_data is None:
         raise PreventUpdate
-    archive_format = determine_archive_format(file_name)
-    data_str = memory_to_str(project_data, archive_format)
+
+    # Check if archive uploaded
+    project_data = project_data[0]
+    archive_format = determine_archive_format(project_data["filename"])
+
+    if archive_format is not None:
+        try:
+            file_data, file_names = archive_to_file_list(Path(project_data["path"]),
+                                                        archive_format)
+            # only allow single file in archive
+            if len(file_data) != 1: 
+                raise ValueError
+            else:
+                file_data, file_name = file_data[0], file_data[0]
+        except:
+            msg = "Invalid archive uploaded. Ensure that archive file only contains one project file. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
+            return empty_project + (msg, True)
+    else:
+        file_data, file_name = open(project_data["path"], "r"), project_data["filename"]
+
+    data_string = file_data.read()
 
     # Deserialize the JSON string
     try:
-        json_dict = json.loads(data_str)
+        json_dict = json.loads(data_string)
     except:
         return empty_project + ("Failed to parse data as json.", True)
     
@@ -893,12 +909,12 @@ def process_peptides_data(project_data,
 
     # Keep backwards compatibility with past project format
     if "peptides" not in json_dict.keys():
-        metapep_table_data = data_str
+        metapep_table_data = data_string
         valid, err_msg = MetaPepTable.validate_json(metapep_table_data)
         if not valid:
             return empty_project + (err_msg, True)
         else:
-            pept_loaded = add_dataset_to_server_store(app, "peptides", data_str)
+            pept_loaded = add_dataset_to_server_store(app, "peptides", data_string)
             return (pept_loaded,) + (None,)*7 + (file_name, None, False)
 
     # process annotation peptides data

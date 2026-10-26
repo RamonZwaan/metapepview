@@ -31,7 +31,7 @@ def process_tax_abundance(peptide_dataset: pd.DataFrame,
     
     # give value to all nan cells to represent undefined or unknown
     if include_undefined is True:
-        comp_df.loc[:, tax_col] = comp_df[tax_col].fillna(undefined_val)
+        comp_df[tax_col] = comp_df[tax_col].fillna(undefined_val)
             
     # group all peptides belonging to rank, sum separate abundance scores
     comp_df = comp_df.groupby(by=[xcol, tax_col])[[ycol]].sum().reset_index()
@@ -39,7 +39,7 @@ def process_tax_abundance(peptide_dataset: pd.DataFrame,
     # divide psm's by sum of psm's per sample name
     if fractional_abundance is True:
         comp_df[ycol] = comp_df[ycol].astype(dtype="float64")
-        comp_df.loc[:, ycol] /= comp_df.groupby(by=[xcol])[ycol].transform('sum')
+        comp_df[ycol] /= comp_df.groupby(by=[xcol])[ycol].transform('sum')
 
     return (comp_df, ycol)
 
@@ -170,7 +170,7 @@ def add_hidden_data_col(
     tax_col: str,
     hidden_col: str,
     match_dict: Dict[str, str]) -> pd.DataFrame:
-    comp_df.loc[:, hidden_col] = comp_df[tax_col].apply(
+    comp_df[hidden_col] = comp_df[tax_col].apply(
         lambda x: match_dict.get(x, np.nan)
     )
     return comp_df

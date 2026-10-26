@@ -235,10 +235,10 @@ class MaxQuantDbSearch(DbSearchMethods):
                 'Raw file': 'Source File'})
         
         # Wrangle Sequence into consistent format (equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Sequence'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Sequence'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
 
@@ -248,7 +248,7 @@ class MaxQuantDbSearch(DbSearchMethods):
 
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
-            df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
+            df['Accession'] = df.loc[:, 'Accession'].str.replace(
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset, ignore nan

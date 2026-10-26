@@ -68,7 +68,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
                               engine="python")
         
         if wrangle_peptide_accessions is True:
-            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+            prot_df["accession"] = prot_df["accession"].apply(wrangle_peptides)
 
         
         return cls.__from_dataframe(
@@ -137,7 +137,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         
         # if accessions are peptides, wrangle sequences into consistent format
         if wrangle_peptide_accessions is True:
-            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+            prot_df["accession"] = prot_df["accession"].apply(wrangle_peptides)
         
         prot_df["taxonomy_id"] = prot_df["taxonomy_id"].apply(
             genome_to_ncbi_map.genome_to_ncbi
@@ -197,9 +197,9 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         # If regex provided, extract substring from each query using regex
         # if match, get first occurence of match
         if acc_regex != "" and acc_regex is not None:
-            prot_df.loc[:, 'accession'] = regex_over_column(prot_df['accession'],
-                                                            acc_regex,
-                                                            no_match_to_nan=False)
+            prot_df['accession'] = regex_over_column(prot_df['accession'],
+                                                     acc_regex,
+                                                     no_match_to_nan=False)
 
         # manage duplicate protein names if present in dataset
         if not (prot_df['accession'].duplicated() == False).all():

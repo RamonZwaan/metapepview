@@ -14,7 +14,7 @@ def wrangle_psm_dataset(psm_data: pd.DataFrame,
     """Process data to consistent and expected format.
     """
     # Wrangle db search psm dataset
-    psm_data.loc[:, 'Sequence'] = psm_data[peptide_col].transform(wrangle_peptides)
+    psm_data['Sequence'] = psm_data[peptide_col].transform(wrangle_peptides)
     psm_data[area_col] = psm_data[area_col].fillna(0.0)
     return psm_data
 

@@ -101,9 +101,13 @@ def register_upload_endpoints(app):
         
         component_id = session["component_id"]
 
-        final_path = os.path.join(UPLOAD_FOLDER, f"{component_id}_{session['filename']}")
+        out_dir = os.path.join(UPLOAD_FOLDER, f"{component_id}")
+        final_path = os.path.join(UPLOAD_FOLDER, 
+                                  f"{component_id}", 
+                                  f"{session['filename']}")
 
         try:
+            os.makedirs(out_dir, exist_ok=True)
             os.rename(session["path"], final_path)
 
             server.component_files[component_id].append(final_path)

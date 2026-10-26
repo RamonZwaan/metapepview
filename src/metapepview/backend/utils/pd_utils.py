@@ -251,9 +251,12 @@ def substitute_lineage_with_global_lineage(peptide_df: pd.DataFrame,
                                                    glob_tax_fields].values
     
     # add de novo matches to psm count only if no db search was observed
-    peptide_df.loc[no_tax_annot_idx, 
-                   'PSM Count'] = peptide_df.loc[no_tax_annot_idx, 
-                                                 'PSM Count'].fillna(peptide_df['De Novo Match Count'])   
+    filled_psm_count = (
+        peptide_df.loc[no_tax_annot_idx, 'PSM Count']
+        .fillna(peptide_df['De Novo Match Count'])
+    )
+    peptide_df['PSM Count'] = peptide_df['PSM Count'].mask(
+        peptide_df.index.isin(no_tax_annot_idx), filled_psm_count)
     
     return peptide_df
 
@@ -296,8 +299,8 @@ def reshape_taxonomy_df_to_denovo(input_df: pd.DataFrame,
         global_annot.loc[~psm_nan, 'De Novo Match Count'] = global_annot.loc[~psm_nan, 'PSM Count']
     
     # move de novo columns to same name as psm columns
-    global_annot.loc[:, 'Area'] = global_annot['De Novo Area'] 
-    global_annot.loc[:, 'PSM Count'] = global_annot['De Novo Match Count']
+    global_annot['Area'] = global_annot['De Novo Area'] 
+    global_annot['PSM Count'] = global_annot['De Novo Match Count']
     global_annot = global_annot.drop(columns=['De Novo Area', 'De Novo Match Count'])
     
     # align column names and concatenate global annotation and metagenome annotation datasets
@@ -311,8 +314,8 @@ def reshape_taxonomy_df_to_denovo(input_df: pd.DataFrame,
     else:
         unipept_col = 'Unipept taxonomy (de novo)'
 
-    metagenome_annot.loc[:, 'Sample Name'] = db_search_col
-    global_annot.loc[:, 'Sample Name'] = unipept_col
+    metagenome_annot['Sample Name'] = db_search_col
+    global_annot['Sample Name'] = unipept_col
     
     return pd.concat([metagenome_annot, global_annot]), db_search_col, unipept_col
 

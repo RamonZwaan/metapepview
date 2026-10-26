@@ -131,9 +131,9 @@ class EggnogMapper(FunctionDbMapper):
         # If regex provided, extract substring from each query using regex
         # if match, get first occurence of match
         if acc_regex != "" and acc_regex is not None:
-            input_df.loc[:, 'query'] = regex_over_column(input_df['query'],
-                                                         acc_regex,
-                                                         no_match_to_nan=False)
+            input_df['query'] = regex_over_column(input_df['query'],
+                                                  acc_regex,
+                                                  no_match_to_nan=False)
 
         # drop rows without accession
         input_df.dropna(subset='query', inplace=True)
@@ -189,9 +189,9 @@ class KeggMapper(FunctionDbMapper):
         # If regex provided, extract substring from each query using regex
         # if match, get first occurence of match
         if acc_regex != "" and acc_regex is not None:
-            input_df.loc[:, 'query'] = regex_over_column(input_df['query'],
-                                                         acc_regex,
-                                                         no_match_to_nan=False)
+            input_df['query'] = regex_over_column(input_df['query'],
+                                                  acc_regex,
+                                                  no_match_to_nan=False)
 
         # drop rows without accession and without kegg ko
         input_df = input_df.dropna(subset=cls.REQUIRED_FIELDS)
@@ -272,14 +272,14 @@ class GhostkoalaMapper(FunctionDbMapper, AccessionTaxaMapMethods):
             raise ValueError(msg)
 
         # remove the prefix that KEGG adds to accessions in the file
-        input_df.loc[:, 'query'] = input_df['query'].str.removeprefix("user:")
+        input_df['query'] = input_df['query'].str.removeprefix("user:")
 
         # If regex provided, extract substring from each query using regex
         # if match, get first occurence of match
         if acc_regex != "" and acc_regex is not None:
-            input_df.loc[:, 'query'] = regex_over_column(input_df['query'],
-                                                         acc_regex,
-                                                         no_match_to_nan=False)
+            input_df['query'] = regex_over_column(input_df['query'],
+                                                  acc_regex,
+                                                  no_match_to_nan=False)
 
         # drop rows without accession
         input_df = input_df.dropna(subset=['query'])

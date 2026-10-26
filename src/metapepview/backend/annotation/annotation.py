@@ -389,13 +389,13 @@ def functional_annotation(peptides: pd.DataFrame,
     # initialize_columns
     for column in function_db.df.columns:
         if (column not in peptides.columns) and (column in function_db.NUMERIC_FIELDS):
-            peptides.loc[:, column] = pd.Series(dtype="float64")
+            peptides[column] = pd.Series(dtype="float64")
         elif column not in peptides.columns:
-            peptides.loc[:, column] = pd.Series(dtype="object")
+            peptides[column] = pd.Series(dtype="object")
 
     for i, acc_list in enumerate(peptides["Accession"].str.split(acc_delim)):
         # some peptides in psm dataset may have no accession annotation, these cannot be functionally annotated
-        if not isinstance(acc_list, list) or not isinstance(acc_list, str):
+        if not isinstance(acc_list, list) and not isinstance(acc_list, str):
             continue
         
         func_data = accession_list_to_function(acc_list,
@@ -664,7 +664,7 @@ def merge_de_novo_db_search(db_search_peptides: pd.DataFrame,
     else:
         merge_df = pd.merge(db_search_peptides, de_novo_peptides, how="outer", on=["Sequence"])
         # if no db search, peptide field is empty, in that case, fill the values
-        merge_df.loc[:, "Peptide"] = merge_df["Peptide"].fillna(merge_df["De Novo Peptide"])
+        merge_df["Peptide"] = merge_df["Peptide"].fillna(merge_df["De Novo Peptide"])
     
     merge_df = merge_df.drop(columns='De Novo Peptide')
     return merge_df

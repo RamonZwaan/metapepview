@@ -79,6 +79,10 @@ class SageDbSearch(DbSearchMethods):
             raise ValueError(msg)
         
         data = data[self.REQUIRED_FIELDS]
+
+        # filter out very low confident matches (>0.05 spectrum_q)
+        if "spectrum_q" in data.columns:
+            data = data[data["spectrum_q"] < 0.05]
         
         self._data = data
         self._file_name = file_name
@@ -210,10 +214,10 @@ class SageDbSearch(DbSearchMethods):
         df.drop(['rank', 'label'], axis=1)
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
 
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
@@ -237,7 +241,7 @@ class SageDbSearch(DbSearchMethods):
         
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
-            df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
+            df['Accession'] = df.loc[:, 'Accession'].str.replace(
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset

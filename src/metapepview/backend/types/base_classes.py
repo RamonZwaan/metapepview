@@ -57,13 +57,13 @@ class DataValidator(Protocol):
         # check if unexpected non-numeric columns encountered
         if len(not_numeric) > 0:
             # Convert ambiguous representation of missing values within numeric columns, such as '-' or ''
-            input_df.loc[:, not_numeric] = input_df.loc[:, not_numeric]\
+            input_df[not_numeric] = input_df.loc[:, not_numeric]\
                 .replace(["", "-"],
                          np.nan)
             
             # try to convert columns to floats, this may fail if other ambiguous strings are present
             try:
-                input_df.loc[:, not_numeric] = input_df.loc[:, not_numeric].astype(float)
+                input_df[not_numeric] = input_df.loc[:, not_numeric].astype(float)
             except Exception as e:
                 err_msg = "Invalid dataset format; string values encountered in numeric columns. This is likely due to data changes after file generation. Check that the selected format is correct and that the file is untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                 return (False, err_msg)

@@ -55,7 +55,7 @@ def custom_groupby(
     if match_idxmax is not None:
         for max_col, cols in match_idxmax.items():
             df_max_col = df[[groupby_col, max_col]]
-            df_max_col.loc[:, max_col] = df_max_col[max_col].fillna(0)
+            df_max_col[max_col] = df_max_col[max_col].fillna(0)
             max_indices = df_max_col.groupby(groupby_col)[max_col].idxmax()
             result[cols] = df.loc[max_indices, cols].values # type: ignore
     
@@ -137,7 +137,10 @@ def quantity_to_fold_change(dataset: pd.DataFrame,
             dataset.loc[category_idx, value_column] = 0.0
         else:
             # divide values from category by rescale value from group_name
-            dataset.loc[category_idx, value_column] = dataset.loc[category_idx, value_column] / norm_val # type:ignore
+            frac = dataset.loc[category_idx, value_column] / norm_val # type:ignore
+            dataset[value_column] = dataset[value_column].mask(
+                dataset.index.isin(category_idx), frac
+            )
     return dataset
 
 def mz_diff_to_ppm(exp_mz: float, meas_mz: float) -> float:

@@ -62,6 +62,10 @@ class CasanovoDeNovo(DeNovoMethods):
             raise ValueError(msg)
 
         data = data[self.REQUIRED_FIELDS]
+
+        # remove minus scores as these are considered invalid for detection
+        if "search_engine_score[1]" in data.columns:
+            data = data [data["search_engine_score[1]"] > 0.0]
         
         self._data = data
         self._file_name = file_name
@@ -258,7 +262,7 @@ class CasanovoDeNovo(DeNovoMethods):
         
         # Wrangle sequence into consistent format: equalte L, I.
         # Apply custom PTM filter to remove text inside squate brackets
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide']\
+        df['Sequence'] = df.loc[:, 'Peptide']\
             .apply(lambda x: re.sub(self.PTM_PATTERN, "", x))\
             .apply(wrangle_peptides)
         
@@ -270,33 +274,33 @@ class CasanovoDeNovo(DeNovoMethods):
                 return run_match[0]
             return None
 
-        df.loc[:, 'Source File'] = df.loc[:, 'spectra_ref'].apply(
+        df['Source File'] = df.loc[:, 'spectra_ref'].apply(
             lambda x: self._source_files.get(spectra_ref_to_run(x),
                                              np.nan)
         )
 
         # attempt to fetch scan number from spectra_ref column
-        df.loc[:, 'Scan'] = df['spectra_ref'].apply(
+        df['Scan'] = df['spectra_ref'].apply(
             spectrum_id_to_scan_number
         )
 
-        df.loc[:, 'ppm'] = df[['exp_mass_to_charge', 'm/z']].apply(
+        df['ppm'] = df[['exp_mass_to_charge', 'm/z']].apply(
             lambda x: mz_diff_to_ppm(x['exp_mass_to_charge'],
                                      x['m/z']),
             axis=1
         )
 
-        df.loc[:, "Length"] = df['Sequence'].apply(
+        df["Length"] = df['Sequence'].apply(
             lambda x: len(x) if isinstance(x, str) else np.nan
         )
 
         # Signal intensities are not provided by Casanovo
-        df.loc[:, "Area"] = np.nan
+        df["Area"] = np.nan
 
         h_mass = PhysicalConstants.proton_mass
 
         # calculate theoretical mass of peptides as [M]
-        df.loc[:, "Mass"] = df['exp_mass_to_charge'] * df['Charge'] - (df['Charge'] * h_mass)
+        df["Mass"] = df['exp_mass_to_charge'] * df['Charge'] - (df['Charge'] * h_mass)
 
         # drop columns not part of MetaPepDeNovo dataset
         df = df.drop(['exp_mass_to_charge', 'spectra_ref'], axis=1)

@@ -141,10 +141,10 @@ class PeaksDbSearchPsm13(DbSearchMethods):
             .rename(columns={'-10LgP': 'Confidence', 'z': 'Charge'})
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
@@ -154,7 +154,7 @@ class PeaksDbSearchPsm13(DbSearchMethods):
         
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
-            df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
+            df['Accession'] = df.loc[:, 'Accession'].str.replace(
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset
@@ -291,10 +291,10 @@ class PeaksDbSearchPsm11(DbSearchMethods):
             .rename(columns={'-10LgP': 'Confidence', 'z': 'Charge'})
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
@@ -304,7 +304,7 @@ class PeaksDbSearchPsm11(DbSearchMethods):
         
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
-            df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
+            df['Accession'] = df.loc[:, 'Accession'].str.replace(
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset
@@ -468,13 +468,13 @@ class PeaksDbSearchPsm10(DbSearchMethods):
             .rename(columns={'-10lgP': 'Confidence', 'Z': 'Charge'})
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # scan column includes fraction if multiple present, need to be removed
         df['Scan'] = fraction_col_to_numeric(df, 'Scan')
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
@@ -484,7 +484,7 @@ class PeaksDbSearchPsm10(DbSearchMethods):
         
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
-            df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
+            df['Accession'] = df.loc[:, 'Accession'].str.replace(
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset
@@ -637,12 +637,13 @@ class PeaksDeNovo13(DeNovoMethods):
             .rename(columns={'ALC (%)': 'Confidence', 'z': 'Charge'})
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
-        if df.loc[:, 'Source File'].iat[0] == None:
+        source_first_val = df.loc[:, 'Source File'].iat[0]
+        if source_first_val != source_first_val or source_first_val == None:
             raise ValueError("Cannot process de novo dataset; no source file name reported.")
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
@@ -786,10 +787,10 @@ class PeaksDeNovo11(DeNovoMethods):
             .rename(columns={'ALC (%)': 'Confidence', 'z': 'Charge'})
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
@@ -973,10 +974,10 @@ class PeaksDeNovo10(DeNovoMethods):
         df['Scan'] = fraction_col_to_numeric(df, 'Scan')
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         
