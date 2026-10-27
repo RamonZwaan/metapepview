@@ -113,21 +113,21 @@ class DataIO(Protocol):
     
 
     @classmethod
-    def _read_csv(cls: Type[T], path: str | Path, delim: str | None=None) -> T:
+    def _read_csv(cls: Type[T], path: str | Path, delim: str=",") -> T:
         """Read csv file and return data as instance of class object.
 
         Args:
             cls (Type[T]): Class type
             path (str | Path): Location of csv file
-            delim (str | None, Optional): Custom delimiter for import of tsv
+            delim (str, Optional): Custom delimiter for import of tsv
                 or other types of table files. If not specified, then regular
-                csv delimiter used Defaults to None
+                csv delimiter used. Defaults to ","
 
         Returns:
             T: Instance of class object
         """
         file_name = Path(path).stem
-        df = pd.read_csv(path, delimiter=delim, low_memory=False)
+        df = pd.read_csv(path, delimiter=delim)
         
         cls_obj = cls(df, file_name) # type: ignore
 
@@ -138,7 +138,7 @@ class DataIO(Protocol):
     def _read_csv_buffer(cls: Type[T],
                          file_buffer: str | IO[str],
                          file_name: str | None = None,
-                         delim: str | None = None) -> T:
+                         delim: str = ",") -> T:
         """Read csv file buffer and return data instance of class object.
         Use this when data is imported into memory as str string buffer.
         
@@ -149,11 +149,11 @@ class DataIO(Protocol):
         Args:
             cls (Type[T]): Class type
             file_buffer (str | IO[str]): csv file data or buffer
-            file_name (str | None, optional): Name of csv file. 
+            file_name (str, optional): Name of csv file. 
                 Defaults to None.
             delim (str | None, Optional): Custom delimiter for import of tsv
                 or other types of table files. If not specified, then regular
-                csv delimiter used Defaults to None
+                csv delimiter used. Defaults to ","
 
         Returns:
             T: Instance of class object
@@ -161,16 +161,15 @@ class DataIO(Protocol):
         # if data has been decoded, directly return csv DataFrame
         if isinstance(file_buffer, io.TextIOBase):
             try:
-                df = pd.read_csv(file_buffer, delimiter=delim, low_memory=False)
+                df = pd.read_csv(file_buffer, delimiter=delim)
             except:
-                raise ValueError("Failed to read dataset. Ensure that the correct format was selected and that the file contents are untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
+                raise ValueError("Failed to read dataset into dataframe. Ensure that the correct format was selected and that the file contents are untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         elif isinstance(file_buffer, str):
             try:
                 df = pd.read_csv(upload_to_stringio(file_buffer), 
-                                delimiter=delim,
-                                low_memory=False)
+                                delimiter=delim)
             except:
-                raise ValueError("Failed to read dataset. Ensure that the correct format was selected and that the file contents are untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
+                raise ValueError("Failed to read dataset into dataframe. Ensure that the correct format was selected and that the file contents are untampered. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
         else:
             raise TypeError("invalid content type supplied. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
         

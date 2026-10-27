@@ -218,8 +218,7 @@ class CasanovoDeNovo(DeNovoMethods):
         
         df = pd.read_csv(file_buffer, 
                          delimiter="\t",
-                         skiprows=metadata_rows,
-                         low_memory=False).iloc[:, 1:]
+                         skiprows=metadata_rows).iloc[:, 1:]
     
         cls_obj = cls(df, file_name, source_files) # type: ignore
         return cls_obj
