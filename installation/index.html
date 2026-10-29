@@ -325,6 +325,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#installation-inside-a-conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation inside a conda environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run-meta-pepview-inside-a-docker-container" class="md-nav__link">
     <span class="md-ellipsis">
       Run meta-PepView inside a Docker container
@@ -926,6 +935,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#installation-inside-a-conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation inside a conda environment
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run-meta-pepview-inside-a-docker-container" class="md-nav__link">
     <span class="md-ellipsis">
       Run meta-PepView inside a Docker container
@@ -954,7 +972,7 @@
 <p>Meta-PepView runs on top of the <a href="https://dash.plotly.com/">Dash</a> framework in python. It is installed as a web server that is run locally on the PC and accessed inside the web browser. Before installation, check with the <a href="../#pc-requirements">PC requirements</a> if the system is suitable for running the dashboard tool.</p>
 <p>Meta-PepView can be installed from <code>pip</code>/<code>pipx</code> or by starting a <a href="https://www.docker.com/">Docker</a> container. </p>
 <h3 id="install-meta-pepview-with-pipx-or-pip">Install meta-PepView with <code>pipx</code> (or <code>pip</code>)</h3>
-<p>The full meta-PepView application (including the <a href="../build-reference-dataset/"><em>mpv-buildref</em></a> command line utility) can be installed on any PC system with <code>pip</code>. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of <a href="../build-reference-dataset/">experimental reference datasets</a>. </p>
+<p>The full meta-PepView application (including the <a href="../build-reference-dataset/"><em>mpv-buildref</em></a> command line utility) can be installed on any PC system with <code>pip</code>. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of <a href="../build-reference-dataset/">experimental reference datasets</a>. Currently, meta-PepView supports installation in python 3.11 to 3.15.</p>
 <p>It is recommended to install meta-PepView with <a href="https://pipx.pypa.io/stable/">pipx</a>. It works similar to <code>pip</code>, but is designed for installation of applications as opposed to libraries. When installing a package, <code>pipx</code> provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line. When using <code>pip</code>, it is recommended to install meta-PepView in a separate environment (<a href="https://docs.python.org/3/library/venv.html">virtual environment</a> or <a href="https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html">conda</a>)</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -962,11 +980,15 @@
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Scientific libraries such as NumPy and SciPy may not be supported right away for the newest Python versions. Or if they do, they may not provide <a href="https://packaging.python.org/en/latest/specifications/binary-distribution-format/">wheels</a> for these configurations yet. In that case, C/C++ build tools have to be installed to be able to build the libraries. If pip/conda fails to install meta-PepView, try to install it in an older python version (e.g. 3.13 instead of 3.14).</p>
+<p>Scientific libraries such as NumPy, SciPy and Pandas may not be supported right away for the newest Python versions. Or if they do, they may not provide <a href="https://packaging.python.org/en/latest/specifications/binary-distribution-format/">wheels</a> for these configurations. In that case, C/C++ build tools have to be installed to be able to build the libraries. If pip/conda fails to install meta-PepView, try to install it in an older python version (e.g. 3.14 instead of 3.15).</p>
 </div>
 <h4 id="installation-with-pipx">Installation with <code>pipx</code></h4>
-<p>First, make sure <a href="https://www.python.org/">python</a> (3.11 or higher) is installed.
+<p>First, make sure <a href="https://www.python.org/">python</a> (3.11-3.15) is installed.
 Once python is installed, install <a href="https://pipx.pypa.io/stable/installation/">pipx</a> on the command line/terminal.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If multiple python interpreters are installed on the system, you can specify the interpreter to install the program on using the <code>--python</code> option: <code>pipx install --python 3.13 ...</code></p>
+</div>
 <p>In Windows 10/11, <code>pipx</code> can be installed via <code>pip</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="c"># If you installed python using Microsoft Store, replace `py` with `python3` in the next line.</span>
 <span class="n">py</span> <span class="n">-m</span> <span class="n">pip</span> <span class="n">install</span> <span class="p">-</span><span class="n">-user</span> <span class="n">pipx</span>
@@ -993,7 +1015,7 @@ pipx<span class="w"> </span>ensurepath
 <div class="highlight"><pre><span></span><code>pipx<span class="w"> </span>uninstall<span class="w"> </span>metapepview
 </code></pre></div>
 <h4 id="installation-with-pip">Installation with <code>pip</code></h4>
-<p>When python (3.11 or higher) is installed, meta-PepView may be installed directly with <code>pip</code>. Installation via <code>pip</code>
+<p>When python (3.11-3.15) is installed, meta-PepView may be installed directly with <code>pip</code>. Installation via <code>pip</code>
 will add meta-PepView as package to the global python environment and it is not certain
 that the application executables are exposed on the command line. To provide some isolation, it 
 is recommended to install meta-PepView in a <a href="https://docs.python.org/3/library/venv.html">virtual environment</a>
@@ -1007,6 +1029,17 @@ or in a <a href="https://docs.conda.io/en/latest/">conda environment</a>.</p>
 <p>To uninstall metapepview:
 <div class="highlight"><pre><span></span><code>pip<span class="w"> </span>uninstall<span class="w"> </span>metapepview
 </code></pre></div></p>
+<h3 id="installation-inside-a-conda-environment">Installation inside a conda environment</h3>
+<p>The conda environment manager is an excellent tool to manage and isolate python programs. In case you want to manage projects using conda, it is recommended to install <a href="https://www.anaconda.com/docs/getting-started/concepts/anaconda-or-miniconda">miniconda</a>. This distribution provides a more minimal toolchain compared to the large Anaconda program. After installation, conda is often not yet exposed to the command line. The installer will inform you of this and provide steps to take. Usually, the following command should be executed:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>conda<span class="w"> </span>init
+</code></pre></div>
+<p>Close and reopen your terminal to activate the changes. You will see the current conda environment (usually "base") displayed on the command line. Once installed and setup, you may create new a environment using the following command:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>environment_name<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.15
+</code></pre></div>
+<p>Note that it is essential to specify <code>python</code> in the command. Without it, conda will not install Python inside the environment. To ensure that the environment is suitable for installation of meta-PepView, it is strongly recommended to set the Python version between 3.11-3.15. Once the environment is created, it can be accessed by activating it:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>conda<span class="w"> </span>activate<span class="w"> </span>environment_name
+</code></pre></div>
+<p>The environment name should now be displayed on the command line. From here, you can simply install meta-PepView <a href="./#installation-with-pip">with pip</a>. Note that meta-PepView tools can only be run when the conda environment is activated.</p>
 <h3 id="run-meta-pepview-inside-a-docker-container">Run meta-PepView inside a Docker container</h3>
 <p>To run the dashboard inside a container, make sure Docker (or another OCI compliant manager) is installed on the system.</p>
 <p>First, build a <a href="https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/">Docker image</a> using the Dockerfile template from the meta-PepView GitHub:</p>
