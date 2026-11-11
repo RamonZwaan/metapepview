@@ -147,7 +147,7 @@ class AccessionTaxaMap:
 
 
     @staticmethod
-    def validate_input(str_file_obj: IO[str],
+    def validate_input(str_file_obj: IO[str] | Path,
                        acc_col=0,
                        tax_col=1,
                        delimiter=", ",

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import List, Protocol, Self, Sequence, Any, Type, TypeVar, Dict, ClassVar, IO, Tuple
 import numpy as np
 import pandas as pd

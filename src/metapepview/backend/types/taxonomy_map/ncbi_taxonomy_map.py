@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import IO, Tuple, Self
 import pandas as pd
 
@@ -229,7 +230,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         
     
     @staticmethod
-    def validate_input(str_file_obj: IO[str],
+    def validate_input(str_file_obj: IO[str] | Path,
                        acc_col: int=0,
                        tax_col: int=1,
                        delimiter: str=", ",
