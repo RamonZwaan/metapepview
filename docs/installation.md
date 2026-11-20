@@ -6,7 +6,7 @@ Meta-PepView can be installed from `pip`/`pipx` or by starting a [Docker](https:
 
 ### Install meta-PepView with `pipx` (or `pip`)
 
-The full meta-PepView application (including the [[build-reference-dataset|*mpv-buildref*]] command line utility) can be installed on any PC system with `pip`. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of [[build-reference-dataset|experimental reference datasets]]. 
+The full meta-PepView application (including the [[build-reference-dataset|*mpv-buildref*]] command line utility) can be installed on any PC system with `pip`. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of [[build-reference-dataset|experimental reference datasets]]. Currently, meta-PepView supports installation in python 3.11 to 3.15.
 
 It is recommended to install meta-PepView with [pipx](https://pipx.pypa.io/stable/). It works similar to `pip`, but is designed for installation of applications as opposed to libraries. When installing a package, `pipx` provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line. When using `pip`, it is recommended to install meta-PepView in a separate environment ([virtual environment](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html))
 
@@ -14,12 +14,15 @@ It is recommended to install meta-PepView with [pipx](https://pipx.pypa.io/stabl
     In the instructions below, meta-PepView is installed by pip(x) by fetching the code from the GitHub repository. For this, git needs to be [installed on the PC](https://git-scm.com/install/linux).
 
 !!! warning
-    Scientific libraries such as NumPy and SciPy may not be supported right away for the newest Python versions. Or if they do, they may not provide [wheels](https://packaging.python.org/en/latest/specifications/binary-distribution-format/) for these configurations yet. In that case, C/C++ build tools have to be installed to be able to build the libraries. If pip/conda fails to install meta-PepView, try to install it in an older python version (e.g. 3.13 instead of 3.14).
+    Scientific libraries such as NumPy, SciPy and Pandas may not be supported right away for the newest Python versions. Or if they do, they may not provide [wheels](https://packaging.python.org/en/latest/specifications/binary-distribution-format/) for these configurations. In that case, C/C++ build tools have to be installed to be able to build the libraries. If pip/conda fails to install meta-PepView, try to install it in an older python version (e.g. 3.14 instead of 3.15).
 
 #### Installation with `pipx`
 
-First, make sure [python](https://www.python.org/) (3.11 or higher) is installed.
+First, make sure [python](https://www.python.org/) (3.11-3.15) is installed.
 Once python is installed, install [pipx](https://pipx.pypa.io/stable/installation/) on the command line/terminal.
+
+!!! note
+    If multiple python interpreters are installed on the system, you can specify the interpreter to install the program on using the `--python` option: `pipx install --python 3.13 ...`
 
 In Windows 10/11, `pipx` can be installed via `pip`:
 
@@ -65,7 +68,7 @@ pipx uninstall metapepview
 
 #### Installation with `pip`
 
-When python (3.11 or higher) is installed, meta-PepView may be installed directly with `pip`. Installation via `pip`
+When python (3.11-3.15) is installed, meta-PepView may be installed directly with `pip`. Installation via `pip`
 will add meta-PepView as package to the global python environment and it is not certain
 that the application executables are exposed on the command line. To provide some isolation, it 
 is recommended to install meta-PepView in a [virtual environment](https://docs.python.org/3/library/venv.html)
@@ -85,6 +88,29 @@ To uninstall metapepview:
 ```Bash
 pip uninstall metapepview
 ```
+
+### Installation inside a conda environment
+
+The conda environment manager is an excellent tool to manage and isolate python programs. In case you want to manage projects using conda, it is recommended to install [miniconda](https://www.anaconda.com/docs/getting-started/concepts/anaconda-or-miniconda). This distribution provides a more minimal toolchain compared to the large Anaconda program. After installation, conda is often not yet exposed to the command line. The installer will inform you of this and provide steps to take. Usually, the following command should be executed:
+
+```Bash
+$ conda init
+```
+
+Close and reopen your terminal to activate the changes. You will see the current conda environment (usually "base") displayed on the command line. Once installed and setup, you may create new a environment using the following command:
+
+```Bash
+$ conda create -n environment_name python=3.15
+```
+
+Note that it is essential to specify `python` in the command. Without it, conda will not install Python inside the environment. To ensure that the environment is suitable for installation of meta-PepView, it is strongly recommended to set the Python version between 3.11-3.15. Once the environment is created, it can be accessed by activating it:
+
+```Bash
+$ conda activate environment_name
+```
+
+The environment name should now be displayed on the command line. From here, you can simply install meta-PepView [[installation#Installation with `pip`|with pip]]. Note that meta-PepView tools can only be run when the conda environment is activated.
+
 
 ### Run meta-PepView inside a Docker container
 
