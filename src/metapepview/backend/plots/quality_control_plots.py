@@ -40,7 +40,7 @@ def tic_over_rt_plot(mzml_df: pd.DataFrame,
     # Compute moving average of intensity over rt
     spectral_dataset = mzml_df[mzml_df['MS level'] == ms_level].copy()
     # spectral_dataset = spectral_dataset[['scan number', 'total ion current', 'retention time', 'peaks count']]
-    spectral_dataset.loc[:, 'total ion current SMA'] = spectral_dataset['total ion current']\
+    spectral_dataset['total ion current SMA'] = spectral_dataset['total ion current']\
         .rolling(sma_window, closed='both')\
         .mean()
     
@@ -641,7 +641,7 @@ def charge_dist_plot(features: pd.DataFrame,
     
     if db_search is not None:
         # initialize db search identification column as false
-        dataset.loc[:, 'db search identified'] = False
+        dataset['db search identified'] = False
 
         db_search_peptides = metapep_table_to_peptides(db_search)
         db_search_mz_array = db_search_peptides['m/z'].to_numpy()
@@ -664,11 +664,11 @@ def charge_dist_plot(features: pd.DataFrame,
         # set all identified indices as true
         dataset.loc[dataset.index[feature_match_idx], 'db search identified'] = True
     else:
-        dataset.loc[:, 'db search identified'] = np.nan
+        dataset['db search identified'] = np.nan
     
     if de_novo is not None:
         # initialize db search identification column as false
-        dataset.loc[:, 'de novo identified'] = False
+        dataset['de novo identified'] = False
 
         de_novo_peptides = metapep_table_to_peptides(de_novo)
         de_novo_peptides = de_novo_peptides[de_novo_peptides["Confidence"] > de_novo_conf_cutoff]
@@ -692,10 +692,11 @@ def charge_dist_plot(features: pd.DataFrame,
 
         # set all identified indices as true
         de_novo_conf_format = de_novo.confidence_format
-        dataset.loc[dataset.index[feature_match_idx], 'de novo identified'] = True
+        if len(feature_match_idx) > 0:
+            dataset.loc[dataset.index[feature_match_idx], 'de novo identified'] = True
     else:
         de_novo_conf_format = None
-        dataset.loc[:, 'de novo identified'] = np.nan
+        dataset['de novo identified'] = np.nan
     
     # categorize scans by db search, de novo or no identification
     def partition_ident(row):
@@ -705,7 +706,7 @@ def charge_dist_plot(features: pd.DataFrame,
             return "de novo only (> {} {})".format(de_novo_conf_cutoff, de_novo_conf_format)
         else:
             return "unidentified"
-    dataset.loc[:, 'identification'] = dataset.apply(partition_ident, axis=1)
+    dataset['identification'] = dataset.apply(partition_ident, axis=1)
 
     
     if db_search is not None or de_novo is not None:

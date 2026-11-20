@@ -232,16 +232,16 @@ class FragPipeDbSearch(DbSearchMethods):
         df = df[(df["Is Decoy"] == False) & (df["Is Contaminant"] == False)]
         
         # Retention time from seconds to minutes
-        df.loc[:, "RT"] = df.loc[:, "RT"] / 60
+        df["RT"] = df.loc[:, "RT"] / 60
 
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
 
         # source file name is first element in Spectrum column id
         df['Source File'] = df.loc[:, 'Spectrum'].str.extract(r"([^\.]+)", 
                                                            expand=False)
 
-        df.loc[:, "ppm"] = df[['Calculated M/Z', 'm/z']].apply(
+        df["ppm"] = df[['Calculated M/Z', 'm/z']].apply(
             lambda x: mz_diff_to_ppm(x['Calculated M/Z'],
                                      x['m/z']),
             axis=1
@@ -258,7 +258,7 @@ class FragPipeDbSearch(DbSearchMethods):
 
         # replace accession delimiter to metapep format
         if self.ACCESSION_DELIMITER != MetaPepDbSearch.ACCESSION_DELIMITER:
-            df.loc[:, 'Accession'] = df.loc[:, 'Accession'].str.replace(
+            df['Accession'] = df.loc[:, 'Accession'].str.replace(
                 self.ACCESSION_DELIMITER, MetaPepDbSearch.ACCESSION_DELIMITER)
         
         # fetch all spectral file names present in dataset

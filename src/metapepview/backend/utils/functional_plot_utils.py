@@ -19,7 +19,11 @@ def calculate_frac_abundance(peptide_df: pd.DataFrame,
     """
     for sample in peptide_df["Sample Name"].unique():
         sample_idx = peptide_df[peptide_df["Sample Name"] == sample].index.to_list()
-        peptide_df.loc[sample_idx, abundance_col] /= peptide_df.loc[sample_idx, abundance_col].sum() # type:ignore
+
+        # explicitly cast abundance col to float before dividing by sum
+        new_col = peptide_df[abundance_col].astype(float).copy()
+        new_col.loc[sample_idx] /= new_col.loc[sample_idx].sum()
+        peptide_df[abundance_col] = new_col
 
     return peptide_df
 
@@ -90,7 +94,7 @@ def process_kegg_groups(
         # set empty taxonomy values to undefined
         if peptide_df["Taxonomy Name"].dtype != "object":
             peptide_df["Taxonomy Name"] = peptide_df["Taxonomy Name"].astype("object")
-        peptide_df.loc[:, "Taxonomy Name"] = peptide_df["Taxonomy Name"].fillna("Undefined")
+        peptide_df["Taxonomy Name"] = peptide_df["Taxonomy Name"].fillna("Undefined")
     else:
         cols_filter_df = [ycol, "Sample Name", "KEGG_ko"]                             # use to filter unrelevant columns
         cols_group_peptides = ["Peptide Index", ycol, "Sample Name"]                  # use to merge protein names by peptide sequence
@@ -100,7 +104,7 @@ def process_kegg_groups(
     peptide_df = peptide_df[cols_filter_df]
     
     # split cells with multiple kegg annotations into separate rows
-    peptide_df.loc[:, "KEGG_ko"] = peptide_df["KEGG_ko"].str.split(",") 
+    peptide_df["KEGG_ko"] = peptide_df["KEGG_ko"].str.split(",")
 
     # ensure unique index prior to explode, so that duplicate id's correspond to same original row
     peptide_df = peptide_df.reset_index(drop=True) 

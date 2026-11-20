@@ -70,7 +70,7 @@ def show_samples_data(peptide_json_loaded):
             return trunc
         if sample_df[col].dtype != "object":
             sample_df[col] = sample_df[col].astype("object")
-        sample_df.loc[:, col] = sample_df[col].apply(text_processing)
+        sample_df[col] = sample_df[col].apply(text_processing)
 
     return (sample_df.to_dict('records'),
             [{'id': c, 'name': c} for c in table_cols],

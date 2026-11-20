@@ -48,7 +48,7 @@ def global_taxonomic_annotation(pept_df: pd.DataFrame,
        
     lin_cols = GlobalConstants.metapep_table_global_taxonomy_lineage 
     lin_counts = lca_lin_df[lin_cols].apply(values_to_counts, axis=0)
-    lca_lin_df.loc[:, lin_cols] = lca_lin_df[lin_cols].where(
+    lca_lin_df[lin_cols] = lca_lin_df[lin_cols].where(
         lin_counts >= GlobalConstants.global_annot_min_pept_tax)
     
     # join global search data to peptide dataframe and return

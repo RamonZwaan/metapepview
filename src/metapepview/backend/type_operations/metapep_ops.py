@@ -242,9 +242,13 @@ def metapep_db_search_accession_regex(
         
         valid_acc = ~peptides[acc_column].isna()
         # split accessions per row, apply regex to each element, and join again.
-        peptides.loc[valid_acc, acc_column] = peptides.loc[valid_acc, acc_column].str.split(acc_delim)\
+        regex_processed = (
+            peptides.loc[valid_acc, acc_column]
+            .str.split(acc_delim)\
             .apply(re_find_list, pattern = acc_regex)\
             .apply(lambda x: acc_delim.join(x))
+        )
+        peptides[acc_column] = peptides[acc_column].mask(valid_acc, regex_processed)
         
         metapep_db_search.data = peptides
     
@@ -285,7 +289,7 @@ def rt_from_spectral_data(metapep_table: T,
     # map scan number to retention time in mzml file
     scan_to_rt = spectral_df.set_index("scan number")["retention time"].to_dict()
 
-    df.loc[:, "RT"] = df["Scan"].apply(lambda x: scan_to_rt.get(x, np.nan))
+    df["RT"] = df["Scan"].apply(lambda x: scan_to_rt.get(x, np.nan))
 
     metapep_table.data = df
 

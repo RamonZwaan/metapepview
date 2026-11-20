@@ -294,11 +294,11 @@ class NovorDeNovo(DeNovoMethods):
                              'pepMass(denovo)': 'Mass'})
         
         # Wrangle sequence into consistent format (remove PTM, equalte L, I)
-        df.loc[:, 'Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
-        df.loc[:, 'Length'] = df.loc[:, 'Sequence'].apply(len)
+        df['Sequence'] = df.loc[:, 'Peptide'].apply(wrangle_peptides)
+        df['Length'] = df.loc[:, 'Sequence'].apply(len)
         
         # remove file type suffix from Source File column
-        df.loc[:, 'Source File'] = df.loc[:, 'Source File'].apply(
+        df['Source File'] = df.loc[:, 'Source File'].apply(
             lambda x: Path(x).stem
         )
         

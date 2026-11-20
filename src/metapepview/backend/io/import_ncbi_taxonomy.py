@@ -61,7 +61,7 @@ def download_ncbi_taxonomy(
     # if directory does not exist, create it
     if not (dir_loc.exists() and dir_loc.is_dir()):
         if create_parent_dirs is False:
-            msg = "Specified Path does not exist. To create path, select 'Create parent dir'."
+            msg = "Specified Path does not exist. To create path, select 'Create parent dir'"
             return (False, msg)
         print("Store NCBI taxonomy datasets in new directory: " + 
               dir_loc.resolve().as_posix())
@@ -71,7 +71,7 @@ def download_ncbi_taxonomy(
     ncbi_exist = check_ncbi_taxonomy_present(dir_loc)[1]
     
     if ncbi_exist is True and overwrite is False:
-        msg = "(part of) NCBI Taxonomy dataset exists in dir location, select 'Overwrite' to continue"
+        msg = "(part of) NCBI Taxonomy dataset exists in dir location, select 'Overwrite' remove existing data when updating"
         return (False, msg)
     
     # configure ftp connection
@@ -85,7 +85,7 @@ def download_ncbi_taxonomy(
         ftp.login()
         ftp.cwd(path)
     except:
-        msg = "Failed to connect to server..."
+        msg = "Failed to connect to NCBI source URL. This is likely a NCBI server error. Check if source URL points to correct location."
         return (False, msg)
     
     # if extract_contents is False:
@@ -103,7 +103,7 @@ def download_ncbi_taxonomy(
         try:
             ftp.retrbinary("RETR {}".format(archive_name), local_archive.write)
         except:
-            msg = "Failed to fetch remote data..."
+            msg = "Failed to fetch data from NCBI source URL. This is likely a NCBI server error. Check if source URL points to correct file."
             return (False, msg)
         
         # after writing archive into object, set position to zero
@@ -115,7 +115,7 @@ def download_ncbi_taxonomy(
         elif Path(archive_name).suffix == ".zip":
             archive_obj = ZipFile(local_archive)
         else:
-            msg = "Failed to extract data. Select tar or zip archive of database."
+            msg = "Failed to extract NCBI taxonomy data. Check if source URL points to correct file. The archive should contain nodes.dmp, names.dmp, and taxidlineage.dmp. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
             return (False, msg)
         
         # extract only required files, remove existing files first'
@@ -126,7 +126,7 @@ def download_ncbi_taxonomy(
                 try:
                     archive_obj.extract(file_name, dir_loc.resolve().as_posix())
                 except:
-                    msg = "Failed to locate NCBI Taxonomy files in archive"
+                    msg = "Failed to extract NCBI Taxonomy files in archive. Check if source URL points to correct file. The archive should contain nodes.dmp, names.dmp, and taxidlineage.dmp. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                     return (False, msg)
         # compress files back into archive for smaller storage
         else:
@@ -136,7 +136,7 @@ def download_ncbi_taxonomy(
             if archive_loc.exists() and overwrite is True:
                 Path(dir_loc, archive_loc).unlink(True)
             elif archive_loc.exists():
-                raise FileExistsError(f"Archive '{archive_loc}' exists already...")
+                raise FileExistsError(f"NCBI dataset exists already. To replace existing data, select 'Overwrite'")
             
             try:
                 with ZipFile(archive_loc, 'w') as out_archive:
@@ -155,7 +155,7 @@ def download_ncbi_taxonomy(
                                              compress_type=zipfile.ZIP_DEFLATED, 
                                              compresslevel=6)
             except:
-                msg = "Failed to locate NCBI Taxonomy files in archive"
+                msg = "Failed to extract NCBI Taxonomy files in archive. Check if source URL points to correct file. The archive should contain nodes.dmp, names.dmp, and taxidlineage.dmp. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                 # delete archive if write failed
                 archive_loc.unlink(True)
                 return (False, msg)

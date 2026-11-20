@@ -69,19 +69,19 @@ class AccessionTaxaMapGtdb(AccessionTaxaMap):
         
         # if accessions are peptides, wrangle sequences into consistent format
         if wrangle_peptide_accessions is True:
-            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+            prot_df["accession"] = prot_df["accession"].apply(wrangle_peptides)
         
         
         # if genome id's given, convert to species id
         if tax_name_to_id is False and taxonomy_obj is not None:
-            prot_df.loc[:, "taxonomy_id"] = prot_df["taxonomy_id"].apply(
+            prot_df["taxonomy_id"] = prot_df["taxonomy_id"].apply(
                 lambda x:taxonomy_obj.genome_id_to_species_id(x) if\
                     taxonomy_obj.genome_id_in_dataset(x) else x)
         
         # if tax names in column, convert to id
         if tax_name_to_id is True and taxonomy_obj is not None:
             print("Taxonomy name to id conversion\n\nFailed conversions:")  
-            prot_df.loc[:, "taxonomy_id"] = prot_df["taxonomy_id"]\
+            prot_df["taxonomy_id"] = prot_df["taxonomy_id"]\
                 .apply(taxonomy_obj.name_to_id, print_fails=True)
         elif tax_name_to_id is True:
             raise ValueError("Taxonomy database required for name to id conversion...")
@@ -89,9 +89,9 @@ class AccessionTaxaMapGtdb(AccessionTaxaMap):
         # If regex provided, extract substring from each query using regex
         # if match, get first occurence of match
         if acc_regex != "" and acc_regex is not None:
-            prot_df.loc[:, 'accession'] = regex_over_column(prot_df['accession'],
-                                                            acc_regex,
-                                                            no_match_to_nan=False)
+            prot_df['accession'] = regex_over_column(prot_df['accession'],
+                                                     acc_regex,
+                                                     no_match_to_nan=False)
         
         # manage duplicate protein names if present in dataset
         if not (prot_df['accession'].duplicated() == False).all():

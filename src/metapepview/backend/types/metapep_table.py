@@ -289,7 +289,7 @@ class MetaPepTable(DataValidator):
         # Extract the DataFrame and custom variables
         csv_str = decompress_string(json_dict['dataframe'])
         try:
-            df = pd.read_csv(io.StringIO(csv_str), index_col=0, low_memory=False)
+            df = pd.read_csv(io.StringIO(csv_str), index_col=0)
         except Exception as err:
             return (False,
                     "Failed to read dataset as DataFrame.")
@@ -313,7 +313,7 @@ class MetaPepTable(DataValidator):
 
         # Extract the DataFrame and custom variables
         csv_str = decompress_string(json_dict['dataframe'])
-        df = pd.read_csv(io.StringIO(csv_str), index_col=0, low_memory=False)
+        df = pd.read_csv(io.StringIO(csv_str), index_col=0)
         df = convert_deprecated_metapeptable_naming(df)
         
         taxonomy_db_format = json_dict['metadata']['Taxonomy DB Format']

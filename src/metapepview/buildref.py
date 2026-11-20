@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 import sys
+from packaging.version import Version
 from pathlib import Path
 import argparse
 from textwrap import dedent
@@ -13,7 +14,8 @@ from metapepview.backend.spectral_ref_builder import build_ref_data
 
 def main():
     # set downcasting behavior to manage FutureWarning in `replace` function
-    pd.set_option('future.no_silent_downcasting', True)
+    if Version(pd.__version__) < Version("3.0.0"):
+        pd.set_option('future.no_silent_downcasting', True)
 
     # set CLI arguments
     parser = argparse.ArgumentParser(
@@ -38,7 +40,7 @@ def main():
                         required=True,
                         choices=['peaks10', 
                                  'peaks11', 
-                                 'peaks13', 
+                                 'peaks13',
                                  'maxquant',
                                  'fragpipe', 
                                  'sage']

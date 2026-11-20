@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import IO, Tuple, Self
 import pandas as pd
 
@@ -68,7 +69,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
                               engine="python")
         
         if wrangle_peptide_accessions is True:
-            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+            prot_df["accession"] = prot_df["accession"].apply(wrangle_peptides)
 
         
         return cls.__from_dataframe(
@@ -137,7 +138,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         
         # if accessions are peptides, wrangle sequences into consistent format
         if wrangle_peptide_accessions is True:
-            prot_df.loc[:, "accession"] = prot_df["accession"].apply(wrangle_peptides)
+            prot_df["accession"] = prot_df["accession"].apply(wrangle_peptides)
         
         prot_df["taxonomy_id"] = prot_df["taxonomy_id"].apply(
             genome_to_ncbi_map.genome_to_ncbi
@@ -197,9 +198,9 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         # If regex provided, extract substring from each query using regex
         # if match, get first occurence of match
         if acc_regex != "" and acc_regex is not None:
-            prot_df.loc[:, 'accession'] = regex_over_column(prot_df['accession'],
-                                                            acc_regex,
-                                                            no_match_to_nan=False)
+            prot_df['accession'] = regex_over_column(prot_df['accession'],
+                                                     acc_regex,
+                                                     no_match_to_nan=False)
 
         # manage duplicate protein names if present in dataset
         if not (prot_df['accession'].duplicated() == False).all():
@@ -229,7 +230,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         
     
     @staticmethod
-    def validate_input(str_file_obj: IO[str],
+    def validate_input(str_file_obj: IO[str] | Path,
                        acc_col: int=0,
                        tax_col: int=1,
                        delimiter: str=", ",
@@ -238,7 +239,7 @@ class AccessionTaxaMapNcbi(AccessionTaxaMap):
         # check correct format for ncbi taxonomy
         def check_numeric(prot_df: pd.DataFrame) -> Tuple[bool, str | None]:
             if not pd.api.types.is_numeric_dtype(prot_df.iloc[:, tax_col]):
-                err_msg = "Invalid taxonomy format, expects ncbi id's (numeric)"
+                err_msg = "Invalid taxonomy format, expects ncbi id's (numeric). Check that the correct delimiter and taxonomy column index has been selected. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                 return (False, err_msg)
             else:
                 return (True, None)

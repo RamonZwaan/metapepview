@@ -93,7 +93,15 @@ def annotation_mini_importer_block(
         ChunkUpload(
             multiple=allow_multiple,
             id=upload_id,
-            file_infos = []
+            file_infos = [],
+            style={
+                "border": "1px dashed #000000",
+                "borderRadius": "5px",
+                "padding": "5px",
+                "textAlign": "center",
+                "cursor": "pointer",
+                "transition": "all 0.2s ease",
+            }
             # className="my-2 mx-1",
         ),
         dcc.Store(id=valid_state_id, data=None)
@@ -284,8 +292,11 @@ def validate_multiple_files(contents: List[str],
         # allow import of single archive, extract all files
         archive_format = determine_archive_format(contents[0]["filename"])
         if len(contents) == 1 and archive_format is not None:
-            file_data, file_names = archive_to_file_list(Path(contents[0]["path"]),
-                                                         archive_format)
+            try:
+                file_data, file_names = archive_to_file_list(Path(contents[0]["path"]),
+                                                            archive_format)
+            except:
+                success, msg = False, "Invalid archive uploaded. Ensure that archive file only contains valid files for import and no internal directories. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
         else:
             file_data, file_names = [file["path"] for file in contents], [file["filename"] for file in contents]
 
@@ -303,7 +314,7 @@ def validate_multiple_files(contents: List[str],
                 current_name = file_names[idx]
                 current_archive_format = determine_archive_format(current_name)
                 if (archive_format is not None) and (current_archive_format is not None):
-                    success, msg = False, "Invalid archive. Meta-PepView supports import of one archive file (.tar.gz or .zip), which may contain multiple DB search files, or separate import of multiple DB search files. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
+                    success, msg = False, "Invalid archive. Upload data as one archive file (.tar.gz or .zip), which may contain multiple input files, or as multiple separate input files. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'"
                     break
 
                 success, msg = content_validator(file, current_archive_format)

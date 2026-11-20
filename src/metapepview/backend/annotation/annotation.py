@@ -195,9 +195,16 @@ def annotate_peptides(sample_name: str,
         
         de_novo_crap = crap_pept if options.de_novo_filter_crap is True else None
         try:
-            de_novo_dict = match_source_denovo(de_novo_list,
-                                               options.de_novo_format,
-                                               de_novo_crap)
+            if options.merge_psms is True:
+                de_novo_dict = match_source_denovo(de_novo_list,
+                                                options.de_novo_format,
+                                                sample_name,
+                                                de_novo_crap)
+            else:
+                de_novo_dict = match_source_denovo(de_novo_list,
+                                                   options.de_novo_format,
+                                                   None,
+                                                   de_novo_crap)
         except Exception as err:
             raise AnnotationError(f"Failed to import de novo data. Ensure that the correct format is selected. If the issue persists, please notify us on GitHub, see documentation: 'Troubleshooting'")
     else:
@@ -239,7 +246,7 @@ def annotate_peptides(sample_name: str,
                                                     taxonomy_db,
                                                     options)
             except AnnotationError as err:
-                raise AnnotationError(err)
+                raise err
             except Exception as err:
                 raise AnnotationError(f"Failed to annotate DB search data. This is an internal error. Please notify us on GitHub: see documentation: 'Troubleshooting'. Internal error: {err}")
         else:
@@ -267,7 +274,7 @@ def annotate_peptides(sample_name: str,
                                                                taxonomy_db,
                                                                options)
                 except AnnotationError as err:
-                    raise AnnotationError(err)
+                    raise err
                 except Exception as err:
                     raise AnnotationError(f"Failed to annotate DB search data. This is an internal error. Please notify us on GitHub: see documentation: 'Troubleshooting'. Internal error: {err}")
                 metapep_table_list.append(sample_metapep_table)
@@ -287,7 +294,7 @@ def annotate_peptides(sample_name: str,
                                                 taxonomy_db,
                                                 options)
         except AnnotationError as err:
-            raise AnnotationError(err)
+            raise err
         except Exception as err:
             raise AnnotationError(f"Failed to annotate de novo data. This is an internal error. Please notify us on GitHub: see documentation: 'Troubleshooting'. Internal error: {err}")
     else:
@@ -382,13 +389,13 @@ def functional_annotation(peptides: pd.DataFrame,
     # initialize_columns
     for column in function_db.df.columns:
         if (column not in peptides.columns) and (column in function_db.NUMERIC_FIELDS):
-            peptides.loc[:, column] = pd.Series(dtype="float64")
+            peptides[column] = pd.Series(dtype="float64")
         elif column not in peptides.columns:
-            peptides.loc[:, column] = pd.Series(dtype="object")
+            peptides[column] = pd.Series(dtype="object")
 
     for i, acc_list in enumerate(peptides["Accession"].str.split(acc_delim)):
         # some peptides in psm dataset may have no accession annotation, these cannot be functionally annotated
-        if acc_list is None:
+        if not isinstance(acc_list, list) and not isinstance(acc_list, str):
             continue
         
         func_data = accession_list_to_function(acc_list,
@@ -657,7 +664,7 @@ def merge_de_novo_db_search(db_search_peptides: pd.DataFrame,
     else:
         merge_df = pd.merge(db_search_peptides, de_novo_peptides, how="outer", on=["Sequence"])
         # if no db search, peptide field is empty, in that case, fill the values
-        merge_df.loc[:, "Peptide"] = merge_df["Peptide"].fillna(merge_df["De Novo Peptide"])
+        merge_df["Peptide"] = merge_df["Peptide"].fillna(merge_df["De Novo Peptide"])
     
     merge_df = merge_df.drop(columns='De Novo Peptide')
     return merge_df

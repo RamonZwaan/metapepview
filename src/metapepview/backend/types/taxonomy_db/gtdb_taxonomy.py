@@ -584,7 +584,7 @@ class GtdbTaxonomy(TaxonomyDatabase):
         lineage_df = cls.__import_lineage_data(taxonomy_df)
         
         # drop genbank/refseq prefixes
-        taxonomy_df.loc[:, 'genome'] = taxonomy_df['genome']\
+        taxonomy_df['genome'] = taxonomy_df['genome']\
             .str.removeprefix("GB_")\
             .str.removeprefix("RS_")
                 

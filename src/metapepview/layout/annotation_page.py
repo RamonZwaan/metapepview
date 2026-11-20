@@ -137,19 +137,35 @@ peptide_data_block = html.Div(
                         dbc.Button('Export project', 
                                    id='export_peptides_json', 
                                    className="px-3 me-2"),
-                        dcc.Upload(
-                            [
-                                dbc.Button('Import project', id='import_peptides',
-                                           outline=True,
-                                           color="primary",
-                                           className="px-3 me-1 my-0",
-                                           style={"height": "100%"}),
-                            ],
-                            className="p-0 my-0",
+                        ChunkUpload(
                             multiple=False,
                             id="peptides_obj_upload",
-                            style={"height": "100%"}
+                            file_infos=[],
+                            uploadText="Import project",
+                            appearance="bootstrap-primary-outline"
+                            # className="my-2 mx-1",
                         ),
+                        # dcc.Upload(
+                        #     [
+                        #         ChunkUpload(
+                        #             multiple=False,
+                        #             id="import_peptides",
+                        #             file_infos=[],
+                        #             uploadText="Import project",
+                        #             appearance="bootstrap-primary"
+                        #             # className="my-2 mx-1",
+                        #         )
+                        #         # dbc.Button('Import project', id='import_peptides',
+                        #         #            outline=True,
+                        #         #            color="primary",
+                        #         #            className="px-3 me-1 my-0",
+                        #         #            style={"height": "100%"}),
+                        #     ],
+                        #     className="p-0 my-0",
+                        #     multiple=False,
+                        #     id="peptides_obj_upload",
+                        #     style={"height": "100%"}
+                        # ),
                         dcc.Download(id="download_peptides_csv"),
                         dcc.Download(id="download_peptides_json"),
                     ],

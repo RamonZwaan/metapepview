@@ -280,19 +280,24 @@ def update_pathway_barplot(peptide_json_loaded,
     if filter_clade and clade_rank and clade_rank != 'Root':
         peptide_df = filter_taxonomy_clade(peptide_df, filter_clade, clade_rank, 'Name')
 
-    peptide_df = process_kegg_groups(
-        peptide_df=peptide_df,
-        kegg_db=kegg_db,
-        ycol=ycol,
-        include_taxa=include_taxa,
-        kegg_group_method=kegg_group_method,
-        kegg_group_format=kegg_format,
-        custom_prot=custom_prot,
-        predifined_pathway=predifined_pathway,
-        predifined_module=predifined_module,
-        predifined_brite_group=predifined_brite_group,
-        combine_annotations=combine_annotations
-    )
+    try:
+        peptide_df = process_kegg_groups(
+            peptide_df=peptide_df,
+            kegg_db=kegg_db,
+            ycol=ycol,
+            include_taxa=include_taxa,
+            kegg_group_method=kegg_group_method,
+            kegg_group_format=kegg_format,
+            custom_prot=custom_prot,
+            predifined_pathway=predifined_pathway,
+            predifined_module=predifined_module,
+            predifined_brite_group=predifined_brite_group,
+            combine_annotations=combine_annotations
+        )
+    except:
+        block_element = hidden_graph_with_text("pathway_barplot_figure",
+                                               "Failed to process functional profile, likely due to zero annotations. Check if functional annotations match with DB search datasets.")
+        return block_element, dict(), "Figure", None
 
     # keep only top n ko's based on largest contribution across samples
     func_abundances = peptide_df.groupby(by="Protein Name")[ycol].agg('sum')

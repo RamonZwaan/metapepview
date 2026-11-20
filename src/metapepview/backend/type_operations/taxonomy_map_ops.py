@@ -95,10 +95,8 @@ def validate_acc_tax_map(upload_contents: str | IO[str] | Path,
             delimiter,
             element_format=taxonomy_element_format)
     elif issubclass(tax_format, GhostkoalaMapper):
-        try:
-            tax_format.read_file_buffer(str_file_obj)
-            return True, None
-        except Exception as e:
-            return False, str(e)
+        tax_format.read_file_buffer(open(str_file_obj, "r"))
+        return True, None
+
     else:
         raise ValueError("Invalid taxonomy format. This is an internal dashboard error. Please notify us on GitHub, see documentation: 'Troubleshooting'")
