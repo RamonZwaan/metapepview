@@ -1,6 +1,7 @@
 # Installation
 
 Meta-PepView is a python-based dashboard built with [Dash](https://dash.plotly.com/). It runs locally on your PC and can be accessed through the web browser. Before installation, check with the [[index#PC requirements|PC requirements]] if the system is suitable for running the dashboard tool. The recommended system requirements are:
+
 - Operating system: meta-PepView was tested in Windows 11, Linux Ubuntu and Fedora. MacOS may work but is not actively supported.
 - Minimal 16 GB RAM, 32 GB recommended for larger datasets.
 - Minimal 10 GB free storage, additional space may be needed when working with large datasets.
@@ -11,7 +12,7 @@ Meta-PepView is a python-based dashboard built with [Dash](https://dash.plotly.c
 
 There are two ways to install meta-PepView: stand-alone installation using the pip package manager, or by creating a Docker container. 
 
-Installing with pip requires Python to be installed. Meta-PepView can be installed on Python versions 3.11-3.15. Go to the [python website](https://www.python.org/downloads/) to download the installer, or for Linux, install python from the internal package manager. Check that a supported python version is installed (3.11-3.15). On Windows, make sure to enable "Add Python to PATH" during installation. To verify that Python is installed, open a terminal (or Command Prompt on Windows) and run:
+Installing with `pip` requires Python to be installed. Meta-PepView can be installed on Python versions 3.11-3.15. Go to the [python website](https://www.python.org/downloads/) to download the installer, or for Linux, install python from the internal package manager. Check that a supported python version is installed (3.11-3.15). On Windows, make sure to enable "Add Python to PATH" during installation. To verify that Python is installed, open a terminal (or Command Prompt on Windows) and run:
 
 ```Bash
 python --version
@@ -47,7 +48,7 @@ If meta-PepView is installed using a Docker container, [Docker](https://www.dock
 
 The full meta-PepView application (including the [[build-reference-dataset|*mpv-buildref*]] command line utility) can be installed on any PC system with `pip`. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of [[build-reference-dataset|experimental reference datasets]].
 
-There are several ways to install meta-PepView this way: Directly with `pip`, or using package managers such as [pipx](https://pipx.pypa.io/stable/) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html). Installing with `pipx` or `conda` is recommended as it provides better isolation of meta-PepView from potential other Python. Below are the instructions to install meta-PepView using each method 
+There are several ways to install meta-PepView this way: Directly with `pip`, or using package managers such as [pipx](https://pipx.pypa.io/stable/) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html). Installing with `pipx` or `conda` is recommended as it provides better isolation of meta-PepView from potential other Python. Below are the instructions to install meta-PepView using each method.
 
 #### Installation with `pip`
 
@@ -172,24 +173,9 @@ Here, we start a container from the image "metapepview". The options`-p` publish
 
 ## Download metaproteomics example data
 
-Meta-PepView provides example datasets to help users explore the dashboard and test its features.
+Meta-PepView provides example datasets to help users explore the dashboard and test its features. However, these are not installed with meta-PepView, they have to be manually downloaded.
 
-!!! note
-    Example data are not downloaded automatically when installing meta-PepView. They must be downloaded separately.
+The example datasets are available in the [meta-PepView GitHub repository](https://github.com/RamonZwaan/metapepview/). Open the Meta-PepView GitHub repository, tutorial data is available in the Releases section on the right sidebar, under the name "tutorial datasets". You may download the data from there.
 
-### Download the example data
-The example datasets are available in the [meta-PepView GitHub repository](https://github.com/RamonZwaan/metapepview/). Open the Meta-PepView GitHub repository, in the "Releases" section on the right sidebar is a dataset folder "example data". You may download the data from there.
-
-
-Extract the downloaded ZIP file to a folder on your computer. Open the extracted folder and locate the example_data directory.
-Download with Git
-If Git is installed (see above), download the repository using:
-git clone https://github.com/RamonZwaan/metapepview.git
-The example datasets can then be found in: metapepview/example_data/ the data as used in the video tutorial are here example_data/input_data_video_tutorial 
-2. Store the example data
-You can keep the example_data folder anywhere on your computer, for example in your Documents folder. The example datasets are stored separately from the Meta-PepView application and do not need to be copied into its Python installation directory.
-3. Use the example data in Meta-PepView
-Start Meta-PepView as described in the installation instructions:
-metapepview
-Open http://localhost:8050 in your web browser.
-Follow the Getting started and Data import video tutorial and instructions to create a project and import the example datasets.
+An instruction video that loads the metaproteomics datasets into the dashboard is present in [[getting-started|getting started]].
+More details regarding data preparation and import are provided here: [[prepare-input-data|data prep]], [[data-import|data import]].
