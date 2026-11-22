@@ -26,7 +26,6 @@ theme:
 
 nav:
   - Introduction: index.md
-  - Troubleshooting info: troubleshooting.md
   - Installation: installation.md
   - Getting started: getting-started.md
   - Prepare input data: prepare-input-data.md
@@ -46,6 +45,7 @@ nav:
       - Evaluate community composition: evaluate-taxonomy.md
   - MetaPepView backend:
     - Annotation pipeline: annotation-pipeline.md
+  - Troubleshooting info: troubleshooting.md
 #    - Spectral processing: spectra-processing.md
 #    - Quantification taxa/functions: quantification.md
 
