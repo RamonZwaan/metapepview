@@ -1,30 +1,90 @@
 # Installation
 
-Meta-PepView runs on top of the [Dash](https://dash.plotly.com/) framework in python. It is installed as a web server that is run locally on the PC and accessed inside the web browser. Before installation, check with the [[index#PC requirements|PC requirements]] if the system is suitable for running the dashboard tool.
+Meta-PepView is a python-based dashboard built with [Dash](https://dash.plotly.com/). It runs locally on your PC and can be accessed through the web browser. Before installation, check with the [[index#PC requirements|PC requirements]] if the system is suitable for running the dashboard tool. The recommended system requirements are:
+- Operating system: meta-PepView was tested in Windows 11, Linux Ubuntu and Fedora. MacOS may work but is not actively supported.
+- Minimal 16 GB RAM, 32 GB recommended for larger datasets.
+- Minimal 10 GB free storage, additional space may be needed when working with large datasets.
+- Web browser: Chromium-based browser, like Chrome or Edge, or Firefox.
+- Internet connection required for downloading annotation databases and for Unipept annotation.
 
-Meta-PepView can be installed from `pip`/`pipx` or by starting a [Docker](https://www.docker.com/) container. 
+## Before installation: Software prerequisites
 
-### Install meta-PepView with `pipx` (or `pip`)
+There are two ways to install meta-PepView: stand-alone installation using the pip package manager, or by creating a Docker container. 
 
-The full meta-PepView application (including the [[build-reference-dataset|*mpv-buildref*]] command line utility) can be installed on any PC system with `pip`. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of [[build-reference-dataset|experimental reference datasets]]. 
+Installing with pip requires Python to be installed. Meta-PepView can be installed on Python versions 3.11-3.15. Go to the [python website](https://www.python.org/downloads/) to download the installer, or for Linux, install python from the internal package manager. Check that a supported python version is installed (3.11-3.15). On Windows, make sure to enable "Add Python to PATH" during installation. To verify that Python is installed, open a terminal (or Command Prompt on Windows) and run:
 
-It is recommended to install meta-PepView with [pipx](https://pipx.pypa.io/stable/). It works similar to `pip`, but is designed for installation of applications as opposed to libraries. When installing a package, `pipx` provides a separate environment for the tool to run without cluttering existing python environments and ensures the executables are exposed to the command line. When using `pip`, it is recommended to install meta-PepView in a separate environment ([virtual environment](https://docs.python.org/3/library/venv.html) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html))
+```Bash
+python --version
+```
+
+In addition to Python, Git has to be installed:
+
+Windows: 
+install the Git client [from their website](https://git-scm.com/install/windows). Note: Git initially only runs in a separate terminal applications, called 'Git Bash'. If Git is not active in Powershell or CMD, you may have to execute the installation instructions in Git Bash.
+
+Ubuntu:
+Git is usually already installed, but it may be manually Installed from their command line:
+
+```Bash
+sudo apt install git
+```
+
+Fedora:
+Git is usually already installed, but it may be manually Installed from their command line:
+
+```Bash
+sudo dnf install git
+```
+
+For any operating system, to verify that Git is installed and active, run in the terminal: 
+``` Bash
+git --version
+```
+
+If meta-PepView is installed using a Docker container, [Docker](https://www.docker.com/) has to be installed. To run Docker containers in Windows, [WSL2](https://learn.microsoft.com/en-us/windows/wsl/) should be available, but this is usually already set up.
+
+## Install meta-PepView with `pip`
+
+The full meta-PepView application (including the [[build-reference-dataset|*mpv-buildref*]] command line utility) can be installed on any PC system with `pip`. This installation provides the meta-PepView dashboard, as well as a command line utility for construction of [[build-reference-dataset|experimental reference datasets]].
+
+There are several ways to install meta-PepView this way: Directly with `pip`, or using package managers such as [pipx](https://pipx.pypa.io/stable/) or [conda](https://docs.conda.io/projects/conda/en/stable/user-guide/tasks/manage-environments.html). Installing with `pipx` or `conda` is recommended as it provides better isolation of meta-PepView from potential other Python. Below are the instructions to install meta-PepView using each method 
+
+#### Installation with `pip`
+
+When python (3.11-3.15) is installed, meta-PepView may be installed directly with `pip`. Installation via `pip` will add meta-PepView as package to the global python environment.
 
 !!! note
-    In the instructions below, meta-PepView is installed by pip(x) by fetching the code from the GitHub repository. For this, git needs to be [installed on the PC](https://git-scm.com/install/linux).
+    The instructions below execute `pip` directly from the command line. However if `pip` is not available, or if you want to run pip from a specific Python version, you may run `python -m pip ...`. Depending on installation method, you may have to change `python` to `py` or `python3`. For example: If you installed python using Microsoft Store, replace `python` with `python3`.
 
-!!! warning
-    Scientific libraries such as NumPy and SciPy may not be supported right away for the newest Python versions. Or if they do, they may not provide [wheels](https://packaging.python.org/en/latest/specifications/binary-distribution-format/) for these configurations yet. In that case, C/C++ build tools have to be installed to be able to build the libraries. If pip/conda fails to install meta-PepView, try to install it in an older python version (e.g. 3.13 instead of 3.14).
+To install meta-PepView with pip:
 
-#### Installation with `pipx`
+```Bash
+pip install git+https://github.com/RamonZwaan/metapepview.git
+```
 
-First, make sure [python](https://www.python.org/) (3.11 or higher) is installed.
+If the python environment is exposed to the operating system PATH, the meta-PepView server can be started by running the application in the command line:
+
+```Bash
+metapepview
+```
+
+To uninstall metapepview:
+
+```Bash
+pip uninstall metapepview
+```
+
+### Installation with `pipx`
+
+First, make sure [python](https://www.python.org/) (3.11-3.15) is installed.
 Once python is installed, install [pipx](https://pipx.pypa.io/stable/installation/) on the command line/terminal.
+
+!!! note
+    If multiple python interpreters are installed on the system, you can specify the interpreter to install the program on using the `--python` option: `pipx install --python 3.13 ...`. If you installed python using Microsoft Store, replace `py` with `python3` in the next line.
 
 In Windows 10/11, `pipx` can be installed via `pip`:
 
 ```Powershell
-# If you installed python using Microsoft Store, replace `py` with `python3` in the next line.
 py -m pip install --user pipx
 python -m pipx ensurepath
 ```
@@ -46,11 +106,13 @@ pipx ensurepath
 You may need to restart the terminal before you can run `pipx`.
 
 Once pipx is installed, meta-PepView can be installed:
+
 ```Bash
 pipx install git+https://github.com/RamonZwaan/metapepview.git
 ```
 
 Once installed, the meta-PepView server can be started by running the application in the command line:
+
 ```Bash
 metapepview
 ```
@@ -63,32 +125,31 @@ To uninstall meta-PepView:
 pipx uninstall metapepview
 ```
 
-#### Installation with `pip`
+### Installation inside a conda environment
 
-When python (3.11 or higher) is installed, meta-PepView may be installed directly with `pip`. Installation via `pip`
-will add meta-PepView as package to the global python environment and it is not certain
-that the application executables are exposed on the command line. To provide some isolation, it 
-is recommended to install meta-PepView in a [virtual environment](https://docs.python.org/3/library/venv.html)
-or in a [conda environment](https://docs.conda.io/en/latest/).
+The conda environment manager is an excellent tool to manage and isolate python programs. In case you want to manage projects using conda, it is recommended to install [miniconda](https://www.anaconda.com/docs/getting-started/concepts/anaconda-or-miniconda). This distribution provides a more minimal toolchain compared to the large Anaconda program. After installation, conda is often not yet exposed to the command line. The installer will inform you of this and provide steps to take. Usually, the following command should be executed:
 
-To install meta-PepView with pip:
 ```Bash
-pip install git+https://github.com/RamonZwaan/metapepview.git
+$ conda init
 ```
 
-If the python environment is exposed to the operating system PATH, the meta-PepView server can be started by running the application in the command line:
+Close and reopen your terminal to activate the changes. You will see the current conda environment (usually "base") displayed on the command line. Once installed and setup, you may create new a environment using the following command:
+
 ```Bash
-metapepview
+$ conda create -n environment_name python=3.15
 ```
 
-To uninstall metapepview:
+Note that it is important to specify `python=...` in the command. Without it, conda will not install Python inside the environment. To ensure that the environment is suitable for installation of meta-PepView, the Python version should be between 3.11-3.15. Once the environment is created, it can be accessed by activating it:
+
 ```Bash
-pip uninstall metapepview
+$ conda activate environment_name
 ```
 
-### Run meta-PepView inside a Docker container
+The environment name should now be displayed on the command line. From here, you can simply install meta-PepView [[installation#Installation with `pip`|with pip]]. Note that meta-PepView tools can only be run when the conda environment is activated.
 
-To run the dashboard inside a container, make sure Docker (or another OCI compliant manager) is installed on the system.
+## Run meta-PepView inside a Docker container
+
+To run the dashboard inside a container, make sure Docker is installed on the system.
 
 First, build a [Docker image](https://docs.docker.com/get-started/docker-concepts/building-images/build-tag-and-publish-an-image/) using the Dockerfile template from the meta-PepView GitHub:
 
@@ -107,5 +168,28 @@ Once the image is successfully built, start a container by running the following
 $ docker run -p 8050:8050 metapepview
 ```
 
-Here, we start a container from the image "metapepview". The options`-p` publishes port 8050 from the container to port 8050 in the host pc, which allows us to reach the dashboard that is running inside the container. The dashboard can be accessed in the web browser at  `http://localhost:8050`. Note that the dashboard is only accessible from the host PC as long as the port is closed in the firewall.
+Here, we start a container from the image "metapepview". The options`-p` publishes port 8050 from the container to port 8050 in the host pc, which allows us to reach the dashboard that is running inside the container. The dashboard can be accessed in the web browser at  `http://localhost:8050`. Note that the dashboard is only accessible from the host PC and not from other PC's in a local network.
 
+## Download metaproteomics example data
+
+Meta-PepView provides example datasets to help users explore the dashboard and test its features.
+
+!!! note
+    Example data are not downloaded automatically when installing meta-PepView. They must be downloaded separately.
+
+### Download the example data
+The example datasets are available in the [meta-PepView GitHub repository](https://github.com/RamonZwaan/metapepview/). Open the Meta-PepView GitHub repository, in the "Releases" section on the right sidebar is a dataset folder "example data". You may download the data from there.
+
+
+Extract the downloaded ZIP file to a folder on your computer. Open the extracted folder and locate the example_data directory.
+Download with Git
+If Git is installed (see above), download the repository using:
+git clone https://github.com/RamonZwaan/metapepview.git
+The example datasets can then be found in: metapepview/example_data/ the data as used in the video tutorial are here example_data/input_data_video_tutorial 
+2. Store the example data
+You can keep the example_data folder anywhere on your computer, for example in your Documents folder. The example datasets are stored separately from the Meta-PepView application and do not need to be copied into its Python installation directory.
+3. Use the example data in Meta-PepView
+Start Meta-PepView as described in the installation instructions:
+metapepview
+Open http://localhost:8050 in your web browser.
+Follow the Getting started and Data import video tutorial and instructions to create a project and import the example datasets.
