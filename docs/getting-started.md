@@ -15,7 +15,9 @@ The dashboard contains several modules for data management and visualization. Th
     - *Experiment performance evaluation*: Visualization toolbox for evaluation of metaproteomics experiment performance metrics, as well as benchmarking of experiments against an experiment reference dataset.
     - *Community composition evaluation*: Compare community taxonomy composition from one sample between peptide annotation from local protein database matching and peptide sequence matching against Uniprot TrEMBL through the Unipept API.
 
-Commonly, you will start by updating the taxonomy and functional databases in the sidebar and by importing some datasets into the dashboard. The video below shows a demonstration of the data import process. You may follow along with the video by downloading provided example datasets in the "tutorial datasets" directory in the Release section on the [GitHub page](https://github.com/RamonZwaan/metapepview/). See [[installation#Download metaproteomics example data|installation]] for more details:
+Commonly, you will start by updating the taxonomy and functional databases in the sidebar and by importing some datasets into the dashboard. The video below shows a demonstration of the data import process. You may follow along with the video by downloading provided example datasets in the "tutorial datasets" directory in the Release section on the [GitHub page](https://github.com/RamonZwaan/metapepview/). See [[installation#Download metaproteomics example data|installation]] for more details.
+
+Note: Video examples are independent from each other and performed empty projects. To follow along with examples, run a new meta-PepView instance or reset project with "Clear project" on the top bar right. 
 
 <video controls width="100%">
     <source src="../images/import_demonstration.mp4" type="video/mp4">
